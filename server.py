@@ -9,7 +9,7 @@ import requests
 import base64
 import pika
 
-POSIE_URL = os.getenv('POSIE_URL', 'http://posie:5000')
+POSIE_URL = os.getenv('POSIE_URL', 'https://posie:5000')
 FTP_USER = os.getenv('FTP_USER', '')
 FTP_PASSWORD = os.getenv('FTP_PASSWORD', '')
 
