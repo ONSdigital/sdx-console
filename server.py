@@ -73,7 +73,7 @@ def submit():
 @app.route('/viewer')
 def view():
     ftp = FTP('pure-ftpd')
-    ftp.login(user=FTP_USER, password=FTP_PASSWORD)
+    ftp.login(user=FTP_USER, passwd=FTP_PASSWORD)
 
     return ftp.dir()
 
