@@ -2,6 +2,8 @@ FROM python:3.5
 
 ADD requirements.txt /app/requirements.txt
 ADD server.py /app/server.py
+ADD static /app/static
+ADD templates /app/templates
 
 # set working directory to /app/
 WORKDIR /app/
