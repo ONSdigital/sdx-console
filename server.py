@@ -55,10 +55,10 @@ def submit():
 
         channel = connection.channel()
 
-        channel.queue_declare(queue='posie')
+        channel.queue_declare(queue='survey')
 
         channel.basic_publish(exchange='',
-                              routing_key='posie',
+                              routing_key='survey',
                               body=payload)
 
         print(" [x] Sent Payload to rabbitmq!")
