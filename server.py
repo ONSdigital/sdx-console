@@ -9,7 +9,7 @@ import requests
 import base64
 import pika
 
-POSIE_URL = os.getenv('POSIE_URL', 'http://posie')
+POSIE_URL = os.getenv('POSIE_URL', 'http://posie:5000')
 FTP_USER = os.getenv('FTP_USER', '')
 FTP_PASSWORD = os.getenv('FTP_PASSWORD', '')
 
@@ -37,7 +37,7 @@ def submit():
         print(" [x] Encrypting data: {}".format(unencrypted))
 
         ciphertext = public_key.encrypt(
-            bytes(unencrypted, encoding='utf-8'),
+            unencrypted,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA1()),
                 algorithm=hashes.SHA1(),
@@ -64,6 +64,8 @@ def submit():
         print(" [x] Sent Payload to rabbitmq!")
 
         connection.close()
+
+        return ''
     else:
         return render_template('index.html')
 
