@@ -4,7 +4,7 @@ $(function(){
         var postData = $('#post-data').val();
 
         $.post('/submitter', $('#post-data').val())
-          .done(function(){
+          .done(function(data){
             $("#response-data").text("Posted: " + data);
           })
           .fail(function(){
