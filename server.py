@@ -9,7 +9,7 @@ import requests
 import base64
 import pika
 
-POSIE_URL = os.getenv('POSIE_URL', 'http://127.0.0.1:5000')
+POSIE_URL = os.getenv('POSIE_URL', 'http://posie')
 FTP_USER = os.getenv('FTP_USER', '')
 FTP_PASSWORD = os.getenv('FTP_PASSWORD', '')
 
@@ -29,7 +29,7 @@ public_key = serialization.load_der_public_key(
 )
 
 
-@app.route('/submitter', methods=['POST'])
+@app.route('/submitter', methods=['POST', 'GET'])
 def submit():
     if request.method == 'POST':
         unencrypted = request.get_data()
