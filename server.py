@@ -9,9 +9,9 @@ import requests
 import base64
 import pika
 
-POSIE_URL = os.getenv('POSIE_URL', 'http://posie:5000')
-FTP_USER = os.getenv('FTP_USER', '')
-FTP_PASSWORD = os.getenv('FTP_PASSWORD', '')
+POSIE_URL = os.getenv('POSIE_URL')
+FTP_USER = os.getenv('FTP_USER')
+FTP_PASSWORD = os.getenv('FTP_PASSWORD')
 
 key_url = "{}/key".format(POSIE_URL)
 import_url = "{}/decrypt".format(POSIE_URL)
