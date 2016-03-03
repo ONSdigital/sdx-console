@@ -8,10 +8,15 @@ import os
 import requests
 import base64
 import pika
+import json
 
 POSIE_URL = os.getenv('POSIE_URL')
+FTP_HOST = os.getenv('FTP_HOST')
 FTP_USER = os.getenv('FTP_USER')
-FTP_PASSWORD = os.getenv('FTP_PASS')
+FTP_PASS = os.getenv('FTP_PASS')
+
+RABBIT_HOST = os.getenv('RABBIT_HOST')
+RABBIT_PORT = os.getenv('RABBIT_PORT')
 
 key_url = "{}/key".format(POSIE_URL)
 import_url = "{}/decrypt".format(POSIE_URL)
@@ -50,7 +55,8 @@ def submit():
         print(" [x] Encrypted Payload")
 
         connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host='rabbit'
+            host=RABBIT_HOST,
+            port=int(RABBIT_PORT)
         ))
 
         channel = connection.channel()
@@ -65,17 +71,24 @@ def submit():
 
         connection.close()
 
-        return ''
+        return unencrypted
     else:
         return render_template('index.html')
 
 
 @app.route('/viewer')
 def view():
-    ftp = FTP('pure-ftpd')
-    ftp.login(user=FTP_USER, passwd=FTP_PASSWORD)
+    ftp = FTP(FTP_HOST)
+    ftp.login(user=FTP_USER, passwd=FTP_PASS)
+    ftp.set_pasv(False)
 
-    return ftp.dir()
+    data = []
+
+    for fname, fmeta in ftp.mlsd():
+        if fname not in ('.', '..'):
+            data.append(fname)
+
+    return json.dumps(data)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

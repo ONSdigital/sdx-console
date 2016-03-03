@@ -5,10 +5,23 @@ $(function(){
 
         $.post('/submitter', $('#post-data').val())
           .done(function(data){
-            $("#response-data").text("Posted: " + data);
+            $(".alert").removeClass('alert-success alert-danger hidden');
+            $(".alert").addClass('alert-success').text("Posted: " + data);
+            $(".alert").show();
           })
           .fail(function(){
-            $('#response-data').text("Error during submission");
-          })
+            $(".alert").removeClass('alert-success alert-danger hidden');
+            $(".alert").addClass('alert-danger').text("Error during submission");
+            $(".alert").show();
+          });
     });
+
+    function pollFTP() {
+      $.get('/viewer', function(data) {
+        $("#response-data textarea").empty();
+        $("#response-data textarea").text(data);
+      });
+    }
+
+    setInterval(pollFTP, 2000);
 });
