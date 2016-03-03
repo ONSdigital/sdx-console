@@ -11,7 +11,7 @@ import pika
 
 POSIE_URL = os.getenv('POSIE_URL')
 FTP_USER = os.getenv('FTP_USER')
-FTP_PASSWORD = os.getenv('FTP_PASSWORD')
+FTP_PASSWORD = os.getenv('FTP_PASS')
 
 key_url = "{}/key".format(POSIE_URL)
 import_url = "{}/decrypt".format(POSIE_URL)
