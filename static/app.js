@@ -3,7 +3,7 @@ $(function(){
         event.preventDefault();
         var postData = $('#post-data').val();
 
-        $.post('/submitter', $('#post-data').val())
+        $.post('/', $('#post-data').val())
           .done(function(data){
             $(".alert").removeClass('alert-success alert-danger hidden');
             $(".alert").addClass('alert-success').text("Posted: " + data);
