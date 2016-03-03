@@ -34,7 +34,21 @@ public_key = serialization.load_der_public_key(
 )
 
 
-@app.route('/submitter', methods=['POST', 'GET'])
+def get_ftp():
+    ftp = FTP(FTP_HOST)
+    ftp.login(user=FTP_USER, passwd=FTP_PASS)
+    ftp.set_pasv(False)
+
+    data = []
+
+    for fname, fmeta in ftp.mlsd():
+        if fname not in ('.', '..'):
+            data.append(fname)
+
+    return json.dumps(data)
+
+
+@app.route('/', methods=['POST', 'GET'])
 def submit():
     if request.method == 'POST':
         unencrypted = request.get_data()
@@ -73,22 +87,14 @@ def submit():
 
         return unencrypted
     else:
-        return render_template('index.html')
+        ftp_data = get_ftp()
+
+        return render_template('index.html', ftp_data=ftp_data)
 
 
 @app.route('/viewer')
 def view():
-    ftp = FTP(FTP_HOST)
-    ftp.login(user=FTP_USER, passwd=FTP_PASS)
-    ftp.set_pasv(False)
-
-    data = []
-
-    for fname, fmeta in ftp.mlsd():
-        if fname not in ('.', '..'):
-            data.append(fname)
-
-    return json.dumps(data)
+    return get_ftp()
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
