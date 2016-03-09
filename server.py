@@ -58,7 +58,7 @@ def get_image(filename):
 
     filepath, ext = os.path.splitext(filename)
 
-    tmp_image_path = 'static/images/tmpimage' + ext
+    tmp_image_path = 'static/images/' + filepath + ext
 
     if os.path.exists(tmp_image_path):
         os.unlink(tmp_image_path)
