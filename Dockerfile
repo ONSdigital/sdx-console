@@ -11,7 +11,7 @@ WORKDIR /app/
 RUN mkdir /app/static/images
 
 # install python dependencies
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 EXPOSE 5000
 
