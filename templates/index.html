@@ -3,15 +3,12 @@
     <title>SDE App</title>
     <head>
         <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <link rel="stylesheet" href="static/css/bootstrap.min.css">
 
-        <!-- Optional theme -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-
-        <script src="static/jquery-1.12.1.min.js"></script>
+        <script src="static/js/jquery-1.12.1.min.js"></script>
         <!-- Latest compiled and minified JavaScript -->
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-        <script src="static/app.js"></script>
+        <script src="static/js/bootstrap.min.js"></script>
+        <script src="static/js/app.js"></script>
     </head>
     <body>
         <div class='container'>
@@ -37,14 +34,40 @@
                         <input class="btn btn-default" type="submit" />
                     </form>
                 </div>
-                <div id='response-data' class='col-md-6'>
+                <div id='response-data-wrapper' class='col-md-6'>
                     <h3>Receiver</h3>
                     <label for='response-data'>FTP Files:</label>
-                    <textarea id="response-data" class="form-control" name='response-data' cols='40' rows='10'>
-{{ftp_data}}
-                    </textarea>
+                    <table id="response-data" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                                <th>Size</th>
+                                <th>Modified</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <button id="empty-ftp" class="btn btn-default">Empty FTP</button>
                 </div>
         </div>
     </div>
+    <div class="modal fade" id="contentModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Modal title</h4>
+          </div>
+          <div class="modal-body">
+            <pre></pre>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
     </body>
 </html>
