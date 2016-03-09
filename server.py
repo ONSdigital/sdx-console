@@ -60,6 +60,9 @@ def get_image(filename):
 
     tmp_image_path = 'static/images/tmpimage' + ext
 
+    if os.path.exists(tmp_image_path):
+        os.unlink(tmp_image_path)
+
     ftp.retrbinary("RETR " + filename, open(tmp_image_path, 'wb').write)
 
     return tmp_image_path
@@ -147,7 +150,7 @@ def list():
 @app.route('/view/<filename>')
 def view_file(filename):
     if filename.endswith(('jpg', 'png')):
-        return '<img style="width:100%;" src="' + get_image(filename) + '" />'
+        return '<img style="width:100%;" src="/' + get_image(filename) + '" />'
     else:
         return '<pre>' + get_file_contents(filename) + '</pre>'
 
