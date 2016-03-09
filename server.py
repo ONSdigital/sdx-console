@@ -20,6 +20,10 @@ FTP_PASS = os.getenv('FTP_PASS')
 RABBIT_HOST = os.getenv('RABBIT_HOST', 'rabbit')
 RABBIT_PORT = os.getenv('RABBIT_PORT', 5672)
 
+RABBIT_USER = os.getenv('RABBIT_USER', 'rabbit')
+RABBIT_PASS = os.getenv('RABBIT_PASS', 'rabbit')
+RABBIT_QUEUE = os.getenv('RABBIT_QUEUE', 'survey')
+
 key_url = "{}/key".format(POSIE_URL)
 import_url = "{}/decrypt".format(POSIE_URL)
 public_key = None
@@ -115,17 +119,20 @@ def submit():
 
         print(" [x] Encrypted Payload")
 
+        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASS)
+
         connection = pika.BlockingConnection(pika.ConnectionParameters(
             host=RABBIT_HOST,
-            port=int(RABBIT_PORT)
+            port=int(RABBIT_PORT),
+            credentials=credentials
         ))
 
         channel = connection.channel()
 
-        channel.queue_declare(queue='survey')
+        channel.queue_declare(queue=RABBIT_QUEUE)
 
         channel.basic_publish(exchange='',
-                              routing_key='survey',
+                              routing_key=RABBIT_QUEUE,
                               body=payload)
 
         print(" [x] Sent Payload to rabbitmq!")
