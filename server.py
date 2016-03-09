@@ -3,6 +3,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization, hashes
 from ftplib import FTP
+from datetime import datetime
 
 import os
 import requests
@@ -26,6 +27,19 @@ public_key = None
 app = Flask(__name__)
 
 
+def login_to_ftp():
+    ftp = FTP(FTP_HOST)
+    ftp.login(user=FTP_USER, passwd=FTP_PASS)
+    ftp.set_pasv(False)
+
+    return ftp
+
+
+def mod_to_iso(file_modified):
+    t = datetime.strptime(file_modified, '%Y%m%d%H%M%S')
+    return t.isoformat()
+
+
 def get_key():
     global public_key
 
@@ -40,9 +54,7 @@ def get_key():
 
 
 def get_image(filename):
-    ftp = FTP(FTP_HOST)
-    ftp.login(user=FTP_USER, passwd=FTP_PASS)
-    ftp.set_pasv(False)
+    ftp = login_to_ftp()
 
     filepath, ext = os.path.splitext(filename)
 
@@ -54,9 +66,7 @@ def get_image(filename):
 
 
 def get_file_contents(filename):
-    ftp = FTP(FTP_HOST)
-    ftp.login(user=FTP_USER, passwd=FTP_PASS)
-    ftp.set_pasv(False)
+    ftp = login_to_ftp()
 
     ftp.retrbinary("RETR " + filename, open('tmpfile', 'wb').write)
 
@@ -74,6 +84,7 @@ def get_ftp():
 
     for fname, fmeta in ftp.mlsd():
         if fname not in ('.', '..'):
+            fmeta['modify'] = mod_to_iso(fmeta['modify'])
             data[fname] = fmeta
 
     return json.dumps(data)
@@ -141,9 +152,7 @@ def view_file(filename):
 
 @app.route('/clear')
 def clear():
-    ftp = FTP(FTP_HOST)
-    ftp.login(user=FTP_USER, passwd=FTP_PASS)
-    ftp.set_pasv(False)
+    ftp = login_to_ftp()
 
     removed = 0
 
