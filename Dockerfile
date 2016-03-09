@@ -8,6 +8,8 @@ ADD templates /app/templates
 # set working directory to /app/
 WORKDIR /app/
 
+RUN mkdir /app/static/images
+
 # install python dependencies
 RUN pip install -r requirements.txt
 
