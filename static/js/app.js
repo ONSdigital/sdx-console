@@ -29,7 +29,7 @@ $(function(){
 
           $('#contentModal .modal-title').text(filename);
 
-          $.get('/view/' + filename + '?cb=' + Date.now(), function(data){
+          $.get('/view/' + filename, function(data){
             $('#contentModal .modal-body').html(data);
             $('#contentModal').modal('show');
           });
