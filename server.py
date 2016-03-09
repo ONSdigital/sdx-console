@@ -134,7 +134,7 @@ def list():
 @app.route('/view/<filename>')
 def view_file(filename):
     if filename.endswith(('jpg', 'png')):
-        return '<img src="' + get_image(filename) + '" />'
+        return '<img style="width:100%;" src="' + get_image(filename) + '" />'
     else:
         return '<pre>' + get_file_contents(filename) + '</pre>'
 
