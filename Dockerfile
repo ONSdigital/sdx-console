@@ -1,4 +1,4 @@
-FROM python:3.5
+FROM iwootten/flask-crypto
 
 ADD requirements.txt /app/requirements.txt
 ADD server.py /app/server.py
