@@ -21,7 +21,7 @@ $(function(){
         $("#response-data tbody").empty();
 
         $.each(data, function(filename, metadata){
-          $("#response-data tbody").append('<tr id="' + filename + '"><td><a href="#">' + filename + '</a></td><td>' +  metadata['size'] + '</td><td>' + metadata['modify'] + '</td></tr>');
+          $("#response-data tbody").append('<tr id="' + metadata['filename'] + '"><td><a href="#">' + metadata['filename'] + '</a></td><td>' +  metadata['size'] + '</td><td>' + metadata['modify'] + '</td></tr>');
         });
 
         $("tbody tr").on("click", function(event){
@@ -29,7 +29,7 @@ $(function(){
 
           $('#contentModal .modal-title').text(filename);
 
-          $.get('/view/' + filename, function(data){
+          $.get('/view/' + filename + '?cb=' + Date.now(), function(data){
             $('#contentModal .modal-body').html(data);
             $('#contentModal').modal('show');
           });

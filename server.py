@@ -80,12 +80,14 @@ def get_ftp():
     ftp.login(user=FTP_USER, passwd=FTP_PASS)
     ftp.set_pasv(False)
 
-    data = {}
+    data = []
 
     for fname, fmeta in ftp.mlsd():
         if fname not in ('.', '..'):
             fmeta['modify'] = mod_to_iso(fmeta['modify'])
-            data[fname] = fmeta
+            fmeta['filename'] = fname
+
+            data.append(fmeta)
 
     return json.dumps(data)
 
