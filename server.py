@@ -16,8 +16,8 @@ FTP_HOST = os.getenv('FTP_HOST', 'pure-ftpd')
 FTP_USER = os.getenv('FTP_USER')
 FTP_PASS = os.getenv('FTP_PASS')
 
-RABBIT_HOST = os.getenv('RABBITMQ_HOST', 'rabbit')
-RABBIT_PORT = os.getenv('RABBITMQ_PORT', 5672)
+RABBIT_HOST = os.getenv('RABBIT_HOST', 'rabbit')
+RABBIT_PORT = os.getenv('RABBIT_PORT', 5672)
 
 key_url = "{}/key".format(POSIE_URL)
 import_url = "{}/decrypt".format(POSIE_URL)
