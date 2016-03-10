@@ -120,7 +120,7 @@ def submit():
 
         print(" [x] Encrypted Payload")
 
-        connection = pika.BlockingConnection(pika.UrlParameters(RABBIT_URL))
+        connection = pika.BlockingConnection(pika.URLParameters(RABBIT_URL))
 
         channel = connection.channel()
 
