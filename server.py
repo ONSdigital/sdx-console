@@ -171,3 +171,5 @@ def clear():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+
+    print(" [x] Rabbit URL: {}".format(RABBIT_URL))
