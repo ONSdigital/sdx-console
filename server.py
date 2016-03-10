@@ -103,6 +103,9 @@ def get_ftp():
 @app.route('/', methods=['POST', 'GET'])
 def submit():
     if request.method == 'POST':
+
+        print(" [x] Rabbit URL: {}".format(RABBIT_URL))
+
         unencrypted = request.get_data()
 
         print(" [x] Encrypting data: {}".format(unencrypted))
@@ -171,5 +174,3 @@ def clear():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
-
-    print(" [x] Rabbit URL: {}".format(RABBIT_URL))
