@@ -104,7 +104,7 @@ def get_ftp():
 def submit():
     if request.method == 'POST':
 
-        print(" [x] Rabbit URL: {}".format(RABBIT_URL))
+        app.logger.debug("Rabbit URL: {}".format(RABBIT_URL))
 
         unencrypted = request.get_data()
 
