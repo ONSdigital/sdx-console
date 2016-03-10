@@ -17,12 +17,15 @@ FTP_HOST = os.getenv('FTP_HOST', 'pure-ftpd')
 FTP_USER = os.getenv('FTP_USER')
 FTP_PASS = os.getenv('FTP_PASS')
 
-RABBIT_HOST = os.getenv('RABBIT_HOST', 'rabbit')
-RABBIT_PORT = os.getenv('RABBIT_PORT', 5672)
-
-RABBIT_USER = os.getenv('RABBIT_USER', 'rabbit')
-RABBIT_PASS = os.getenv('RABBIT_PASS', 'rabbit')
 RABBIT_QUEUE = os.getenv('RABBIT_QUEUE', 'survey')
+
+RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}/'.format(
+    user=os.getenv('RABBIT_USER', 'rabbit'),
+    password=os.getenv('RABBIT_PASS', 'rabbit'),
+    hostname=os.getenv('RABBIT_HOST', 'rabbit'),
+    port=os.getenv('RABBIT_PORT', 5672),
+    vhost=os.getenv('RABBIT_VHOST', '')
+)
 
 key_url = "{}/key".format(POSIE_URL)
 import_url = "{}/decrypt".format(POSIE_URL)
@@ -83,9 +86,7 @@ def get_file_contents(filename):
 
 
 def get_ftp():
-    ftp = FTP(FTP_HOST)
-    ftp.login(user=FTP_USER, passwd=FTP_PASS)
-    ftp.set_pasv(False)
+    ftp = login_to_ftp()
 
     data = []
 
@@ -119,13 +120,7 @@ def submit():
 
         print(" [x] Encrypted Payload")
 
-        credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASS)
-
-        connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host=RABBIT_HOST,
-            port=int(RABBIT_PORT),
-            credentials=credentials
-        ))
+        connection = pika.BlockingConnection(pika.UrlParameters(RABBIT_URL))
 
         channel = connection.channel()
 
