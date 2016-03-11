@@ -17,14 +17,14 @@ FTP_HOST = os.getenv('FTP_HOST', 'pure-ftpd')
 FTP_USER = os.getenv('FTP_USER')
 FTP_PASS = os.getenv('FTP_PASS')
 
-RABBIT_QUEUE = os.getenv('RABBIT_QUEUE', 'survey')
+RABBIT_QUEUE = os.getenv('RABBITMQ_QUEUE', 'survey')
 
 RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
-    user=os.getenv('RABBIT_USER', 'rabbit'),
-    password=os.getenv('RABBIT_PASS', 'rabbit'),
-    hostname=os.getenv('RABBIT_HOST', 'rabbit'),
-    port=os.getenv('RABBIT_PORT', 5672),
-    vhost=os.getenv('RABBIT_VHOST', '%2f')
+    hostname=os.getenv('RABBITMQ_HOST', 'rabbit'),
+    port=os.getenv('RABBITMQ_PORT', 5672),
+    user=os.getenv('RABBITMQ_DEFAULT_USER', 'rabbit'),
+    password=os.getenv('RABBITMQ_DEFAULT_PASS', 'rabbit'),
+    vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
 )
 
 key_url = "{}/key".format(POSIE_URL)
