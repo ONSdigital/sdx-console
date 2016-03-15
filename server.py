@@ -2,6 +2,8 @@ from flask import Flask, request, render_template
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
 from ftplib import FTP
 from datetime import datetime
 
@@ -110,8 +112,19 @@ def submit():
 
         print(" [x] Encrypting data: {}".format(unencrypted))
 
-        ciphertext = public_key.encrypt(
-            unencrypted,
+        key = os.urandom(32)
+        iv = os.urandom(16)
+
+        backend = default_backend()
+
+        cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=backend)
+
+        encryptor = cipher.encryptor()
+
+        data = encryptor.update(unencrypted) + encryptor.finalize()
+
+        encrypted_key = public_key.encrypt(
+            key,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA1()),
                 algorithm=hashes.SHA1(),
@@ -119,7 +132,7 @@ def submit():
             )
         )
 
-        payload = base64.b64encode(ciphertext)
+        payload = base64.b64encode(encrypted_key + iv + data)
 
         print(" [x] Encrypted Payload")
 
