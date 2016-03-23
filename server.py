@@ -134,7 +134,9 @@ def submit():
 
         payload = base64.b64encode(encrypted_key + iv + data)
 
-        print(" [x] Encrypted Payload")
+        app.logger.debug(" [x] Encrypted Payload")
+
+        app.logger.debug(payload)
 
         connection = pika.BlockingConnection(pika.URLParameters(RABBIT_URL))
 
@@ -167,7 +169,7 @@ def list():
 
 @app.route('/view/<filename>')
 def view_file(filename):
-    if filename.endswith(('jpg', 'png')):
+    if filename.lower().endswith(('jpg', 'png')):
         return '<img style="width:100%;" src="/' + get_image(filename) + '" />'
     else:
         return '<pre>' + get_file_contents(filename) + '</pre>'
