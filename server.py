@@ -11,7 +11,7 @@ import base64
 import pika
 import json
 
-POSIE_URL = os.getenv('POSIE_URL', 'http://127.0.0.1:5000')
+POSIE_URL = os.getenv('POSIE_URL', 'http://posie:5000')
 
 FTP_HOST = os.getenv('FTP_HOST', 'pure-ftpd')
 FTP_USER = os.getenv('FTP_USER')
