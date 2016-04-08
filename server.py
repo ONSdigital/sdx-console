@@ -1,11 +1,9 @@
 from flask import Flask, request, render_template
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from ftplib import FTP
 from datetime import datetime
+from encrypter import Encrypter
 
 import os
 import requests
@@ -29,12 +27,7 @@ RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
     vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
 )
 
-key_url = "{}/key".format(POSIE_URL)
-import_url = "{}/decrypt".format(POSIE_URL)
-public_key = None
-
 app = Flask(__name__)
-
 
 def login_to_ftp():
     ftp = FTP(FTP_HOST)
@@ -47,20 +40,6 @@ def login_to_ftp():
 def mod_to_iso(file_modified):
     t = datetime.strptime(file_modified, '%Y%m%d%H%M%S')
     return t.isoformat()
-
-
-def get_key():
-    global public_key
-
-    r = requests.get(key_url)
-
-    key_string = base64.b64decode(r.text)
-
-    public_key = serialization.load_der_public_key(
-        key_string,
-        backend=default_backend()
-    )
-
 
 def get_image(filename):
     ftp = login_to_ftp()
@@ -108,31 +87,14 @@ def submit():
 
         app.logger.debug("Rabbit URL: {}".format(RABBIT_URL))
 
-        unencrypted = request.get_data()
+        json_string = request.get_data().decode('UTF8')
 
-        print(" [x] Encrypting data: {}".format(unencrypted))
+        print(" [x] Encrypting data: {}".format(json_string))
 
-        key = os.urandom(32)
-        iv = os.urandom(16)
+        unencrypted_json = json.loads(json_string)
 
-        backend = default_backend()
-
-        cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=backend)
-
-        encryptor = cipher.encryptor()
-
-        data = encryptor.update(unencrypted) + encryptor.finalize()
-
-        encrypted_key = public_key.encrypt(
-            key,
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA1()),
-                algorithm=hashes.SHA1(),
-                label=None
-            )
-        )
-
-        payload = base64.b64encode(encrypted_key + iv + data)
+        encrypter = Encrypter()
+        payload = encrypter.encrypt(unencrypted_json)
 
         app.logger.debug(" [x] Encrypted Payload")
 
@@ -152,11 +114,8 @@ def submit():
 
         connection.close()
 
-        return unencrypted
+        return json_string
     else:
-        if not public_key:
-            get_key()
-
         ftp_data = get_ftp()
 
         return render_template('index.html', ftp_data=ftp_data)
