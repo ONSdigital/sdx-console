@@ -3,7 +3,6 @@ FROM iwootten/flask-crypto
 ADD requirements.txt /app/requirements.txt
 ADD encrypter.py /app/encrypter.py
 ADD settings.py /app/settings.py
-ADD jwt-test-keys /app/jwt-test-keys
 ADD server.py /app/server.py
 ADD static /app/static
 ADD templates /app/templates
