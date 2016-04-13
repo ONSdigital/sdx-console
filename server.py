@@ -36,6 +36,24 @@ def login_to_ftp():
 
     return ftp
 
+def send_payload(payload):
+    app.logger.debug(" [x] Sending encrypted Payload")
+
+    app.logger.debug(payload)
+
+    connection = pika.BlockingConnection(pika.URLParameters(RABBIT_URL))
+
+    channel = connection.channel()
+
+    channel.queue_declare(queue=RABBIT_QUEUE)
+
+    channel.basic_publish(exchange='',
+                          routing_key=RABBIT_QUEUE,
+                          body=payload)
+
+    print(" [x] Sent Payload to rabbitmq!")
+
+    connection.close()
 
 def mod_to_iso(file_modified):
     t = datetime.strptime(file_modified, '%Y%m%d%H%M%S')
@@ -96,23 +114,7 @@ def submit():
         encrypter = Encrypter()
         payload = encrypter.encrypt(unencrypted_json)
 
-        app.logger.debug(" [x] Encrypted Payload")
-
-        app.logger.debug(payload)
-
-        connection = pika.BlockingConnection(pika.URLParameters(RABBIT_URL))
-
-        channel = connection.channel()
-
-        channel.queue_declare(queue=RABBIT_QUEUE)
-
-        channel.basic_publish(exchange='',
-                              routing_key=RABBIT_QUEUE,
-                              body=payload)
-
-        print(" [x] Sent Payload to rabbitmq!")
-
-        connection.close()
+        send_payload(payload)
 
         return json_string
     else:
@@ -120,6 +122,22 @@ def submit():
 
         return render_template('index.html', ftp_data=ftp_data)
 
+
+@app.route('/decrypt', methods=['POST', 'GET'])
+def decrypt():
+    if request.method == 'POST':
+
+        app.logger.debug("Rabbit URL: {}".format(RABBIT_URL))
+
+        payload = request.get_data().decode('UTF8')
+
+        send_payload(payload)
+
+        return payload
+    else:
+        ftp_data = get_ftp()
+
+        return render_template('decrypt.html', ftp_data=ftp_data)
 
 @app.route('/list')
 def list():
