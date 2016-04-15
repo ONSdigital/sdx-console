@@ -3,6 +3,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def get_key(key_name):
     """
     TODO remove these once the encrypted key story is finished
