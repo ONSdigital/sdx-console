@@ -88,7 +88,7 @@ def submit():
 
         json_string = request.get_data().decode('UTF8')
 
-        print(" [x] Encrypting data: {}".format(json_string))
+        app.logger.debug(" [x] Encrypting data: {}".format(json_string))
 
         unencrypted_json = json.loads(json_string)
 
@@ -109,7 +109,7 @@ def submit():
                               routing_key=RABBIT_QUEUE,
                               body=payload)
 
-        print(" [x] Sent Payload to rabbitmq!")
+        app.logger.debug(" [x] Sent Payload to rabbitmq!")
 
         connection.close()
 
