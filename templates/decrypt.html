@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <title>SDE App</title>
+    <head>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="static/css/bootstrap.min.css">
+
+        <script src="static/js/jquery-1.12.1.min.js"></script>
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="static/js/bootstrap.min.js"></script>
+        <script src="static/js/app.js"></script>
+    </head>
+    <body>
+        <div class='container'>
+            <div class="alert hidden" role="alert">
+
+            </div>
+            <div class='row'>
+                <div class='col-md-6'>
+                    <form id='decrypt-form'>
+                        <h3>Decrypter</h3>
+                        <div class="form-group">
+                            <label for='post-data'>Encrypted data to transform:</label>
+                                <textarea id="post-data" class="form-control" name='post-data' cols='40' rows='10'></textarea>
+                        </div>
+                        <input class="btn btn-default" type="submit" />
+                    </form>
+                </div>
+                <div id='response-data-wrapper' class='col-md-6'>
+                    <h3>Receiver</h3>
+                    <label for='response-data'>FTP Files:</label>
+                    <table id="response-data" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                                <th>Size</th>
+                                <th>Modified</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <button id="empty-ftp" class="btn btn-default">Empty FTP</button>
+                </div>
+        </div>
+    </div>
+    <div class="modal fade" id="contentModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Modal title</h4>
+          </div>
+          <div class="modal-body">
+            <pre></pre>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    </body>
+</html>
