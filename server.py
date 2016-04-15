@@ -50,7 +50,7 @@ def send_payload(payload):
                           routing_key=RABBIT_QUEUE,
                           body=payload)
 
-    print(" [x] Sent Payload to rabbitmq!")
+    app.logger.debug(" [x] Sent Payload to rabbitmq!")
 
     connection.close()
 
