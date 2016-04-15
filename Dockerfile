@@ -1,6 +1,5 @@
-FROM iwootten/flask-crypto
+FROM onsdigital/flask-crypto-queue
 
-ADD requirements.txt /app/requirements.txt
 ADD encrypter.py /app/encrypter.py
 ADD settings.py /app/settings.py
 ADD jwt-test-keys /app/jwt-test-keys
@@ -12,9 +11,6 @@ ADD templates /app/templates
 WORKDIR /app/
 
 RUN mkdir /app/static/images
-
-# install python dependencies
-RUN pip3 install -r requirements.txt
 
 EXPOSE 5000
 
