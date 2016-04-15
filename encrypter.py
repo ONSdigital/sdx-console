@@ -4,13 +4,12 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 import base64
-import unittest
 import os
-import json
 import settings
 import jwt
 
 KID = 'SDE'
+
 
 class Encrypter (object):
     def __init__(self):
