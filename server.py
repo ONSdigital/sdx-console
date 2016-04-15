@@ -1,13 +1,10 @@
 from flask import Flask, request, render_template
-from cryptography.hazmat.backends import default_backend
 
 from ftplib import FTP
 from datetime import datetime
 from encrypter import Encrypter
 
 import os
-import requests
-import base64
 import pika
 import json
 
@@ -29,6 +26,7 @@ RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
 
 app = Flask(__name__)
 
+
 def login_to_ftp():
     ftp = FTP(FTP_HOST)
     ftp.login(user=FTP_USER, passwd=FTP_PASS)
@@ -40,6 +38,7 @@ def login_to_ftp():
 def mod_to_iso(file_modified):
     t = datetime.strptime(file_modified, '%Y%m%d%H%M%S')
     return t.isoformat()
+
 
 def get_image(filename):
     ftp = login_to_ftp()
@@ -89,7 +88,7 @@ def submit():
 
         json_string = request.get_data().decode('UTF8')
 
-        print(" [x] Encrypting data: {}".format(json_string))
+        app.logger.debug(" [x] Encrypting data: {}".format(json_string))
 
         unencrypted_json = json.loads(json_string)
 
@@ -110,7 +109,7 @@ def submit():
                               routing_key=RABBIT_QUEUE,
                               body=payload)
 
-        print(" [x] Sent Payload to rabbitmq!")
+        app.logger.debug(" [x] Sent Payload to rabbitmq!")
 
         connection.close()
 
