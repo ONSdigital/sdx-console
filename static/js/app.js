@@ -1,5 +1,5 @@
 $(function(){
-    $('form').on('submit', function(event){
+    $('#submitter-form').on('submit', function(event){
         event.preventDefault();
         var postData = $('#post-data').val();
 
@@ -7,6 +7,23 @@ $(function(){
           .done(function(data){
             $(".alert").removeClass('alert-success alert-danger hidden');
             $(".alert").addClass('alert-success').text("Posted: " + data);
+            $(".alert").show();
+          })
+          .fail(function(){
+            $(".alert").removeClass('alert-success alert-danger hidden');
+            $(".alert").addClass('alert-danger').text("Error during submission");
+            $(".alert").show();
+          });
+    });
+
+    $('#decrypt-form').on('submit', function(event){
+        event.preventDefault();
+        var postData = $('#post-data').val();
+
+        $.post('/decrypt', $('#post-data').val())
+          .done(function(data){
+            $(".alert").removeClass('alert-success alert-danger hidden');
+            $(".alert").addClass('alert-success').text("Posted encrypted data: " + data.substr(1, 100) + "...");
             $(".alert").show();
           })
           .fail(function(){
