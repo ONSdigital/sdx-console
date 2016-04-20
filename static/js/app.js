@@ -44,18 +44,22 @@ $(function(){
           $("#" + dataType + "-data tbody").empty();
 
           $.each(tableData, function(filename, metadata){
-            $("#" + dataType + "-data tbody").append('<tr id="' + metadata['filename'] + '"><td><a href="#">' + metadata['filename'] + '</a></td><td>' +  metadata['size'] + '</td><td>' + metadata['modify'] + '</td></tr>');
-          });
+            var $tableRow = $('<tr id="' + metadata['filename'] + '"><td><a href="#">' + metadata['filename'] + '</a></td><td>' +  metadata['size'] + '</td><td>' + metadata['modify'] + '</td></tr>');
 
-          $("tbody tr").on("click", function(event){
-            var filename = $(event.target).closest("tr").attr("id");
+            var onClickType = dataType;
+            
+            $tableRow.on("click", function(event){
+              var filename = $(event.target).closest("tr").attr("id");
 
-            $('#contentModal .modal-title').text(filename);
+              $('#contentModal .modal-title').text(filename);
 
-            $.get('/view/' + dataType + '/' + filename, function(data){
-              $('#contentModal .modal-body').html(data);
-              $('#contentModal').modal('show');
+              $.get('/view/' + onClickType + '/' + filename, function(data){
+                $('#contentModal .modal-body').html(data);
+                $('#contentModal').modal('show');
+              });
             });
+
+            $("#" + dataType + "-data tbody").append($tableRow);
           });
         }
       });
@@ -67,7 +71,7 @@ $(function(){
 
           for (var i in dataTypes) {
             var dataType = dataTypes[i];
-            
+            console.log(dataType);
             $("#" + dataType + "-data tbody").empty();
           }
 

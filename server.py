@@ -52,7 +52,6 @@ def mod_to_iso(file_modified):
 
 
 def get_image(filename):
-    ftp = login_to_ftp()
 
     filepath, ext = os.path.splitext(filename)
 
@@ -61,40 +60,28 @@ def get_image(filename):
     if os.path.exists(tmp_image_path):
         os.unlink(tmp_image_path)
 
-    ftp.retrbinary("RETR " + filename, open(tmp_image_path, 'wb').write)
-
-    ftp.quit()
+    ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
 
     return tmp_image_path
 
 
-def get_file_contents(filename):
-    ftp = login_to_ftp()
-
-    ftp.retrbinary("RETR " + filename, open('tmpfile', 'wb').write)
+def get_file_contents(datatype, filename):
+    ftp.retrbinary("RETR " + PATHS[datatype] + "/" + filename, open('tmpfile', 'wb').write)
 
     transferred = open('tmpfile', 'r')
-
-    ftp.quit()
 
     return transferred.read()
 
 
 def get_folder_contents(path):
-    ftp = login_to_ftp()
-
     data = []
 
-    ftp.cwd(path)
-
-    for fname, fmeta in ftp.mlsd():
+    for fname, fmeta in ftp.mlsd(path=path):
         if fname not in ('.', '..'):
             fmeta['modify'] = mod_to_iso(fmeta['modify'])
             fmeta['filename'] = fname
 
             data.append(fmeta)
-
-    ftp.quit()
 
     return data
 
@@ -103,8 +90,8 @@ def get_ftp_contents():
 
         ftp_data = {}
         ftp_data['pck'] = get_folder_contents(PATHS['pck'])
-        ftp_data['image'] = get_folder_contents(PATHS['image'])
         ftp_data['index'] = get_folder_contents(PATHS['index'])
+        ftp_data['image'] = get_folder_contents(PATHS['image'])
         ftp_data['receipt'] = get_folder_contents(PATHS['receipt'])
 
         return ftp_data
@@ -171,21 +158,16 @@ def view_file(datatype, filename):
 
 @app.route('/clear')
 def clear():
-    ftp = login_to_ftp()
-
     removed = 0
 
     for key, path in PATHS.items():
-        ftp.cwd('/')
-        ftp.cwd(path)
-
-        for fname in ftp.nlst():
-            ftp.delete(fname)
-            removed += 1
-
-    ftp.quit()
+        for fname, fmeta in ftp.mlsd(path=path):
+            if fname not in ('.', '..'):
+                ftp.delete(path + "/" + fname)
+                removed += 1
 
     return json.dumps({"removed": removed})
 
 if __name__ == '__main__':
+    ftp = login_to_ftp()
     app.run(debug=True, host='0.0.0.0')
