@@ -7,30 +7,21 @@ from encrypter import Encrypter
 import os
 import pika
 import json
-
-POSIE_URL = os.getenv('POSIE_URL', 'http://posie:5000')
-
-FTP_HOST = os.getenv('FTP_HOST', 'pure-ftpd')
-FTP_USER = os.getenv('FTP_USER')
-FTP_PASS = os.getenv('FTP_PASS')
-
-RABBIT_QUEUE = os.getenv('RABBITMQ_QUEUE', 'survey')
-
-RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
-    hostname=os.getenv('RABBITMQ_HOST', 'rabbit'),
-    port=os.getenv('RABBITMQ_PORT', 5672),
-    user=os.getenv('RABBITMQ_DEFAULT_USER', 'rabbit'),
-    password=os.getenv('RABBITMQ_DEFAULT_PASS', 'rabbit'),
-    vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
-)
+import settings
 
 app = Flask(__name__)
 
+PATHS = {
+    'pck': "EDC_QData",
+    'image': "EDC_QImages/Images",
+    'index': "EDC_QImages/Index",
+    'receipt': "EDC_QReceipts"
+}
+
 
 def login_to_ftp():
-    ftp = FTP(FTP_HOST)
-    ftp.login(user=FTP_USER, passwd=FTP_PASS)
-    ftp.set_pasv(False)
+    ftp = FTP(settings.FTP_HOST)
+    ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
 
     return ftp
 
@@ -40,14 +31,14 @@ def send_payload(payload):
 
     app.logger.debug(payload)
 
-    connection = pika.BlockingConnection(pika.URLParameters(RABBIT_URL))
+    connection = pika.BlockingConnection(pika.URLParameters(settings.RABBIT_URL))
 
     channel = connection.channel()
 
-    channel.queue_declare(queue=RABBIT_QUEUE)
+    channel.queue_declare(queue=settings.RABBIT_QUEUE)
 
     channel.basic_publish(exchange='',
-                          routing_key=RABBIT_QUEUE,
+                          routing_key=settings.RABBIT_QUEUE,
                           body=payload)
 
     app.logger.debug(" [x] Sent Payload to rabbitmq!")
@@ -72,6 +63,8 @@ def get_image(filename):
 
     ftp.retrbinary("RETR " + filename, open(tmp_image_path, 'wb').write)
 
+    ftp.quit()
+
     return tmp_image_path
 
 
@@ -82,13 +75,17 @@ def get_file_contents(filename):
 
     transferred = open('tmpfile', 'r')
 
+    ftp.quit()
+
     return transferred.read()
 
 
-def get_ftp():
+def get_folder_contents(path):
     ftp = login_to_ftp()
 
     data = []
+
+    ftp.cwd(path)
 
     for fname, fmeta in ftp.mlsd():
         if fname not in ('.', '..'):
@@ -97,14 +94,27 @@ def get_ftp():
 
             data.append(fmeta)
 
-    return json.dumps(data)
+    ftp.quit()
+
+    return data
+
+
+def get_ftp_contents():
+
+        ftp_data = {}
+        ftp_data['pck'] = get_folder_contents(PATHS['pck'])
+        ftp_data['image'] = get_folder_contents(PATHS['image'])
+        ftp_data['index'] = get_folder_contents(PATHS['index'])
+        ftp_data['receipt'] = get_folder_contents(PATHS['receipt'])
+
+        return ftp_data
 
 
 @app.route('/', methods=['POST', 'GET'])
 def submit():
     if request.method == 'POST':
 
-        app.logger.debug("Rabbit URL: {}".format(RABBIT_URL))
+        app.logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
 
         json_string = request.get_data().decode('UTF8')
 
@@ -119,16 +129,17 @@ def submit():
 
         return json_string
     else:
-        ftp_data = get_ftp()
 
-        return render_template('index.html', ftp_data=ftp_data)
+        ftp_data = get_ftp_contents()
+
+        return render_template('index.html', ftp_data=json.dumps(ftp_data))
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])
 def decrypt():
     if request.method == 'POST':
 
-        app.logger.debug("Rabbit URL: {}".format(RABBIT_URL))
+        app.logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
 
         payload = request.get_data().decode('UTF8')
 
@@ -136,22 +147,26 @@ def decrypt():
 
         return payload
     else:
-        ftp_data = get_ftp()
 
-        return render_template('decrypt.html', ftp_data=ftp_data)
+        ftp_data = get_ftp_contents()
+
+        return render_template('decrypt.html', ftp_data=json.dumps(ftp_data))
 
 
 @app.route('/list')
 def list():
-    return get_ftp()
+
+    ftp_data = get_ftp_contents()
+
+    return json.dumps(ftp_data)
 
 
-@app.route('/view/<filename>')
-def view_file(filename):
+@app.route('/view/<datatype>/<filename>')
+def view_file(datatype, filename):
     if filename.lower().endswith(('jpg', 'png')):
         return '<img style="width:100%;" src="/' + get_image(filename) + '" />'
     else:
-        return '<pre>' + get_file_contents(filename) + '</pre>'
+        return '<pre>' + get_file_contents(datatype, filename) + '</pre>'
 
 
 @app.route('/clear')
@@ -160,9 +175,15 @@ def clear():
 
     removed = 0
 
-    for fname in ftp.nlst():
-        ftp.delete(fname)
-        removed += 1
+    for key, path in PATHS.items():
+        ftp.cwd('/')
+        ftp.cwd(path)
+
+        for fname in ftp.nlst():
+            ftp.delete(fname)
+            removed += 1
+
+    ftp.quit()
 
     return json.dumps({"removed": removed})
 
