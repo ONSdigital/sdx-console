@@ -2,6 +2,7 @@ from cryptography.hazmat.backends.openssl.backend import backend
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 import base64
 import os
@@ -14,11 +15,20 @@ KID = 'SDE'
 class Encrypter (object):
     def __init__(self):
         private_key_bytes = self._to_bytes(settings.EQ_PRIVATE_KEY)
-        public_key_bytes = self._to_bytes(settings.PUBLIC_KEY)
-
         self.private_key = serialization.load_pem_private_key(private_key_bytes,
                                                               password=self._to_bytes(settings.PRIVATE_KEY_PASSWORD),
                                                               backend=backend)
+
+        private_decryption_key = serialization.load_pem_private_key(
+            settings.PRIVATE_KEY.encode(),
+            password=self._to_bytes(settings.PRIVATE_KEY_PASSWORD),
+            backend=backend
+        )
+
+        public_key_bytes = private_decryption_key.public_key().public_bytes(
+            encoding=Encoding.PEM,
+            format=PublicFormat.SubjectPublicKeyInfo
+        )
 
         self.public_key = serialization.load_pem_public_key(public_key_bytes, backend=backend)
 
