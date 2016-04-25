@@ -9,7 +9,7 @@ ADD templates /app/templates
 # set working directory to /app/
 WORKDIR /app/
 
-RUN mkdir /app/static/images
+RUN mkdir -p /app/static/images
 
 EXPOSE 5000
 
