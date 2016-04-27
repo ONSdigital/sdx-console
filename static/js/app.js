@@ -1,4 +1,9 @@
 $(function(){
+    $('ul.nav li a').click(function (e) {
+      e.preventDefault()
+      $(this).tab('show')
+    });
+
     $('#submitter-form').on('submit', function(event){
         event.preventDefault();
         var postData = $('#post-data').val();
