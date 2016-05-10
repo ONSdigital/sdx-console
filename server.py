@@ -138,7 +138,7 @@ def submit():
         surveys = list_surveys()
 
         return render_template('index.html', ftp_data=json.dumps(ftp_data),
-            surveys=surveys)
+                               surveys=surveys)
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])
