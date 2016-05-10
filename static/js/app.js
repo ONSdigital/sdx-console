@@ -86,7 +86,7 @@ $(function(){
 
           for (var i in dataTypes) {
             var dataType = dataTypes[i];
-            console.log(dataType);
+            
             $("#" + dataType + "-data tbody").empty();
           }
 
