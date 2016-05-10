@@ -22,41 +22,15 @@
                         <div class="form-group">
                             <label for='post-data'>Data to send:</label>
                                 <textarea id="post-data" class="form-control" name='post-data' cols='40' rows='10'>
-{
- "type": "uk.gov.ons.edc.eq:surveyresponse",
- "version": "0.0.1",
- "origin": "uk.gov.ons.edc.eq",
- "survey_id": "023",
- "collection": {
-   "exercise_sid": "hfjdskf",
-   "instrument_id": "0203",
-   "period": "0216"
- },
- "submitted_at": "2016-03-12T10:39:40Z",
- "metadata": {
-   "user_id": "789473423",
-   "ru_ref": "12345678901A"
- },
- "data": {
-   "11": "01042016",
-   "12": "31102016",
-   "20": "1800000",
-   "51": "84",
-   "52": "10",
-   "53": "73",
-   "54": "24",
-   "50": "205",
-   "22": "705000",
-   "23": "900",
-   "24": "74",
-   "25": "50",
-   "26": "100",
-   "21": "60000",
-   "27": "7400",
-   "146": "some comment"
- }
-}
 </textarea>
+                        </div>
+                        <div class="form-group">
+                          <label for='survey-selector'>Load survey:</label>
+                          <select id="survey-selector">
+                            {% for survey in surveys %}
+                              <option value='{{survey}}'>{{survey}}</option>
+                            {% endfor %}
+                          </select>
                         </div>
                         <input class="btn btn-default" type="submit" />
                     </form>

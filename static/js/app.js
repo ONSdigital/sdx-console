@@ -70,6 +70,16 @@ $(function(){
       });
     }
 
+    $.get('/surveys/023.0102.json', function(data){
+      $("#post-data").text(data);
+    });
+
+    $("#survey-selector").on("change", function(event){
+      $.get('/surveys/' + $(event.target).val(), function(data){
+        $("#post-data").text(data);
+      });
+    });
+
     $("#empty-ftp").on("click", function(event){
       $.getJSON('/clear')
         .done(function(data){
