@@ -43,7 +43,7 @@ def survey(survey_id):
         return file_content
 
 
-def send_payload(payload):
+def send_payload(payload, no_of_submissions=1):
     app.logger.debug(" [x] Sending encrypted Payload")
 
     app.logger.debug(payload)
@@ -54,9 +54,10 @@ def send_payload(payload):
 
     channel.queue_declare(queue=settings.RABBIT_QUEUE)
 
-    channel.basic_publish(exchange='',
-                          routing_key=settings.RABBIT_QUEUE,
-                          body=payload)
+    for i in range(no_of_submissions):
+        channel.basic_publish(exchange='',
+                              routing_key=settings.RABBIT_QUEUE,
+                              body=payload)
 
     app.logger.debug(" [x] Sent Payload to rabbitmq!")
 
@@ -120,18 +121,20 @@ def submit():
 
         app.logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
 
-        json_string = request.get_data().decode('UTF8')
+        data = request.get_data().decode('UTF8')
 
-        app.logger.debug(" [x] Encrypting data: {}".format(json_string))
+        app.logger.debug(" [x] Encrypting data: {}".format(data))
 
-        unencrypted_json = json.loads(json_string)
+        unencrypted_json = json.loads(data)
+
+        no_of_submissions = int(unencrypted_json['quantity'])
 
         encrypter = Encrypter()
-        payload = encrypter.encrypt(unencrypted_json)
+        payload = encrypter.encrypt(unencrypted_json['survey'])
 
-        send_payload(payload)
+        send_payload(payload, no_of_submissions)
 
-        return json_string
+        return data
     else:
 
         ftp_data = get_ftp_contents()

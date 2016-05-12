@@ -7,8 +7,9 @@ $(function(){
     $('#submitter-form').on('submit', function(event){
         event.preventDefault();
         var postData = $('#post-data').val();
+        var quantity = $('#survey-quantity').val();
 
-        $.post('/', $('#post-data').val())
+        $.post('/', '{"survey": ' + postData + ', "quantity": ' + quantity + '}')
           .done(function(data){
             $(".alert").removeClass('alert-success alert-danger hidden');
             $(".alert").addClass('alert-success').text("Posted: " + data);
