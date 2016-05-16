@@ -7,8 +7,9 @@ $(function(){
     $('#submitter-form').on('submit', function(event){
         event.preventDefault();
         var postData = $('#post-data').val();
+        var quantity = $('#survey-quantity').val();
 
-        $.post('/', $('#post-data').val())
+        $.post('/', '{"survey": ' + postData + ', "quantity": ' + quantity + '}')
           .done(function(data){
             $(".alert").removeClass('alert-success alert-danger hidden');
             $(".alert").addClass('alert-success').text("Posted: " + data);
@@ -70,13 +71,23 @@ $(function(){
       });
     }
 
+    $.get('/surveys/023.0102.json', function(data){
+      $("#post-data").text(data);
+    });
+
+    $("#survey-selector").on("change", function(event){
+      $.get('/surveys/' + $(event.target).val(), function(data){
+        $("#post-data").text(data);
+      });
+    });
+
     $("#empty-ftp").on("click", function(event){
       $.getJSON('/clear')
         .done(function(data){
 
           for (var i in dataTypes) {
             var dataType = dataTypes[i];
-            console.log(dataType);
+            
             $("#" + dataType + "-data tbody").empty();
           }
 
