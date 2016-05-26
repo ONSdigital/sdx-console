@@ -94,12 +94,12 @@ def get_file_contents(datatype, filename):
 def get_folder_contents(path):
     data = []
 
-    for fname, fmeta in ftp.mlsd(path=path):
-        if fname not in ('.', '..'):
-            fmeta['modify'] = mod_to_iso(fmeta['modify'])
-            fmeta['filename'] = fname
+    # for fname, fmeta in ftp.mlsd(path=path):
+    #     if fname not in ('.', '..'):
+    #         fmeta['modify'] = mod_to_iso(fmeta['modify'])
+    #         fmeta['filename'] = fname
 
-            data.append(fmeta)
+    #         data.append(fmeta)
 
     return data
 
