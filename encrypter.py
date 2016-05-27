@@ -16,7 +16,7 @@ class Encrypter (object):
     def __init__(self):
         private_key_bytes = self._to_bytes(settings.EQ_PRIVATE_KEY)
         self.private_key = serialization.load_pem_private_key(private_key_bytes,
-                                                              password=self._to_bytes(settings.PRIVATE_KEY_PASSWORD),
+                                                              password=self._to_bytes(settings.EQ_PRIVATE_KEY_PASSWORD),
                                                               backend=backend)
 
         private_decryption_key = serialization.load_pem_private_key(
