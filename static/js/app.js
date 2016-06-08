@@ -39,6 +39,26 @@ $(function(){
           });
     });
 
+    $('#validate').on('click', function(event){
+        event.preventDefault();
+        var postData = $('#post-data').val();
+        $.post('/validate', $('#post-data').val())
+          .done(function(data){
+            $(".alert").removeClass('alert-success alert-danger hidden');
+            if (data.indexOf("true") > 0) {
+              $(".alert").addClass('alert-success').text("Validation result: " + data.substr(0, 100) + "...");
+            } else {
+              $(".alert").addClass('alert-danger').text("Validation Error. Result: " + data.substr(0, 100) + "...")
+            }
+            $(".alert").show();
+          })
+          .fail(function(){
+            $(".alert").removeClass('alert-success alert-danger hidden');
+            $(".alert").addClass('alert-danger').text("Error during validation submission");
+            $(".alert").show();
+          });
+    });
+
     var dataTypes = ['pck', 'image', 'index', 'receipt'];
 
     function pollFTP() {

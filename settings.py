@@ -27,7 +27,7 @@ PRIVATE_KEY = get_key(os.getenv('PRIVATE_KEY', "/keys/sdc-submission-encryption-
 PRIVATE_KEY_PASSWORD = os.getenv("PRIVATE_KEY_PASSWORD", "digitaleq")
 
 
-POSIE_URL = os.getenv('POSIE_URL', 'http://posie:5000')
+VALIDATE_ENDPOINT = os.getenv('VALIDATE_ENDPOINT', 'http://192.168.99.100:82/validate')
 
 FTP_HOST = os.getenv('FTP_HOST', 'pure-ftpd')
 FTP_USER = os.getenv('FTP_USER')
