@@ -161,7 +161,7 @@ def decrypt():
         ftp_data = get_ftp_contents()
 
         return render_template('decrypt.html', ftp_data=json.dumps(ftp_data))
-        
+
 
 @app.route('/validate', methods=['POST', 'GET'])
 def validate():
