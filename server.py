@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 
 from ftplib import FTP
 from datetime import datetime
@@ -175,7 +175,7 @@ def validate():
 
         r = requests.post(settings.VALIDATE_ENDPOINT, data=payload)
 
-        return json.dumps(json.loads(r.text))
+        return jsonify(json.loads(r.text))
     else:
 
         ftp_data = get_ftp_contents()
@@ -188,7 +188,7 @@ def list():
 
     ftp_data = get_ftp_contents()
 
-    return json.dumps(ftp_data)
+    return jsonify(ftp_data)
 
 
 @app.route('/view/<datatype>/<filename>')

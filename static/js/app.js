@@ -31,7 +31,7 @@ $(function(){
             $(".alert").removeClass('alert-success alert-danger hidden');
             $(".alert").addClass('alert-success').text("Posted encrypted data: " + data.substr(1, 100) + "...");
             $(".alert").show();
-          })
+          }, 'json')
           .fail(function(){
             $(".alert").removeClass('alert-success alert-danger hidden');
             $(".alert").addClass('alert-danger').text("Error during submission");
@@ -44,11 +44,12 @@ $(function(){
         var postData = $('#post-data').val();
         $.post('/validate', $('#post-data').val())
           .done(function(data){
+            console.log(data);
             $(".alert").removeClass('alert-success alert-danger hidden');
-            if (data.indexOf("true") > 0) {
-              $(".alert").addClass('alert-success').text("Validation result: " + data.substr(0, 100) + "...");
+            if (data.valid === true) {
+              $(".alert").addClass('alert-success').text("Validation result: " + JSON.stringify(data));
             } else {
-              $(".alert").addClass('alert-danger').text("Validation Error. Result: " + data.substr(0, 100) + "...")
+              $(".alert").addClass('alert-danger').text("Validation Error. Result: " + JSON.stringify(data))
             }
             $(".alert").show();
           })
