@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 
 from ftplib import FTP
 from datetime import datetime
@@ -8,6 +8,7 @@ import os
 import pika
 import json
 import settings
+import requests
 
 app = Flask(__name__)
 
@@ -162,12 +163,32 @@ def decrypt():
         return render_template('decrypt.html', ftp_data=json.dumps(ftp_data))
 
 
+@app.route('/validate', methods=['POST', 'GET'])
+def validate():
+    if request.method == 'POST':
+
+        payload = request.get_data()
+
+        app.logger.debug("Validating json...{}".format(payload))
+
+        app.logger.debug("Validate URL: {}".format(settings.VALIDATE_ENDPOINT))
+
+        r = requests.post(settings.VALIDATE_ENDPOINT, data=payload)
+
+        return jsonify(json.loads(r.text))
+    else:
+
+        ftp_data = get_ftp_contents()
+
+        return render_template('decrypt.html', ftp_data=json.dumps(ftp_data))
+
+
 @app.route('/list')
 def list():
 
     ftp_data = get_ftp_contents()
 
-    return json.dumps(ftp_data)
+    return jsonify(ftp_data)
 
 
 @app.route('/view/<datatype>/<filename>')

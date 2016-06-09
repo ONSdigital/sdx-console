@@ -31,10 +31,31 @@ $(function(){
             $(".alert").removeClass('alert-success alert-danger hidden');
             $(".alert").addClass('alert-success').text("Posted encrypted data: " + data.substr(1, 100) + "...");
             $(".alert").show();
-          })
+          }, 'json')
           .fail(function(){
             $(".alert").removeClass('alert-success alert-danger hidden');
             $(".alert").addClass('alert-danger').text("Error during submission");
+            $(".alert").show();
+          });
+    });
+
+    $('#validate').on('click', function(event){
+        event.preventDefault();
+        var postData = $('#post-data').val();
+        $.post('/validate', $('#post-data').val())
+          .done(function(data){
+            console.log(data);
+            $(".alert").removeClass('alert-success alert-danger hidden');
+            if (data.valid === true) {
+              $(".alert").addClass('alert-success').text("Validation result: " + JSON.stringify(data));
+            } else {
+              $(".alert").addClass('alert-danger').text("Validation Error. Result: " + JSON.stringify(data))
+            }
+            $(".alert").show();
+          })
+          .fail(function(){
+            $(".alert").removeClass('alert-success alert-danger hidden');
+            $(".alert").addClass('alert-danger').text("Error during validation submission");
             $(".alert").show();
           });
     });
