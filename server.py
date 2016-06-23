@@ -29,17 +29,13 @@ def login_to_ftp():
     ftp = FTP(settings.FTP_HOST)
     ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
 
-    app.logger.debug("Login start")
-
     try:
-        app.logger.debug("Attempting mlsd")
         # Perform a simple mlsd test
         len([fname for fname, fmeta in ftp.mlsd(path=PATHS['pck'])])
     except:
         app.config['USE_MLSD'] = False
 
     app.logger.debug("Setting mlsd:" + str(app.config['USE_MLSD']))
-    app.logger.debug("Login end")
 
     return ftp
 
