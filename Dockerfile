@@ -10,6 +10,7 @@ ADD templates /app/templates
 WORKDIR /app/
 
 RUN mkdir -p /app/static/images
+RUN mkdir -p /app/logs
 
 EXPOSE 5000
 

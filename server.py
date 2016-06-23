@@ -9,6 +9,9 @@ import pika
 import json
 import settings
 import requests
+import logging
+import logging.handlers
+from logging import Formatter
 
 app = Flask(__name__)
 
@@ -19,10 +22,20 @@ PATHS = {
     'receipt': "EDC_QReceipts"
 }
 
+app.config['USE_MLSD'] = True
+
 
 def login_to_ftp():
     ftp = FTP(settings.FTP_HOST)
     ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
+
+    try:
+        # Perform a simple mlsd test
+        len([fname for fname, fmeta in ftp.mlsd(path=PATHS['pck'])])
+    except:
+        app.config['USE_MLSD'] = False
+
+    app.logger.debug("Setting mlsd:" + str(app.config['USE_MLSD']))
 
     return ftp
 
@@ -95,12 +108,19 @@ def get_file_contents(datatype, filename):
 def get_folder_contents(path):
     data = []
 
-    # for fname, fmeta in ftp.mlsd(path=path):
-    #     if fname not in ('.', '..'):
-    #         fmeta['modify'] = mod_to_iso(fmeta['modify'])
-    #         fmeta['filename'] = fname
+    if app.config['USE_MLSD']:
+        for fname, fmeta in ftp.mlsd(path=path):
+            if fname not in ('.', '..'):
+                fmeta['modify'] = mod_to_iso(fmeta['modify'])
+                fmeta['filename'] = fname
+                data.append(fmeta)
+    else:
+        for fname in ftp.nlst(path):
+            fmeta = {}
+            if fname not in ('.', '..'):
+                fmeta['filename'] = fname
 
-    #         data.append(fmeta)
+                data.append(fmeta)
 
     return data
 
@@ -203,14 +223,25 @@ def view_file(datatype, filename):
 def clear():
     removed = 0
 
-    for key, path in PATHS.items():
-        for fname, fmeta in ftp.mlsd(path=path):
-            if fname not in ('.', '..'):
-                ftp.delete(path + "/" + fname)
-                removed += 1
+    if app.config['USE_MLSD']:
+        for key, path in PATHS.items():
+            for fname, fmeta in ftp.mlsd(path=path):
+                if fname not in ('.', '..'):
+                    ftp.delete(path + "/" + fname)
+                    removed += 1
+    else:
+        for key, path in PATHS.items():
+            for fname, fmeta in ftp.nlst(path):
+                if fname not in ('.', '..'):
+                    ftp.delete(path + "/" + fname)
+                    removed += 1
 
     return json.dumps({"removed": removed})
 
 if __name__ == '__main__':
+    logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
+    handler = logging.handlers.RotatingFileHandler(settings.LOGGING_LOCATION, maxBytes=20000, backupCount=5)
+    handler.setFormatter(Formatter(settings.LOGGING_FORMAT))
+    app.logger.addHandler(handler)
     ftp = login_to_ftp()
     app.run(debug=True, host='0.0.0.0')

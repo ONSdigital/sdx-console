@@ -3,6 +3,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+LOGGING_FORMAT = "%(asctime)s|%(levelname)s: %(message)s"
+LOGGING_LOCATION = "logs/console.log"
+LOGGING_LEVEL = logging.DEBUG
+
 
 def get_key(key_name):
     """
