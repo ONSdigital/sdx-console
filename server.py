@@ -19,7 +19,8 @@ PATHS = {
     'pck': "EDC_QData",
     'image': "EDC_QImages/Images",
     'index': "EDC_QImages/Index",
-    'receipt': "EDC_QReceipts"
+    'receipt': "EDC_QReceipts",
+    'xml': "EDC_QXML"
 }
 
 app.config['USE_MLSD'] = True
@@ -107,7 +108,6 @@ def get_file_contents(datatype, filename):
 
 def get_folder_contents(path):
     data = []
-
     if app.config['USE_MLSD']:
         for fname, fmeta in ftp.mlsd(path=path):
             if fname not in ('.', '..'):
@@ -132,6 +132,7 @@ def get_ftp_contents():
         ftp_data['index'] = get_folder_contents(PATHS['index'])
         ftp_data['image'] = get_folder_contents(PATHS['image'])
         ftp_data['receipt'] = get_folder_contents(PATHS['receipt'])
+        ftp_data['xml'] = get_folder_contents(PATHS['xml'])
 
         return ftp_data
 
