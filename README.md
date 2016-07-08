@@ -1,21 +1,23 @@
-# SDE Console
+# sdx-console
 
-The Survey Data Exchange (SDE) Console is a component of the Office of National Statistics (ONS) SDE project, which takes an encrypted json payload and transforms it into a number of formats for use within the ONS. This console allows for insertion of input and checking of transformed output files, using the perkin and posie services.
+[![Build Status](https://travis-ci.org/ONSdigital/sdx-console.svg?branch=master)](https://travis-ci.org/ONSdigital/sdx-console)
 
-Installation
+The Survey Data Exchange (SDX) Console is a component of the Office of National Statistics (ONS) SDX project, which takes an encrypted json payload and transforms it into a number of formats for use within the ONS. This console allows for insertion of input and checking of transformed output files, using the sdx-decrypt, sdx-validate, sdx-downstream and sdx-transform-* services.
 
-Using virtualenv and pip, create a new environment and install within using:
 
-	$ pip install -r requirements.txt
+## Installation
 
-It's also possible to install within a container using docker. From the sde-console directory:
+Checkout the sdx-compose repo and refer to the README
 
-	$ docker build -t sde-console .
+## Usage
 
-Usage
+To use the console you will need to start all services.
 
-To start the console, just run the server, which exposes a server on port 5000:
+## API
 
-	$ python server.py
+There are two endpoints. The default takes JSON as input, encrypts it and places it upon the app queue for SDE to decrypt and transform, whilst 'decrypt' takes an encrypted payload as input and decrypts to json and transforms to final formats.
 
-SDE console has two endpoints: the default '/', which takes JSON as input, encrypts it and places it upon the app queue for SDE to decrypt and transform. The '/decrypt' endpoint takes an encrypted payload as input and decrypts to json and transforms to final formats.
+ * `POST /`
+ * `POST /decrypt`
+
+
