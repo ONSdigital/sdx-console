@@ -165,6 +165,40 @@ def submit():
                                surveys=surveys)
 
 
+def client_error(error=None):
+    app.logger.error(error, request=request.data.decode('UTF8'))
+    message = {
+        'status': 400,
+        'message': error,
+        'uri': request.url
+    }
+    resp = jsonify(message)
+    resp.status_code = 400
+
+    return resp
+
+
+@app.route('/store', methods=['POST', 'GET'])
+def store():
+    if request.method == 'POST':
+        mongo_id = request.get_data().decode('UTF8')
+        result = requests.post(settings.STORE_ENDPOINT + 'queue', data=mongo_id)
+        if result.status_code != 200:
+            return client_error("Error queuing survey: " + mongo_id)
+
+        return mongo_id
+
+    else:
+        params = {}
+        ru_ref = request.args.get('ru_ref')
+        if ru_ref:
+            params['ru_ref'] = ru_ref
+
+        result = requests.get(settings.STORE_ENDPOINT + 'responses', params)
+        data = result.content.decode('UTF8')
+        return render_template('store.html', data=json.loads(data), ru_ref=ru_ref)
+
+
 @app.route('/decrypt', methods=['POST', 'GET'])
 def decrypt():
     if request.method == 'POST':

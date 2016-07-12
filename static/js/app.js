@@ -74,7 +74,7 @@ $(function(){
             var $tableRow = $('<tr id="' + metadata['filename'] + '"><td><a href="#">' + metadata['filename'] + '</a></td><td>' +  metadata['size'] + '</td><td>' + metadata['modify'] + '</td></tr>');
 
             var onClickType = dataType;
-            
+
             $tableRow.on("click", function(event){
               var filename = $(event.target).closest("tr").attr("id");
 
@@ -108,7 +108,7 @@ $(function(){
 
           for (var i in dataTypes) {
             var dataType = dataTypes[i];
-            
+
             $("#" + dataType + "-data tbody").empty();
           }
 
@@ -121,6 +121,21 @@ $(function(){
           $(".alert").addClass('alert-danger').text("Error on emptying ftp");
           $(".alert").show();
         });
+    });
+
+    $(".btn-reprocess").on("click", function(event){
+      var id = $(this).data("id");
+      $.post('/store', id)
+          .done(function(data){
+            $(".alert").removeClass('alert-success alert-danger hidden');
+            $(".alert").addClass('alert-success').text("Survey " + data + " queued for processing");
+            $(".alert").show();
+          })
+          .fail(function(){
+            $(".alert").removeClass('alert-success alert-danger hidden');
+            $(".alert").addClass('alert-danger').text("Error queuing survey");
+            $(".alert").show();
+          });
     });
 
     setInterval(pollFTP, 2000);
