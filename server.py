@@ -1,5 +1,4 @@
 from flask import Flask, request, render_template, jsonify
-from flask_paginate import Pagination
 
 from ftplib import FTP
 from datetime import datetime
@@ -195,11 +194,9 @@ def store():
         result = requests.get(settings.STORE_ENDPOINT + 'responses', params)
         content = result.content.decode('UTF8')
         data = json.loads(content)
-        total_hits = data['total_hits']
 
         # pagination = Pagination(page=page, total=total_hits)
         return render_template('store.html', data=data, ru_ref=params['ru_ref'])
-
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])
