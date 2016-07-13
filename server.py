@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template, jsonify
+from flask_paginate import Pagination
 
 from ftplib import FTP
 from datetime import datetime
@@ -182,21 +183,23 @@ def client_error(error=None):
 def store():
     if request.method == 'POST':
         mongo_id = request.get_data().decode('UTF8')
-        result = requests.post(settings.STORE_ENDPOINT + 'queue', data=mongo_id)
-        if result.status_code != 200:
-            return client_error("Error queuing survey: " + mongo_id)
-
-        return mongo_id
+        result = requests.post(settings.STORE_ENDPOINT + 'queue', json={"id": mongo_id})
+        return mongo_id if result.status_code is 200 else result
 
     else:
         params = {}
-        ru_ref = request.args.get('ru_ref')
-        if ru_ref:
-            params['ru_ref'] = ru_ref
+        params['page'] = request.args.get('page', type=int, default=1)
+        params['per_page'] = request.args.get('per_page', type=int, default=100)
+        params['ru_ref'] = request.args.get('ru_ref', type=str, default="")
 
         result = requests.get(settings.STORE_ENDPOINT + 'responses', params)
-        data = result.content.decode('UTF8')
-        return render_template('store.html', data=json.loads(data), ru_ref=ru_ref)
+        content = result.content.decode('UTF8')
+        data = json.loads(content)
+        total_hits = data['total_hits']
+
+        # pagination = Pagination(page=page, total=total_hits)
+        return render_template('store.html', data=data, ru_ref=params['ru_ref'])
+
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])
