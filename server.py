@@ -195,7 +195,6 @@ def store():
         content = result.content.decode('UTF8')
         data = json.loads(content)
 
-        # pagination = Pagination(page=page, total=total_hits)
         return render_template('store.html', data=data, ru_ref=params['ru_ref'])
 
 
