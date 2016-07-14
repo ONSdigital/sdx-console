@@ -201,7 +201,7 @@ def store():
         data = json.loads(content)
         count = data['total_hits']
 
-        pagination = Pagination(page=params['page'], total=count, record_name='submissions',css_framework='foundation', per_page=params['per_page'])
+        pagination = Pagination(page=params['page'], total=count, record_name='submissions', css_framework='foundation', per_page=params['per_page'])
         return render_template('store.html', data=data, ru_ref=params['ru_ref'], pagination=pagination)
 
 
