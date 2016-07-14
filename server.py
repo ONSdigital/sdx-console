@@ -13,6 +13,11 @@ import logging
 import logging.handlers
 from logging import Formatter
 
+from flask import Blueprint
+from flask.ext.paginate import Pagination
+
+mod = Blueprint('server', __name__)
+
 app = Flask(__name__)
 
 PATHS = {
@@ -194,9 +199,10 @@ def store():
         result = requests.get(settings.STORE_ENDPOINT + 'responses', params)
         content = result.content.decode('UTF8')
         data = json.loads(content)
+        count = data['total_hits']
 
-        # pagination = Pagination(page=page, total=total_hits)
-        return render_template('store.html', data=data, ru_ref=params['ru_ref'])
+        pagination = Pagination(page=params['page'], total=count, record_name='submissions',css_framework='foundation', per_page=params['per_page'])
+        return render_template('store.html', data=data, ru_ref=params['ru_ref'], pagination=pagination)
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])
