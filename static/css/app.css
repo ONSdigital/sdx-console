@@ -1,8 +1,15 @@
 .navbar-default {
-    margin-top: 15px;
+    margin-top: 20px;
 }
 
-.pagination > li.current > a {
-    color: black;
-    font-weight: bold;
+.form-horizontal .control-label {
+    text-align: left;
+}
+
+#store-form, .pagination-page-info, .pagination, .table-responsive {
+    margin: 20px 0 0 0;
+}
+
+.alert {
+    margin-bottom: 0;
 }

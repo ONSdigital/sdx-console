@@ -13,10 +13,7 @@ import logging
 import logging.handlers
 from logging import Formatter
 
-from flask import Blueprint
 from flask_paginate import Pagination
-
-mod = Blueprint('server', __name__)
 
 app = Flask(__name__)
 
@@ -183,6 +180,16 @@ def client_error(error=None):
     return resp
 
 
+def get_paginate_info(ru_ref):
+    # This is a little hacky as pagination.start or
+    # pagination.end does not work in the view.
+    info = "Found <b>{total}</b>,"
+    if ru_ref:
+        info += " matching ru_ref: <b>{0}</b>,".format(ru_ref)
+    info += " displaying <b>{start} - {end}</b>"
+    return info
+
+
 @app.route('/store', methods=['POST', 'GET'])
 def store():
     if request.method == 'POST':
@@ -193,7 +200,7 @@ def store():
     else:
         params = {}
         params['page'] = request.args.get('page', type=int, default=1)
-        params['per_page'] = request.args.get('per_page', type=int, default=100)
+        params['per_page'] = request.args.get('per_page', type=int, default=25)
         params['ru_ref'] = request.args.get('ru_ref', type=str, default="")
 
         result = requests.get(settings.STORE_ENDPOINT + 'responses', params)
@@ -201,7 +208,10 @@ def store():
         data = json.loads(content)
         count = data['total_hits']
 
-        pagination = Pagination(page=params['page'], total=count, record_name='submissions', css_framework='foundation', per_page=params['per_page'])
+        display = get_paginate_info(params['ru_ref'])
+        pagination = Pagination(page=params['page'], total=count, record_name='submissions',
+                                css_framework='bootstrap3', per_page=params['per_page'],
+                                display_msg=display)
         return render_template('store.html', data=data, ru_ref=params['ru_ref'], pagination=pagination)
 
 
