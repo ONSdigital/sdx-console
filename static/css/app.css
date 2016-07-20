@@ -4,6 +4,5 @@
 
 .pagination > li.current > a {
     color: black;
-    background: #66ccff;
     font-weight: bold;
 }
