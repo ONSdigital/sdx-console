@@ -13,6 +13,8 @@ import logging
 import logging.handlers
 from logging import Formatter
 
+from flask_paginate import Pagination
+
 app = Flask(__name__)
 
 PATHS = {
@@ -163,6 +165,54 @@ def submit():
 
         return render_template('index.html', ftp_data=json.dumps(ftp_data),
                                surveys=surveys)
+
+
+def client_error(error=None):
+    app.logger.error(error, request=request.data.decode('UTF8'))
+    message = {
+        'status': 400,
+        'message': error,
+        'uri': request.url
+    }
+    resp = jsonify(message)
+    resp.status_code = 400
+
+    return resp
+
+
+def get_paginate_info(ru_ref):
+    # This is a little hacky as pagination.start or
+    # pagination.end does not work in the view.
+    info = "Found <b>{total}</b>,"
+    if ru_ref:
+        info += " matching ru_ref: <b>{0}</b>,".format(ru_ref)
+    info += " displaying <b>{start} - {end}</b>"
+    return info
+
+
+@app.route('/store', methods=['POST', 'GET'])
+def store():
+    if request.method == 'POST':
+        mongo_id = request.get_data().decode('UTF8')
+        result = requests.post(settings.STORE_ENDPOINT + 'queue', json={"id": mongo_id})
+        return mongo_id if result.status_code is 200 else result
+
+    else:
+        params = {}
+        params['page'] = request.args.get('page', type=int, default=1)
+        params['per_page'] = request.args.get('per_page', type=int, default=25)
+        params['ru_ref'] = request.args.get('ru_ref', type=str, default="")
+
+        result = requests.get(settings.STORE_ENDPOINT + 'responses', params)
+        content = result.content.decode('UTF8')
+        data = json.loads(content)
+        count = data['total_hits']
+
+        display = get_paginate_info(params['ru_ref'])
+        pagination = Pagination(page=params['page'], total=count, record_name='submissions',
+                                css_framework='bootstrap3', per_page=params['per_page'],
+                                display_msg=display)
+        return render_template('store.html', data=data, ru_ref=params['ru_ref'], pagination=pagination)
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])

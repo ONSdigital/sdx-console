@@ -1,0 +1,47 @@
+{% set navigation_bar = [
+    ('/', 'index', 'Submit'),
+    ('/store', 'store', 'Store')
+] -%}
+{% set active_page = active_page|default('index') -%}
+
+<!DOCTYPE html>
+<html lang="en">
+    <title>SDX Console</title>
+    <head>
+        <link rel="stylesheet" href="static/css/bootstrap.min.css">
+        <link rel="stylesheet" href="static/css/app.css">
+        <script src="static/js/jquery-1.12.1.min.js"></script>
+        <script src="static/js/bootstrap.min.js"></script>
+        <script src="static/js/app.js"></script>
+    </head>
+    <body>
+        <div class='container'>
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="/">sdx-console</a>
+                    </div>
+                    <div id="navbar" class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                            {% for href, id, caption in navigation_bar %}
+                                <li{% if id == active_page %} class="active" {% endif %}>
+                                    <a href="{{ href|e }}">{{ caption|e }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <div class="alert hidden" role="alert"></div>
+            <div class="row">
+                {% block body %}{% endblock %}
+            </div>
+        </div>
+    </body>
+</html>
