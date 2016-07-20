@@ -1,4 +1,14 @@
 $(function(){
+    function convert_utc_to_local(utc_dt) {
+      utc_datetime = moment.utc(utc_dt);
+      datetime = utc_datetime.local();
+      return datetime.format('MMMM Do YYYY, H:mm:ss');
+    }
+
+    $('.utc_datetime').each(function(index, obj) {
+      obj.innerHTML = convert_utc_to_local(obj.innerHTML);
+    });
+
     $('ul.nav.nav-tabs li a').click(function (e) {
       e.preventDefault()
       $(this).tab('show')
@@ -71,7 +81,7 @@ $(function(){
           $("#" + dataType + "-data tbody").empty();
 
           $.each(tableData, function(filename, metadata){
-            var $tableRow = $('<tr id="' + metadata['filename'] + '"><td><a href="#">' + metadata['filename'] + '</a></td><td>' +  metadata['size'] + '</td><td>' + metadata['modify'] + '</td></tr>');
+            var $tableRow = $('<tr id="' + metadata['filename'] + '"><td><a href="#">' + metadata['filename'] + '</a></td><td>' +  metadata['size'] + '</td><td>' + convert_utc_to_local(metadata['modify']) + '</td></tr>');
 
             var onClickType = dataType;
 

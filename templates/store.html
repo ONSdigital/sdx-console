@@ -38,7 +38,7 @@
                                <td>{{ item.survey_response.survey_id }}</td>
                                <td>{{ item.survey_response.metadata.ru_ref }}</td>
                                <td>{{ item.survey_response.metadata.user_id }}</td>
-                               <td>{{ item.added_date }}</td>
+                               <td class="utc_datetime">{{ item.added_date }}</td>
                                <td align="center"><button class="btn btn-primary btn-reprocess" data-id="{{item._id}}">Reprocess</button></td>
                             </tr>
                         {% endfor %}
