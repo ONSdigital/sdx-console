@@ -14,7 +14,7 @@ import logging.handlers
 from logging import Formatter
 
 from flask import Blueprint
-from flask.ext.paginate import Pagination
+from flask_paginate import Pagination
 
 mod = Blueprint('server', __name__)
 
