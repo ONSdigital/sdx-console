@@ -102,7 +102,7 @@ $(function(){
       });
     }
 
-    $.get('/surveys/023.0102.json', function(data){
+    $.get('/surveys/0.ce2016.json', function(data){
       $("#post-data").text(data);
     });
 
