@@ -23,7 +23,7 @@
                 <table class="table table-hover table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Transaction ID</th>
                             <th>Survey ID</th>
                             <th>RU Ref</th>
                             <th>User ID</th>
@@ -34,7 +34,7 @@
                     <tbody>
                         {% for item in data.results %}
                             <tr>
-                               <td>{{ item._id }}</td>
+                               <td>{{ item.survey_response.tx_id }}</td>
                                <td>{{ item.survey_response.survey_id }}</td>
                                <td>{{ item.survey_response.metadata.ru_ref }}</td>
                                <td>{{ item.survey_response.metadata.user_id }}</td>
