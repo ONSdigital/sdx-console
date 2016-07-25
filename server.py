@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, jsonify
 
 from ftplib import FTP
+import uuid
 from datetime import datetime
 from encrypter import Encrypter
 
@@ -61,13 +62,10 @@ def survey(survey_id):
 
 def send_payload(payload, no_of_submissions=1):
     app.logger.debug(" [x] Sending encrypted Payload")
-
     app.logger.debug(payload)
 
     connection = pika.BlockingConnection(pika.URLParameters(settings.RABBIT_URL))
-
     channel = connection.channel()
-
     channel.queue_declare(queue=settings.RABBIT_QUEUE)
 
     for i in range(no_of_submissions):
@@ -76,7 +74,6 @@ def send_payload(payload, no_of_submissions=1):
                               body=payload)
 
     app.logger.debug(" [x] Sent Payload to rabbitmq!")
-
     connection.close()
 
 
@@ -147,13 +144,14 @@ def submit():
         data = request.get_data().decode('UTF8')
 
         app.logger.debug(" [x] Encrypting data: {}".format(data))
-
         unencrypted_json = json.loads(data)
-
         no_of_submissions = int(unencrypted_json['quantity'])
 
+        survey = unencrypted_json['survey']
+        add_dynamic_data(survey)
+
         encrypter = Encrypter()
-        payload = encrypter.encrypt(unencrypted_json['survey'])
+        payload = encrypter.encrypt(survey)
 
         send_payload(payload, no_of_submissions)
 
@@ -163,8 +161,16 @@ def submit():
         ftp_data = get_ftp_contents()
         surveys = list_surveys()
 
-        return render_template('index.html', ftp_data=json.dumps(ftp_data),
-                               surveys=surveys)
+        return render_template('index.html', ftp_data=json.dumps(ftp_data), surveys=surveys)
+
+
+def add_dynamic_data(survey):
+    if "tx_id" not in survey:
+        survey["tx_id"] = str(uuid.uuid4())
+        app.logger.debug("Added tx_id: " + survey["tx_id"])
+
+    survey["submitted_at"] = datetime.utcnow().isoformat()
+    app.logger.debug("Added submitted_at: " + survey["submitted_at"])
 
 
 def client_error(error=None):
