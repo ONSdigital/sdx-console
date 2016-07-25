@@ -28,7 +28,7 @@ $(function(){
         // set as current date and time
         obj["submitted_at"] = moment.utc().format('YYYY-MM-DDTH:mm:ssZ')
       }
-      return JSON.stringify(obj);
+      return JSON.stringify(obj, undefined, 1);
     }
 
     $('.utc_datetime').each(function(index, obj) {
