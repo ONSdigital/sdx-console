@@ -26,7 +26,7 @@ $(function(){
       // if no submitted_at
       if (!("submitted_at" in obj)) {
         // set as current date and time
-        obj["submitted_at"] = moment.utc().format('YYYY-MM-DDTH:mm:ssZ')
+        obj["submitted_at"] = moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')
       }
       return JSON.stringify(obj, undefined, 1);
     }
