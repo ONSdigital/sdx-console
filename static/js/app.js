@@ -5,6 +5,32 @@ $(function(){
       return datetime.format('MMMM Do YYYY, H:mm:ss');
     }
 
+    function guid() {
+      // http://stackoverflow.com/a/105074
+      function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+      }
+      return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+    }
+
+    function get_survey_data() {
+      var data = $('#post-data').val();
+      var obj = JSON.parse(data);
+
+      // if no tx_id
+      if (!("tx_id" in obj)) {
+        // generate uuid
+        obj["tx_id"] = guid();
+      }
+
+      // if no submitted_at
+      if (!("submitted_at" in obj)) {
+        // set as current date and time
+        obj["submitted_at"] = moment.utc().format('YYYY-MM-DDTH:mm:ssZ')
+      }
+      return JSON.stringify(obj, undefined, 1);
+    }
+
     $('.utc_datetime').each(function(index, obj) {
       obj.innerHTML = convert_utc_to_local(obj.innerHTML);
     });
@@ -16,7 +42,7 @@ $(function(){
 
     $('#submitter-form').on('submit', function(event){
         event.preventDefault();
-        var postData = $('#post-data').val();
+        var postData = get_survey_data();
         var quantity = $('#survey-quantity').val();
 
         $.post('/', '{"survey": ' + postData + ', "quantity": ' + quantity + '}')
@@ -34,9 +60,8 @@ $(function(){
 
     $('#decrypt-form').on('submit', function(event){
         event.preventDefault();
-        var postData = $('#post-data').val();
-
-        $.post('/decrypt', $('#post-data').val())
+        var postData = get_survey_data();
+        $.post('/decrypt', postData)
           .done(function(data){
             $(".alert").removeClass('alert-success alert-danger hidden');
             $(".alert").addClass('alert-success').text("Posted encrypted data: " + data.substr(1, 100) + "...");
@@ -51,8 +76,8 @@ $(function(){
 
     $('#validate').on('click', function(event){
         event.preventDefault();
-        var postData = $('#post-data').val();
-        $.post('/validate', $('#post-data').val())
+        var postData = get_survey_data();
+        $.post('/validate', postData)
           .done(function(data){
             console.log(data);
             $(".alert").removeClass('alert-success alert-danger hidden');
