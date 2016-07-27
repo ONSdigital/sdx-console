@@ -68,7 +68,7 @@ def send_payload(payload, no_of_submissions=1):
 
     channel = connection.channel()
 
-    channel.queue_declare(queue=settings.RABBIT_QUEUE)
+    channel.queue_declare(queue=settings.RABBIT_QUEUE, durable=True)
 
     for i in range(no_of_submissions):
         channel.basic_publish(exchange='',
