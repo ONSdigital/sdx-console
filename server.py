@@ -3,6 +3,7 @@ from flask import Flask, request, render_template, jsonify
 from ftplib import FTP
 from datetime import datetime
 from encrypter import Encrypter
+from structlog import wrap_logger
 
 import os
 import pika
@@ -11,7 +12,6 @@ import settings
 import requests
 import logging
 import logging.handlers
-from logging import Formatter
 
 from flask_paginate import Pagination
 
@@ -26,6 +26,9 @@ PATHS = {
 
 app.config['USE_MLSD'] = True
 
+logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
+logger = wrap_logger(logging.getLogger(__name__))
+
 
 def login_to_ftp():
     ftp = FTP(settings.FTP_HOST)
@@ -37,7 +40,7 @@ def login_to_ftp():
     except:
         app.config['USE_MLSD'] = False
 
-    app.logger.debug("Setting mlsd:" + str(app.config['USE_MLSD']))
+    logger.debug("Setting mlsd:" + str(app.config['USE_MLSD']))
 
     return ftp
 
@@ -60,9 +63,9 @@ def survey(survey_id):
 
 
 def send_payload(payload, no_of_submissions=1):
-    app.logger.debug(" [x] Sending encrypted Payload")
+    logger.debug(" [x] Sending encrypted Payload")
 
-    app.logger.debug(payload)
+    logger.debug(payload)
 
     connection = pika.BlockingConnection(pika.URLParameters(settings.RABBIT_URL))
 
@@ -75,7 +78,7 @@ def send_payload(payload, no_of_submissions=1):
                               routing_key=settings.RABBIT_QUEUE,
                               body=payload)
 
-    app.logger.debug(" [x] Sent Payload to rabbitmq!")
+    logger.debug(" [x] Sent Payload to rabbitmq!")
 
     connection.close()
 
@@ -142,11 +145,11 @@ def get_ftp_contents():
 def submit():
     if request.method == 'POST':
 
-        app.logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
+        logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
 
         data = request.get_data().decode('UTF8')
 
-        app.logger.debug(" [x] Encrypting data: {}".format(data))
+        logger.debug(" [x] Encrypting data: {}".format(data))
 
         unencrypted_json = json.loads(data)
 
@@ -168,7 +171,7 @@ def submit():
 
 
 def client_error(error=None):
-    app.logger.error(error, request=request.data.decode('UTF8'))
+    logger.error(error, request=request.data.decode('UTF8'))
     message = {
         'status': 400,
         'message': error,
@@ -219,7 +222,7 @@ def store():
 def decrypt():
     if request.method == 'POST':
 
-        app.logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
+        logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
 
         payload = request.get_data().decode('UTF8')
 
@@ -239,9 +242,9 @@ def validate():
 
         payload = request.get_data()
 
-        app.logger.debug("Validating json...{}".format(payload))
+        logger.debug("Validating json...{}".format(payload))
 
-        app.logger.debug("Validate URL: {}".format(settings.VALIDATE_ENDPOINT))
+        logger.debug("Validate URL: {}".format(settings.VALIDATE_ENDPOINT))
 
         r = requests.post(settings.VALIDATE_ENDPOINT, data=payload)
 
@@ -289,9 +292,6 @@ def clear():
     return json.dumps({"removed": removed})
 
 if __name__ == '__main__':
-    logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
-    handler = logging.handlers.RotatingFileHandler(settings.LOGGING_LOCATION, maxBytes=20000, backupCount=5)
-    handler.setFormatter(Formatter(settings.LOGGING_FORMAT))
-    app.logger.addHandler(handler)
     ftp = login_to_ftp()
-    app.run(debug=True, host='0.0.0.0')
+    port = int(os.getenv("PORT"))
+    app.run(debug=True, host='0.0.0.0', port=port)
