@@ -124,6 +124,7 @@ def get_folder_contents(path):
         for fname in ftp.nlst(path):
             fmeta = {}
             if fname not in ('.', '..'):
+                fname = os.path.basename(fname)
                 fmeta['filename'] = fname
 
                 data.append(fmeta)
