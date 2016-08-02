@@ -85,7 +85,7 @@
             </table>
           </div>
         </div>
-        <button id="empty-ftp" class="btn btn-default">Empty FTP</button>
+        {% if enable_empty_ftp %}<button id="empty-ftp" class="btn btn-default">Empty FTP</button>{% endif %}
     </div>
     <div class="modal fade" id="contentModal" tabindex="-1" role="dialog">
       <div class="modal-dialog modal-lg">
