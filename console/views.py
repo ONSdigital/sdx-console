@@ -5,11 +5,11 @@ from console import app
 from ftplib import FTP
 from datetime import datetime
 from console.encrypter import Encrypter
+from console.queue_publisher import QueuePublisher
 import console.settings as settings
 from structlog import wrap_logger
 
 import os
-import pika
 import json
 import requests
 import logging
@@ -64,23 +64,13 @@ def survey(survey_id):
 
 def send_payload(payload, no_of_submissions=1):
     logger.debug(" [x] Sending encrypted Payload")
-
     logger.debug(payload)
 
-    connection = pika.BlockingConnection(pika.URLParameters(settings.RABBIT_URL))
-
-    channel = connection.channel()
-
-    channel.queue_declare(queue=settings.RABBIT_QUEUE, durable=True)
-
+    publisher = QueuePublisher(logger, settings.RABBIT_URLS, settings.RABBIT_QUEUE)
     for i in range(no_of_submissions):
-        channel.basic_publish(exchange='',
-                              routing_key=settings.RABBIT_QUEUE,
-                              body=payload)
+        publisher.publish_message(payload)
 
     logger.debug(" [x] Sent Payload to rabbitmq!")
-
-    connection.close()
 
 
 def mod_to_iso(file_modified):
