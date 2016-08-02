@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 import base64
 import os
-import settings
+from console import settings
 import jwt
 
 KID = 'SDE'
