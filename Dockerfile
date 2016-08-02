@@ -1,6 +1,7 @@
 FROM onsdigital/flask-crypto-queue
 
 ADD console /app/console
+ADD server.py /app/server.py
 ADD requirements.txt /app/requirements.txt
 ADD startup.sh /app/startup.sh
 
