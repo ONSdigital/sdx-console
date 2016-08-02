@@ -3,5 +3,5 @@ tests/__pycache__/
 __pycache__
 logs/
 *.pyc
-/static/images/*.jpg
+/console/static/images/*.jpg
 tmpfile
