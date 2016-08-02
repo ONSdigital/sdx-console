@@ -92,14 +92,15 @@ def get_image(filename):
 
     filepath, ext = os.path.splitext(filename)
 
-    tmp_image_path = 'static/images/' + filepath + ext
+    tmp_image_url = 'static/images/' + filepath + ext
+    tmp_image_path = 'console/static/images/' + filepath + ext
 
     if os.path.exists(tmp_image_path):
         os.unlink(tmp_image_path)
 
     ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
 
-    return tmp_image_path
+    return tmp_image_url
 
 
 def get_file_contents(datatype, filename):
