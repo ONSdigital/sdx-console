@@ -1,5 +1,6 @@
 $(function(){
     function convert_utc_to_local(utc_dt) {
+      if (!utc_dt) { return ''; }
       utc_datetime = moment.utc(utc_dt);
       datetime = utc_datetime.local();
       return datetime.format('MMMM Do YYYY, H:mm:ss');
