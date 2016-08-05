@@ -124,6 +124,7 @@ def get_folder_contents(path):
         for fname in ftp.nlst(path):
             fmeta = {}
             if fname not in ('.', '..'):
+                fname = os.path.basename(fname)
                 fmeta['filename'] = fname
 
                 data.append(fmeta)
@@ -167,7 +168,8 @@ def submit():
         ftp_data = get_ftp_contents()
         surveys = list_surveys()
 
-        return render_template('index.html', ftp_data=json.dumps(ftp_data),
+        return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP,
+                               ftp_data=json.dumps(ftp_data),
                                surveys=surveys)
 
 
