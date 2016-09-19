@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 LOGGING_FORMAT = "%(asctime)s|%(levelname)s: sdx-console: %(message)s"
-LOGGING_LEVEL = logging.DEBUG
+LOGGING_LEVEL = logging.getLevelName(os.getenv('LOGGING_LEVEL', 'DEBUG'))
 
 
 def get_key(key_name):
