@@ -28,6 +28,23 @@ logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT
 logger = wrap_logger(logging.getLogger(__name__))
 
 
+class ConsoleFtp(object):
+
+    def __init__(self):
+        self._ftp = FTP(settings.FTP_HOST)
+        self._ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
+
+    def get_folder_contents(self, path):
+        file_list = []
+        for fname in self._ftp.nlst(path):
+            fmeta = {}
+            if fname not in ('.', '..'):
+                fname = os.path.basename(fname)
+                fmeta['filename'] = fname
+                file_list.append(fmeta)
+        return file_list
+
+
 # def login_to_ftp():
 #     ftp = FTP(settings.FTP_HOST)
 #     ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
@@ -120,26 +137,16 @@ def mod_to_iso(file_modified):
 #                 data.append(fmeta)
 #
 #     return data
-#
-#
-# def get_ftp_contents():
-#
-#     ftp_data = {}
-#     ftp_data['pck'] = get_folder_contents(PATHS['pck'])
-#     ftp_data['index'] = get_folder_contents(PATHS['index'])
-#     ftp_data['image'] = get_folder_contents(PATHS['image'])
-#     ftp_data['receipt'] = get_folder_contents(PATHS['receipt'])
-#
-#     return ftp_data
 
 
 def get_ftp_contents():
 
     ftp_data = {}
-    ftp_data['pck'] = [{'filename': 'pckTEST1.txt'}, {'filename': 'pckTEST2.txt'}, {'filename': 'pckTEST3.txt'}]
-    ftp_data['index'] = [{'filename': 'indexTEST1.txt'}, {'filename': 'indexTEST2.txt'}, {'filename': 'indexTEST3.txt'}]
-    ftp_data['image'] = [{'filename': 'imageTEST1.txt'}, {'filename': 'imageTEST2.txt'}, {'filename': 'imageTEST3.txt'}]
-    ftp_data['receipt'] = [{'filename': 'receiptTEST1.txt'}, {'filename': 'receiptTEST2.txt'}, {'filename': 'receiptTEST3.txt'}]
+    ftp = ConsoleFtp()
+    ftp_data['pck'] = ftp.get_folder_contents(PATHS['pck'])
+    ftp_data['index'] = ftp.get_folder_contents(PATHS['index'])
+    ftp_data['image'] = ftp.get_folder_contents(PATHS['image'])
+    ftp_data['receipt'] = ftp.get_folder_contents(PATHS['receipt'])
 
     return ftp_data
 
@@ -166,11 +173,11 @@ def submit():
         return data
     else:
 
-        ftp_data = get_ftp_contents()
+        # ftp_data = get_ftp_contents()
         surveys = list_surveys()
 
         return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP,
-                               ftp_data=json.dumps(ftp_data),
+                               # ftp_data=json.dumps(ftp_data),
                                surveys=surveys)
 
 
