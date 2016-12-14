@@ -135,6 +135,7 @@ def get_ftp_contents():
 
 @app.route('/', methods=['POST', 'GET'])
 def submit():
+    logger.debug("STARTING")
     if request.method == 'POST':
 
         logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
@@ -157,6 +158,7 @@ def submit():
 
         # ftp_data = get_ftp_contents()
         surveys = list_surveys()
+        logger.debug("ENDING")
 
         return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP,
                                # ftp_data=json.dumps(ftp_data),
