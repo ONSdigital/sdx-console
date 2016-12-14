@@ -158,10 +158,10 @@ def submit():
 
         no_of_submissions = int(unencrypted_json['quantity'])
 
-        # encrypter = Encrypter()
-        # payload = encrypter.encrypt(unencrypted_json['survey'])
-        #
-        # send_payload(payload, no_of_submissions)
+        encrypter = Encrypter()
+        payload = encrypter.encrypt(unencrypted_json['survey'])
+
+        send_payload(payload, no_of_submissions)
 
         return data
     else:
