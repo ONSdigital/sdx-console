@@ -28,21 +28,21 @@ logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT
 logger = wrap_logger(logging.getLogger(__name__))
 
 
-def login_to_ftp():
-    ftp = FTP(settings.FTP_HOST)
-    ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
-
-    try:
-        # Perform a simple mlsd test
-        len([fname for fname, fmeta in ftp.mlsd(path=PATHS['pck'])])
-    except:
-        app.config['USE_MLSD'] = False
-
-    logger.debug("Setting mlsd:" + str(app.config['USE_MLSD']))
-
-    return ftp
-
-ftp = login_to_ftp()
+# def login_to_ftp():
+#     ftp = FTP(settings.FTP_HOST)
+#     ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
+#
+#     try:
+#         # Perform a simple mlsd test
+#         len([fname for fname, fmeta in ftp.mlsd(path=PATHS['pck'])])
+#     except:
+#         app.config['USE_MLSD'] = False
+#
+#     logger.debug("Setting mlsd:" + str(app.config['USE_MLSD']))
+#
+#     return ftp
+#
+# ftp = login_to_ftp()
 
 
 def list_surveys():
@@ -78,64 +78,74 @@ def mod_to_iso(file_modified):
     return t.isoformat()
 
 
-def get_image(filename):
-
-    filepath, ext = os.path.splitext(filename)
-
-    tmp_image_url = 'static/images/' + filepath + ext
-    tmp_image_path = 'console/static/images/' + filepath + ext
-
-    if os.path.exists(tmp_image_path):
-        os.unlink(tmp_image_path)
-
-    ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
-
-    return tmp_image_url
-
-
-def get_file_contents(datatype, filename):
-    ftp.retrbinary("RETR " + PATHS[datatype] + "/" + filename, open('tmpfile', 'wb').write)
-
-    transferred = open('tmpfile', 'r')
-
-    return transferred.read()
-
-
-def get_folder_contents(path):
-    data = []
-
-    if app.config['USE_MLSD']:
-        for fname, fmeta in ftp.mlsd(path=path):
-            if fname not in ('.', '..'):
-                fmeta['modify'] = mod_to_iso(fmeta['modify'])
-                fmeta['filename'] = fname
-                data.append(fmeta)
-    else:
-        for fname in ftp.nlst(path):
-            fmeta = {}
-            if fname not in ('.', '..'):
-                fname = os.path.basename(fname)
-                fmeta['filename'] = fname
-
-                data.append(fmeta)
-
-    return data
+# def get_image(filename):
+#
+#     filepath, ext = os.path.splitext(filename)
+#
+#     tmp_image_url = 'static/images/' + filepath + ext
+#     tmp_image_path = 'console/static/images/' + filepath + ext
+#
+#     if os.path.exists(tmp_image_path):
+#         os.unlink(tmp_image_path)
+#
+#     ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
+#
+#     return tmp_image_url
+#
+#
+# def get_file_contents(datatype, filename):
+#     ftp.retrbinary("RETR " + PATHS[datatype] + "/" + filename, open('tmpfile', 'wb').write)
+#
+#     transferred = open('tmpfile', 'r')
+#
+#     return transferred.read()
+#
+#
+# def get_folder_contents(path):
+#     data = []
+#
+#     if app.config['USE_MLSD']:
+#         for fname, fmeta in ftp.mlsd(path=path):
+#             if fname not in ('.', '..'):
+#                 fmeta['modify'] = mod_to_iso(fmeta['modify'])
+#                 fmeta['filename'] = fname
+#                 data.append(fmeta)
+#     else:
+#         for fname in ftp.nlst(path):
+#             fmeta = {}
+#             if fname not in ('.', '..'):
+#                 fname = os.path.basename(fname)
+#                 fmeta['filename'] = fname
+#
+#                 data.append(fmeta)
+#
+#     return data
+#
+#
+# def get_ftp_contents():
+#
+#     ftp_data = {}
+#     ftp_data['pck'] = get_folder_contents(PATHS['pck'])
+#     ftp_data['index'] = get_folder_contents(PATHS['index'])
+#     ftp_data['image'] = get_folder_contents(PATHS['image'])
+#     ftp_data['receipt'] = get_folder_contents(PATHS['receipt'])
+#
+#     return ftp_data
 
 
 def get_ftp_contents():
 
     ftp_data = {}
-    ftp_data['pck'] = get_folder_contents(PATHS['pck'])
-    ftp_data['index'] = get_folder_contents(PATHS['index'])
-    ftp_data['image'] = get_folder_contents(PATHS['image'])
-    ftp_data['receipt'] = get_folder_contents(PATHS['receipt'])
+    ftp_data['pck'] = [{'filename': 'pckTEST1.txt'}, {'filename': 'pckTEST2.txt'}, {'filename': 'pckTEST3.txt'}]
+    ftp_data['index'] = [{'filename': 'indexTEST1.txt'}, {'filename': 'indexTEST2.txt'}, {'filename': 'indexTEST3.txt'}]
+    ftp_data['image'] = [{'filename': 'imageTEST1.txt'}, {'filename': 'imageTEST2.txt'}, {'filename': 'imageTEST3.txt'}]
+    ftp_data['receipt'] = [{'filename': 'receiptTEST1.txt'}, {'filename': 'receiptTEST2.txt'}, {'filename': 'receiptTEST3.txt'}]
 
     return ftp_data
 
 
 @app.route('/', methods=['POST', 'GET'])
 def submit():
-    logger.debug("STARTING")
     if request.method == 'POST':
 
         logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
@@ -156,12 +166,11 @@ def submit():
         return data
     else:
 
-        # ftp_data = get_ftp_contents()
+        ftp_data = get_ftp_contents()
         surveys = list_surveys()
-        logger.debug("ENDING")
 
         return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP,
-                               # ftp_data=json.dumps(ftp_data),
+                               ftp_data=json.dumps(ftp_data),
                                surveys=surveys)
 
 
@@ -254,6 +263,7 @@ def validate():
 @app.route('/list')
 def list():
 
+    # ftp_data = get_ftp_contents()
     ftp_data = get_ftp_contents()
 
     return jsonify(ftp_data)
