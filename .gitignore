@@ -5,3 +5,4 @@ logs/
 *.pyc
 /console/static/images/*.jpg
 tmpfile
+.idea
