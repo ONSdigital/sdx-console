@@ -1,8 +1,3 @@
-from functools import wraps
-import errno
-import os
-import signal
-
 from flask import request, render_template, jsonify
 
 from console import app
@@ -14,6 +9,7 @@ from console.queue_publisher import QueuePublisher
 import console.settings as settings
 from structlog import wrap_logger
 
+import os
 import json
 import requests
 import logging
@@ -32,43 +28,21 @@ logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT
 logger = wrap_logger(logging.getLogger(__name__))
 
 
-class TimeoutError(Exception):
-    pass
-
-
-def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
-    def decorator(func):
-        def _handle_timeout(signum, frame):
-            raise TimeoutError(error_message)
-
-        def wrapper(*args, **kwargs):
-            signal.signal(signal.SIGALRM, _handle_timeout)
-            signal.alarm(seconds)
-            try:
-                result = func(*args, **kwargs)
-            finally:
-                signal.alarm(0)
-            return result
-
-        return wraps(func)(wrapper)
-
-    return decorator
-
-
-@timeout
 def login_to_ftp():
-    _ftp = FTP(settings.FTP_HOST)
-    _ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
+    ftp = FTP(settings.FTP_HOST)
+    ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
 
-    try:
-        # Perform a simple mlsd test
-        len([fname for fname, fmeta in _ftp.mlsd(path=PATHS['pck'])])
-    except:
-        app.config['USE_MLSD'] = False
+    # try:
+    #     # Perform a simple mlsd test
+    #     len([fname for fname, fmeta in ftp.mlsd(path=PATHS['pck'])])
+    # except:
+    #     app.config['USE_MLSD'] = False
+
+    app.config['USE_MLSD'] = False
 
     logger.debug("Setting mlsd:" + str(app.config['USE_MLSD']))
 
-    return _ftp
+    return ftp
 
 ftp = login_to_ftp()
 
@@ -132,20 +106,28 @@ def get_file_contents(datatype, filename):
 def get_folder_contents(path):
     data = []
 
-    if app.config['USE_MLSD']:
-        for fname, fmeta in ftp.mlsd(path=path):
-            if fname not in ('.', '..'):
-                fmeta['modify'] = mod_to_iso(fmeta['modify'])
-                fmeta['filename'] = fname
-                data.append(fmeta)
-    else:
-        for fname in ftp.nlst(path):
-            fmeta = {}
-            if fname not in ('.', '..'):
-                fname = os.path.basename(fname)
-                fmeta['filename'] = fname
+    # if app.config['USE_MLSD']:
+    #     for fname, fmeta in ftp.mlsd(path=path):
+    #         if fname not in ('.', '..'):
+    #             fmeta['modify'] = mod_to_iso(fmeta['modify'])
+    #             fmeta['filename'] = fname
+    #             data.append(fmeta)
+    # else:
+    #     for fname in ftp.nlst(path):
+    #         fmeta = {}
+    #         if fname not in ('.', '..'):
+    #             fname = os.path.basename(fname)
+    #             fmeta['filename'] = fname
+    #
+    #             data.append(fmeta)
 
-                data.append(fmeta)
+    for fname in ftp.nlst(path):
+        fmeta = {}
+        if fname not in ('.', '..'):
+            fname = os.path.basename(fname)
+            fmeta['filename'] = fname
+
+            data.append(fmeta)
 
     return data
 
