@@ -99,33 +99,33 @@ $(function(){
     var dataTypes = ['pck', 'image', 'index', 'receipt'];
 
     function pollFTP() {
-      $.getJSON('/list', function(data) {
-        for (var i in dataTypes) {
-          var dataType = dataTypes[i];
-          var tableData = data[dataType];
-
-          $("#" + dataType + "-data tbody").empty();
-
-          $.each(tableData, function(filename, metadata){
-            var $tableRow = $('<tr id="' + metadata['filename'] + '"><td><a href="#">' + metadata['filename'] + '</a></td><td>' +  metadata['size'] + '</td><td>' + convert_utc_to_local(metadata['modify']) + '</td></tr>');
-
-            var onClickType = dataType;
-
-            $tableRow.on("click", function(event){
-              var filename = $(event.target).closest("tr").attr("id");
-
-              $('#contentModal .modal-title').text(filename);
-
-              $.get('/view/' + onClickType + '/' + filename, function(data){
-                $('#contentModal .modal-body').html(data);
-                $('#contentModal').modal('show');
-              });
-            });
-
-            $("#" + dataType + "-data tbody").append($tableRow);
-          });
-        }
-      });
+      // $.getJSON('/list', function(data) {
+      //   for (var i in dataTypes) {
+      //     var dataType = dataTypes[i];
+      //     var tableData = data[dataType];
+      //
+      //     $("#" + dataType + "-data tbody").empty();
+      //
+      //     $.each(tableData, function(filename, metadata){
+      //       var $tableRow = $('<tr id="' + metadata['filename'] + '"><td><a href="#">' + metadata['filename'] + '</a></td><td>' +  metadata['size'] + '</td><td>' + convert_utc_to_local(metadata['modify']) + '</td></tr>');
+      //
+      //       var onClickType = dataType;
+      //
+      //       $tableRow.on("click", function(event){
+      //         var filename = $(event.target).closest("tr").attr("id");
+      //
+      //         $('#contentModal .modal-title').text(filename);
+      //
+      //         $.get('/view/' + onClickType + '/' + filename, function(data){
+      //           $('#contentModal .modal-body').html(data);
+      //           $('#contentModal').modal('show');
+      //         });
+      //       });
+      //
+      //       $("#" + dataType + "-data tbody").append($tableRow);
+      //     });
+      //   }
+      // });
     }
 
     $.get('/surveys/0.ce2016.json', function(data){
