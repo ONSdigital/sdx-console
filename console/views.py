@@ -32,13 +32,11 @@ def login_to_ftp():
     ftp = FTP(settings.FTP_HOST)
     ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
 
-    # try:
-    #     # Perform a simple mlsd test
-    #     len([fname for fname, fmeta in ftp.mlsd(path=PATHS['pck'])])
-    # except:
-    #     app.config['USE_MLSD'] = False
-
-    app.config['USE_MLSD'] = False
+    try:
+        # Perform a simple mlsd test
+        len([fname for fname, fmeta in ftp.mlsd(path=PATHS['pck'])])
+    except:
+        app.config['USE_MLSD'] = False
 
     logger.debug("Setting mlsd:" + str(app.config['USE_MLSD']))
 
@@ -106,28 +104,20 @@ def get_file_contents(datatype, filename):
 def get_folder_contents(path):
     data = []
 
-    # if app.config['USE_MLSD']:
-    #     for fname, fmeta in ftp.mlsd(path=path):
-    #         if fname not in ('.', '..'):
-    #             fmeta['modify'] = mod_to_iso(fmeta['modify'])
-    #             fmeta['filename'] = fname
-    #             data.append(fmeta)
-    # else:
-    #     for fname in ftp.nlst(path):
-    #         fmeta = {}
-    #         if fname not in ('.', '..'):
-    #             fname = os.path.basename(fname)
-    #             fmeta['filename'] = fname
-    #
-    #             data.append(fmeta)
+    if app.config['USE_MLSD']:
+        for fname, fmeta in ftp.mlsd(path=path):
+            if fname not in ('.', '..'):
+                fmeta['modify'] = mod_to_iso(fmeta['modify'])
+                fmeta['filename'] = fname
+                data.append(fmeta)
+    else:
+        for fname in ftp.nlst(path):
+            fmeta = {}
+            if fname not in ('.', '..'):
+                fname = os.path.basename(fname)
+                fmeta['filename'] = fname
 
-    for fname in ftp.nlst(path):
-        fmeta = {}
-        if fname not in ('.', '..'):
-            fname = os.path.basename(fname)
-            fmeta['filename'] = fname
-
-            data.append(fmeta)
+                data.append(fmeta)
 
     return data
 
@@ -165,11 +155,11 @@ def submit():
         return data
     else:
 
-        ftp_data = get_ftp_contents()
+        # ftp_data = get_ftp_contents()
         surveys = list_surveys()
 
         return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP,
-                               ftp_data=json.dumps(ftp_data),
+                               # ftp_data=json.dumps(ftp_data),
                                surveys=surveys)
 
 
