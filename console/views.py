@@ -28,21 +28,22 @@ logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT
 logger = wrap_logger(logging.getLogger(__name__))
 
 
-def login_to_ftp():
-    ftp = FTP(settings.FTP_HOST)
-    ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
-
-    try:
-        # Perform a simple mlsd test
-        len([fname for fname, fmeta in ftp.mlsd(path=PATHS['pck'])])
-    except:
-        app.config['USE_MLSD'] = False
-
-    logger.debug("Setting mlsd:" + str(app.config['USE_MLSD']))
-
-    return ftp
-
-ftp = login_to_ftp()
+# def login_to_ftp():
+#     ftp = FTP(settings.FTP_HOST)
+#     ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
+#
+#     try:
+#         # Perform a simple mlsd test
+#         len([fname for fname, fmeta in ftp.mlsd(path=PATHS['pck'])])
+#     except:
+#         app.config['USE_MLSD'] = False
+#
+#     logger.debug("Setting mlsd:" + str(app.config['USE_MLSD']))
+#
+#     return ftp
+#
+# ftp = login_to_ftp()
+ftp = None
 
 
 def list_surveys():
@@ -155,6 +156,7 @@ def submit():
 
         return data
     else:
+        return 'hello world'
 
         try:
             ftp_data = get_ftp_contents()
