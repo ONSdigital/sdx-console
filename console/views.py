@@ -159,7 +159,7 @@ def submit():
         try:
             ftp_data = get_ftp_contents()
             surveys = list_surveys()
-        except Exception, e:
+        except Exception as e:
             logger.debug(repr(e))
 
         return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP,
