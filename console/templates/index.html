@@ -85,7 +85,9 @@
             </table>
           </div>
         </div>
+        <button id="refresh-ftp" class="btn btn-primary" data-loading-text="Refreshing">Refresh FTP</button>
         {% if enable_empty_ftp %}<button id="empty-ftp" class="btn btn-default">Empty FTP</button>{% endif %}
+        <div id="sse-stream"></div>
     </div>
     <div class="modal fade" id="contentModal" tabindex="-1" role="dialog">
       <div class="modal-dialog modal-lg">

@@ -1,4 +1,4 @@
-from flask import request, render_template, jsonify
+from flask import request, render_template, jsonify, Response
 
 from console import app
 
@@ -16,6 +16,10 @@ import logging
 import logging.handlers
 
 from flask_paginate import Pagination
+
+import gevent
+import random
+
 
 PATHS = {
     'pck': "EDC_QData",
@@ -153,6 +157,7 @@ def get_ftp_contents():
 
 @app.route('/', methods=['POST', 'GET'])
 def submit():
+
     if request.method == 'POST':
 
         logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
@@ -302,3 +307,15 @@ def clear():
                     removed += 1
 
     return json.dumps({"removed": removed})
+
+# import time
+# def event():
+#     while True:
+#         # yield 'data: ' + datetime.now().strftime("%X") + '\n\n'
+#         yield 'data: ' + json.dumps(get_ftp_contents()) + '\n\n'
+#         # gevent.sleep(0.5)
+#
+#
+# @app.route('/stream', methods=['GET', 'POST'])
+# def stream():
+#     return Response(event(), mimetype="text/event-stream")
