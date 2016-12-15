@@ -18,6 +18,7 @@ import logging.handlers
 from flask_paginate import Pagination
 
 import gevent
+import signal
 import random
 
 
@@ -155,8 +156,24 @@ def get_ftp_contents():
     return ftp_data
 
 
+# def event():
+#     while True:
+#         yield 'data: ' + datetime.now().strftime("%X") + '\n\n'
+#         # yield 'data: ' + json.dumps(get_ftp_contents()) + '\n\n'
+#         gevent.sleep(0.5)
+#
+#
+# @app.route('/stream', methods=['GET', 'POST'])
+# def stream():
+#     return Response(event(), mimetype="text/event-stream")
+
+
 @app.route('/', methods=['POST', 'GET'])
 def submit():
+
+    # gevent.signal(signal.SIGQUIT, gevent.kill)
+    # thread = gevent.spawn(event)
+    # thread.join()
 
     if request.method == 'POST':
 
@@ -307,15 +324,3 @@ def clear():
                     removed += 1
 
     return json.dumps({"removed": removed})
-
-# import time
-# def event():
-#     while True:
-#         # yield 'data: ' + datetime.now().strftime("%X") + '\n\n'
-#         yield 'data: ' + json.dumps(get_ftp_contents()) + '\n\n'
-#         # gevent.sleep(0.5)
-#
-#
-# @app.route('/stream', methods=['GET', 'POST'])
-# def stream():
-#     return Response(event(), mimetype="text/event-stream")

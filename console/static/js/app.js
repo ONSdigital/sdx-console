@@ -141,9 +141,9 @@ $(function () {
         getFTP();
     });
 
-    $.get('/surveys/0.ce2016.json', function (data) {
-        $("#post-data").text(data);
-    });
+    // $.get('/surveys/0.ce2016.json', function (data) {
+    //     $("#post-data").text(data);
+    // });
 
     $("#survey-selector").on("change", function (event) {
         $.get('/surveys/' + $(event.target).val(), function (data) {
@@ -187,7 +187,7 @@ $(function () {
             });
     });
 
-    getFTP();
+    // getFTP();
 
     // setInterval(pollFTP, 2000);
 
