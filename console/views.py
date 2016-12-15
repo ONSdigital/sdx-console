@@ -100,48 +100,48 @@ def mod_to_iso(file_modified):
     return t.isoformat()
 
 
-# def get_image(filename):
-#
-#     filepath, ext = os.path.splitext(filename)
-#
-#     tmp_image_url = 'static/images/' + filepath + ext
-#     tmp_image_path = 'console/static/images/' + filepath + ext
-#
-#     if os.path.exists(tmp_image_path):
-#         os.unlink(tmp_image_path)
-#
-#     ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
-#
-#     return tmp_image_url
-#
-#
-# def get_file_contents(datatype, filename):
-#     ftp.retrbinary("RETR " + PATHS[datatype] + "/" + filename, open('tmpfile', 'wb').write)
-#
-#     transferred = open('tmpfile', 'r')
-#
-#     return transferred.read()
-#
-#
-# def get_folder_contents(path):
-#     data = []
-#
-#     if app.config['USE_MLSD']:
-#         for fname, fmeta in ftp.mlsd(path=path):
-#             if fname not in ('.', '..'):
-#                 fmeta['modify'] = mod_to_iso(fmeta['modify'])
-#                 fmeta['filename'] = fname
-#                 data.append(fmeta)
-#     else:
-#         for fname in ftp.nlst(path):
-#             fmeta = {}
-#             if fname not in ('.', '..'):
-#                 fname = os.path.basename(fname)
-#                 fmeta['filename'] = fname
-#
-#                 data.append(fmeta)
-#
-#     return data
+def get_image(filename):
+
+    filepath, ext = os.path.splitext(filename)
+
+    tmp_image_url = 'static/images/' + filepath + ext
+    tmp_image_path = 'console/static/images/' + filepath + ext
+
+    if os.path.exists(tmp_image_path):
+        os.unlink(tmp_image_path)
+
+    ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
+
+    return tmp_image_url
+
+
+def get_file_contents(datatype, filename):
+    ftp.retrbinary("RETR " + PATHS[datatype] + "/" + filename, open('tmpfile', 'wb').write)
+
+    transferred = open('tmpfile', 'r')
+
+    return transferred.read()
+
+
+def get_folder_contents(path):
+    data = []
+
+    if app.config['USE_MLSD']:
+        for fname, fmeta in ftp.mlsd(path=path):
+            if fname not in ('.', '..'):
+                fmeta['modify'] = mod_to_iso(fmeta['modify'])
+                fmeta['filename'] = fname
+                data.append(fmeta)
+    else:
+        for fname in ftp.nlst(path):
+            fmeta = {}
+            if fname not in ('.', '..'):
+                fname = os.path.basename(fname)
+                fmeta['filename'] = fname
+
+                data.append(fmeta)
+
+    return data
 
 
 def get_ftp_contents():
