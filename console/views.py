@@ -2,6 +2,8 @@ from flask import request, render_template, jsonify, Response
 
 from console import app
 
+import asyncio
+import time
 from ftplib import FTP
 from datetime import datetime
 from console.encrypter import Encrypter
@@ -23,10 +25,10 @@ import random
 
 
 PATHS = {
-    'pck': "EDC_QData",
-    'image': "EDC_QImages/Images",
-    'index': "EDC_QImages/Index",
-    'receipt': "EDC_QReceipts"
+    "pck": "EDC_QData",
+    "image": "EDC_QImages/Images",
+    "index": "EDC_QImages/Index",
+    "receipt": "EDC_QReceipts"
 }
 
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
@@ -45,7 +47,7 @@ class ConsoleFtp(object):
             fmeta = {}
             if fname not in ('.', '..'):
                 fname = os.path.basename(fname)
-                fmeta['filename'] = fname
+                fmeta["filename"] = fname
                 file_list.append(fmeta)
         return file_list
 
@@ -148,24 +150,25 @@ def get_ftp_contents():
 
     ftp_data = {}
     ftp = ConsoleFtp()
-    ftp_data['pck'] = ftp.get_folder_contents(PATHS['pck'])
-    ftp_data['index'] = ftp.get_folder_contents(PATHS['index'])
-    ftp_data['image'] = ftp.get_folder_contents(PATHS['image'])
-    ftp_data['receipt'] = ftp.get_folder_contents(PATHS['receipt'])
+    ftp_data["pck"] = ftp.get_folder_contents(PATHS["pck"])
+    ftp_data["index"] = ftp.get_folder_contents(PATHS["index"])
+    ftp_data["image"] = ftp.get_folder_contents(PATHS["image"])
+    ftp_data["receipt"] = ftp.get_folder_contents(PATHS["receipt"])
 
     return ftp_data
 
 
-# def event():
-#     while True:
-#         yield 'data: ' + datetime.now().strftime("%X") + '\n\n'
-#         # yield 'data: ' + json.dumps(get_ftp_contents()) + '\n\n'
-#         gevent.sleep(0.5)
-#
-#
-# @app.route('/stream', methods=['GET', 'POST'])
-# def stream():
-#     return Response(event(), mimetype="text/event-stream")
+@asyncio.coroutine
+def ftp_stream():
+    while True:
+        yield 'data: ' + json.dumps(get_ftp_contents()) + '\n\n'
+        time.sleep(1)
+
+
+@asyncio.coroutine
+@app.route('/ftpstream', methods=['GET', 'POST'])
+def stream():
+    return Response(ftp_stream(), mimetype="text/event-stream")
 
 
 @app.route('/', methods=['POST', 'GET'])

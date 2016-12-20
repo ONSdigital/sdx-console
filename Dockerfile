@@ -9,6 +9,7 @@ ADD startup.sh /app/startup.sh
 WORKDIR /app/
 
 EXPOSE 5000
+EXPOSE 15678
 
 RUN pip3 install --no-cache-dir -U -I -r /app/requirements.txt
 
