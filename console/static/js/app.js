@@ -242,7 +242,7 @@ $(function () {
     //     } catch(err) {}
     // });
 
-    function get(url) {
+    function asyncGet(url) {
         // Return a new promise.
         return new Promise(function (resolve, reject) {
             // Do the usual XHR stuff
@@ -273,11 +273,11 @@ $(function () {
         });
     }
 
-    function getJSON(url) {
-        return get(url).then(JSON.parse);
+    function asyncGetJSON(url) {
+        return asyncGet(url).then(JSON.parse);
     }
 
-    get('/surveys/0.ce2016.json').then(function (response) {
+    asyncGet('/surveys/0.ce2016.json').then(function (response) {
         $("#post-data").text(response);
     }, function (error) {
         console.error("Failed!", error);
@@ -286,11 +286,11 @@ $(function () {
     var dataTypes = ['pck', 'image', 'index', 'receipt'];
 
     function refreshFTP() {
-        getJSON('/list').then(function (json_data) {
+        asyncGetJSON('/ftp.json').then(function (ftp_data) {
 
             for (var i in dataTypes) {
                 var dataType = dataTypes[i];
-                var tableData = json_data[dataType];
+                var tableData = ftp_data[dataType];
 
                 $("#" + dataType + "-data tbody").empty();
 
@@ -301,12 +301,12 @@ $(function () {
 
                     $tableRow.on("click", function (event) {
                         var filename = $(event.target).closest("tr").attr("id");
-
                         $('#contentModal .modal-title').text(filename);
-
-                        $.get('/view/' + onClickType + '/' + filename, function (data) {
+                        asyncGet('/view/' + onClickType + '/' + filename).then(function (data) {
                             $('#contentModal .modal-body').html(data);
                             $('#contentModal').modal('show');
+                        }, function (error) {
+                            console.error("Failed!", error);
                         });
                     });
 

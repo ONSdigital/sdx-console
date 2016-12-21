@@ -2,7 +2,6 @@ from flask import request, render_template, jsonify, Response
 
 from console import app
 
-import asyncio
 import time
 from ftplib import FTP
 from datetime import datetime
@@ -19,10 +18,6 @@ import logging.handlers
 
 from flask_paginate import Pagination
 
-import gevent
-import signal
-import random
-
 
 PATHS = {
     "pck": "EDC_QData",
@@ -35,11 +30,55 @@ logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT
 logger = wrap_logger(logging.getLogger(__name__))
 
 
+# class ConsoleFtp(object):
+#
+#     def __init__(self):
+#         self._ftp = FTP(settings.FTP_HOST)
+#         self._ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
+#         self._use_mlsd = True
+#         try:
+#         # Perform a simple mlsd test
+#             len([fname for fname, fmeta in self._ftp.mlsd(path=PATHS['pck'])])
+#         except Exception as e:
+#             app.config['USE_MLSD'] = False
+#             self._use_mlsd = False
+#             logger.debug(e.message)
+#         logger.debug("Setting MLSD:" + str(app.config['USE_MLSD']))
+#
+#     def get_folder_contents(self, path):
+#         file_list = []
+#         if self._use_mlsd:
+#             for fname, fmeta in self._ftp.mlsd(path=path):
+#                 fmeta = {}
+#                 if fname not in ('.', '..'):
+#                     fmeta['modify'] = mod_to_iso(fmeta['modify'])
+#                     fmeta['filename'] = fname
+#                     fmeta['size'] = fmeta['size']
+#                     file_list.append(fmeta)
+#         else:
+#             for fname in self._ftp.nlst(path):
+#                 fmeta = {}
+#                 if fname not in ('.', '..'):
+#                     fname = os.path.basename(fname)
+#                     fmeta["filename"] = fname
+#                     file_list.append(fmeta)
+#         return file_list
+
+
 class ConsoleFtp(object):
 
     def __init__(self):
         self._ftp = FTP(settings.FTP_HOST)
         self._ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
+        self._use_mlsd = True
+        try:
+        # Perform a simple mlsd test
+            len([fname for fname, fmeta in self._ftp.mlsd(path=PATHS['pck'])])
+        except Exception as e:
+            app.config['USE_MLSD'] = False
+            self._use_mlsd = False
+            logger.debug(e.message)
+        logger.debug("Setting MLSD:" + str(app.config['USE_MLSD']))
 
     def get_folder_contents(self, path):
         file_list = []
@@ -69,6 +108,7 @@ class ConsoleFtp(object):
 # ftp = login_to_ftp()
 
 
+@app.route('/surveys.json')
 def list_surveys():
     return [f for f in os.listdir('console/static/surveys') if os.path.isfile(os.path.join('console/static/surveys', f))]
 
@@ -158,25 +198,21 @@ def get_ftp_contents():
     return ftp_data
 
 
-@asyncio.coroutine
-def ftp_stream():
-    while True:
-        yield 'data: ' + json.dumps(get_ftp_contents()) + '\n\n'
-        time.sleep(1)
-
-
-@asyncio.coroutine
-@app.route('/ftpstream', methods=['GET', 'POST'])
-def stream():
-    return Response(ftp_stream(), mimetype="text/event-stream")
+# @asyncio.coroutine
+# def ftp_stream():
+#     while True:
+#         yield 'data: ' + json.dumps(get_ftp_contents()) + '\n\n'
+#         time.sleep(1)
+#
+#
+# @asyncio.coroutine
+# @app.route('/ftpstream', methods=['GET', 'POST'])
+# def stream():
+#     return Response(ftp_stream(), mimetype="text/event-stream")
 
 
 @app.route('/', methods=['POST', 'GET'])
 def submit():
-
-    # gevent.signal(signal.SIGQUIT, gevent.kill)
-    # thread = gevent.spawn(event)
-    # thread.join()
 
     if request.method == 'POST':
 
@@ -198,12 +234,12 @@ def submit():
         return data
     else:
 
-        # ftp_data = get_ftp_contents()
-        surveys = list_surveys()
+        # surveys = list_surveys()
+        #
+        # return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP,
+        #                        surveys=surveys)
 
-        return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP,
-                               # ftp_data=json.dumps(ftp_data),
-                               surveys=surveys)
+        return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
 
 
 def client_error(error=None):
@@ -292,13 +328,9 @@ def validate():
         return render_template('decrypt.html', ftp_data=json.dumps(ftp_data))
 
 
-@app.route('/list')
-def list():
-
-    # ftp_data = get_ftp_contents()
-    ftp_data = get_ftp_contents()
-
-    return jsonify(ftp_data)
+@app.route('/ftp.json')
+def ftp_list():
+    return jsonify(get_ftp_contents())
 
 
 @app.route('/view/<datatype>/<filename>')
