@@ -178,15 +178,15 @@ $(function () {
     // });
 
     $("#survey-selector").on("change", function (event) {
-        // $.get('/surveys/' + $(event.target).val(), function (data) {
-        //     $("#post-data").text(data);
-        // });
-        asyncGet('/view/' + onClickType + '/' + filename).then(function (data) {
-            $('#contentModal .modal-body').html(data);
-            $('#contentModal').modal('show');
-        }, function (error) {
-            console.error("Failed!", error);
+        $.get('/surveys/' + $(event.target).val(), function (data) {
+            $("#post-data").text(data);
         });
+        // asyncGet('/view/' + onClickType + '/' + filename).then(function (data) {
+        //     $('#contentModal .modal-body').html(data);
+        //     $('#contentModal').modal('show');
+        // }, function (error) {
+        //     console.error("Failed!", error);
+        // });
     });
 
     // $("#empty-ftp").on("click", function (event) {
