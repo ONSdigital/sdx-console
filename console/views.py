@@ -83,21 +83,20 @@ class ConsoleFtp(object):
 
     def get_folder_contents(self, path):
         file_list = []
-        # for fname in self._ftp.nlst(path):
-        #     fmeta = {}
-        #     if fname not in ('.', '..'):
-        #         fname = os.path.basename(fname)
-        #         fmeta["filename"] = fname
-        #         file_list.append(fmeta)
-        # return file_list
-        for fname, fmeta in self._ftp.mlsd(path=path):
-            if fname not in ('.', '..', '.DS_Store'):
-                fmeta['modify'] = mod_to_iso(fmeta['modify'])
-                fmeta['size'] = fmeta['size']
-                fmeta['filename'] = fname
+        for fname in self._ftp.nlst(path):
+            fmeta = {}
+            if fname not in ('.', '..'):
+                fname = os.path.basename(fname)
+                fmeta["filename"] = fname
                 file_list.append(fmeta)
-        # sort by newest first:
-        file_list.sort(key=operator.itemgetter('modify'), reverse=True)
+        # for fname, fmeta in self._ftp.mlsd(path=path):
+        #     if fname not in ('.', '..', '.DS_Store'):
+        #         fmeta['modify'] = mod_to_iso(fmeta['modify'])
+        #         fmeta['size'] = fmeta['size']
+        #         fmeta['filename'] = fname
+        #         file_list.append(fmeta)
+        # # sort by newest first:
+        # file_list.sort(key=operator.itemgetter('modify'), reverse=True)
         return file_list
 
 
