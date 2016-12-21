@@ -188,8 +188,6 @@ $(function () {
     //
     // // setInterval(pollFTP, 2000);
 
-    var dataTypes = ['pck', 'image', 'index', 'receipt'];
-
     // function enable_ftp_data_stream() {
     //
     //     // reset the event stream connection:
@@ -243,5 +241,86 @@ $(function () {
     //         $source.close();
     //     } catch(err) {}
     // });
+
+    function get(url) {
+        // Return a new promise.
+        return new Promise(function (resolve, reject) {
+            // Do the usual XHR stuff
+            var req = new XMLHttpRequest();
+            req.open('GET', url);
+
+            req.onload = function () {
+                // This is called even on 404 etc
+                // so check the status
+                if (req.status == 200) {
+                    // Resolve the promise with the response text
+                    resolve(req.response);
+                }
+                else {
+                    // Otherwise reject with the status text
+                    // which will hopefully be a meaningful error
+                    reject(Error(req.statusText));
+                }
+            };
+
+            // Handle network errors
+            req.onerror = function () {
+                reject(Error("Network Error"));
+            };
+
+            // Make the request
+            req.send();
+        });
+    }
+
+    function getJSON(url) {
+        return get(url).then(JSON.parse);
+    }
+
+    get('/surveys/0.ce2016.json').then(function (response) {
+        $("#post-data").text(response);
+    }, function (error) {
+        console.error("Failed!", error);
+    });
+
+    var dataTypes = ['pck', 'image', 'index', 'receipt'];
+
+    function refreshFTP() {
+        getJSON('/list').then(function (json_data) {
+
+            for (var i in dataTypes) {
+                var dataType = dataTypes[i];
+                var tableData = json_data[dataType];
+
+                $("#" + dataType + "-data tbody").empty();
+
+                $.each(tableData, function (filename, metadata) {
+                    var $tableRow = $('<tr id="' + metadata['filename'] + '"><td><a href="#">' + metadata['filename'] + '</a></td><td>' + metadata['size'] + '</td><td>' + convert_utc_to_local(metadata['modify']) + '</td></tr>');
+
+                    var onClickType = dataType;
+
+                    $tableRow.on("click", function (event) {
+                        var filename = $(event.target).closest("tr").attr("id");
+
+                        $('#contentModal .modal-title').text(filename);
+
+                        $.get('/view/' + onClickType + '/' + filename, function (data) {
+                            $('#contentModal .modal-body').html(data);
+                            $('#contentModal').modal('show');
+                        });
+                    });
+
+                    $("#" + dataType + "-data tbody").append($tableRow);
+                });
+            }
+
+            setTimeout(refreshFTP, 2000);
+
+        }, function (error) {
+            console.error("Failed!", error);
+        });
+    }
+
+    refreshFTP();
 
 });
