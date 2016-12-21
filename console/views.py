@@ -3,6 +3,7 @@ from flask import request, render_template, jsonify, Response
 from console import app
 
 import time
+import operator
 from ftplib import FTP
 from datetime import datetime
 from console.encrypter import Encrypter
@@ -82,13 +83,34 @@ class ConsoleFtp(object):
 
     def get_folder_contents(self, path):
         file_list = []
-        for fname in self._ftp.nlst(path):
-            fmeta = {}
-            if fname not in ('.', '..'):
-                fname = os.path.basename(fname)
-                fmeta["filename"] = fname
+        # for fname in self._ftp.nlst(path):
+        #     fmeta = {}
+        #     if fname not in ('.', '..'):
+        #         fname = os.path.basename(fname)
+        #         fmeta["filename"] = fname
+        #         file_list.append(fmeta)
+        # return file_list
+        for fname, fmeta in self._ftp.mlsd(path=path):
+            if fname not in ('.', '..', '.DS_Store'):
+                fmeta['modify'] = mod_to_iso(fmeta['modify'])
+                fmeta['size'] = fmeta['size']
+                fmeta['filename'] = fname
                 file_list.append(fmeta)
+        # sort by newest first:
+        file_list.sort(key=operator.itemgetter('modify'), reverse=True)
         return file_list
+
+
+def get_ftp_contents():
+
+    ftp_data = {}
+    ftp = ConsoleFtp()
+    ftp_data["pck"] = ftp.get_folder_contents(PATHS["pck"])[0:10]
+    ftp_data["index"] = ftp.get_folder_contents(PATHS["index"])[0:10]
+    ftp_data["image"] = ftp.get_folder_contents(PATHS["image"])[0:10]
+    ftp_data["receipt"] = ftp.get_folder_contents(PATHS["receipt"])[0:10]
+
+    return ftp_data
 
 
 # def login_to_ftp():
@@ -165,37 +187,25 @@ def get_file_contents(datatype, filename):
     return transferred.read()
 
 
-def get_folder_contents(path):
-    data = []
-
-    if app.config['USE_MLSD']:
-        for fname, fmeta in ftp.mlsd(path=path):
-            if fname not in ('.', '..'):
-                fmeta['modify'] = mod_to_iso(fmeta['modify'])
-                fmeta['filename'] = fname
-                data.append(fmeta)
-    else:
-        for fname in ftp.nlst(path):
-            fmeta = {}
-            if fname not in ('.', '..'):
-                fname = os.path.basename(fname)
-                fmeta['filename'] = fname
-
-                data.append(fmeta)
-
-    return data
-
-
-def get_ftp_contents():
-
-    ftp_data = {}
-    ftp = ConsoleFtp()
-    ftp_data["pck"] = ftp.get_folder_contents(PATHS["pck"])
-    ftp_data["index"] = ftp.get_folder_contents(PATHS["index"])
-    ftp_data["image"] = ftp.get_folder_contents(PATHS["image"])
-    ftp_data["receipt"] = ftp.get_folder_contents(PATHS["receipt"])
-
-    return ftp_data
+# def get_folder_contents(path):
+#     data = []
+#
+#     if app.config['USE_MLSD']:
+#         for fname, fmeta in ftp.mlsd(path=path):
+#             if fname not in ('.', '..'):
+#                 fmeta['modify'] = mod_to_iso(fmeta['modify'])
+#                 fmeta['filename'] = fname
+#                 data.append(fmeta)
+#     else:
+#         for fname in ftp.nlst(path):
+#             fmeta = {}
+#             if fname not in ('.', '..'):
+#                 fname = os.path.basename(fname)
+#                 fmeta['filename'] = fname
+#
+#                 data.append(fmeta)
+#
+#     return data
 
 
 # @asyncio.coroutine

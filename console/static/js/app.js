@@ -41,7 +41,8 @@ $(function () {
         }
         utc_datetime = moment.utc(utc_dt);
         datetime = utc_datetime.local();
-        return datetime.format('MMMM Do YYYY, H:mm:ss');
+        // return datetime.format('MMMM Do YYYY, H:mm:ss');
+        return datetime.format('Y-m-d H:mm:ss');
     }
 
     function guid() {
@@ -301,7 +302,7 @@ $(function () {
                 $("#" + dataType + "-data tbody").empty();
 
                 $.each(tableData, function (filename, metadata) {
-                    var $tableRow = $('<tr id="' + metadata['filename'] + '"><td><a href="#">' + metadata['filename'] + '</a></td><td>' + metadata['size'] + '</td><td>' + convert_utc_to_local(metadata['modify']) + '</td></tr>');
+                    var $tableRow = $('<tr id="' + metadata['filename'] + '"><td><a href="#">' + metadata['filename'] + '</a></td><td>' + metadata['size'] * 0.001 + ' kb</td><td>' + metadata['modify'] + '</td></tr>');
 
                     var onClickType = dataType;
 
