@@ -1,5 +1,40 @@
 $(function () {
 
+    function asyncGet(url) {
+        // Return a new promise.
+        return new Promise(function (resolve, reject) {
+            // Do the usual XHR stuff
+            var req = new XMLHttpRequest();
+            req.open('GET', url);
+
+            req.onload = function () {
+                // This is called even on 404 etc
+                // so check the status
+                if (req.status == 200) {
+                    // Resolve the promise with the response text
+                    resolve(req.response);
+                }
+                else {
+                    // Otherwise reject with the status text
+                    // which will hopefully be a meaningful error
+                    reject(Error(req.statusText));
+                }
+            };
+
+            // Handle network errors
+            req.onerror = function () {
+                reject(Error("Network Error"));
+            };
+
+            // Make the request
+            req.send();
+        });
+    }
+
+    function asyncGetJSON(url) {
+        return asyncGet(url).then(JSON.parse);
+    }
+
     function convert_utc_to_local(utc_dt) {
         if (!utc_dt) {
             return '';
@@ -143,8 +178,14 @@ $(function () {
     // });
 
     $("#survey-selector").on("change", function (event) {
-        $.get('/surveys/' + $(event.target).val(), function (data) {
-            $("#post-data").text(data);
+        // $.get('/surveys/' + $(event.target).val(), function (data) {
+        //     $("#post-data").text(data);
+        // });
+        asyncGet('/view/' + onClickType + '/' + filename).then(function (data) {
+            $('#contentModal .modal-body').html(data);
+            $('#contentModal').modal('show');
+        }, function (error) {
+            console.error("Failed!", error);
         });
     });
 
@@ -242,41 +283,6 @@ $(function () {
     //     } catch(err) {}
     // });
 
-    function asyncGet(url) {
-        // Return a new promise.
-        return new Promise(function (resolve, reject) {
-            // Do the usual XHR stuff
-            var req = new XMLHttpRequest();
-            req.open('GET', url);
-
-            req.onload = function () {
-                // This is called even on 404 etc
-                // so check the status
-                if (req.status == 200) {
-                    // Resolve the promise with the response text
-                    resolve(req.response);
-                }
-                else {
-                    // Otherwise reject with the status text
-                    // which will hopefully be a meaningful error
-                    reject(Error(req.statusText));
-                }
-            };
-
-            // Handle network errors
-            req.onerror = function () {
-                reject(Error("Network Error"));
-            };
-
-            // Make the request
-            req.send();
-        });
-    }
-
-    function asyncGetJSON(url) {
-        return asyncGet(url).then(JSON.parse);
-    }
-
     asyncGet('/surveys/0.ce2016.json').then(function (response) {
         $("#post-data").text(response);
     }, function (error) {
@@ -286,11 +292,11 @@ $(function () {
     var dataTypes = ['pck', 'image', 'index', 'receipt'];
 
     function refreshFTP() {
-        asyncGetJSON('/ftp.json').then(function (ftp_data) {
+        asyncGetJSON('/ftp.json').then(function (ftpData) {
 
             for (var i in dataTypes) {
                 var dataType = dataTypes[i];
-                var tableData = ftp_data[dataType];
+                var tableData = ftpData[dataType];
 
                 $("#" + dataType + "-data tbody").empty();
 
@@ -321,6 +327,7 @@ $(function () {
         });
     }
 
+    // kick off the ftp polling
     refreshFTP();
 
 });
