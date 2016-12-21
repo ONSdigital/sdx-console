@@ -70,15 +70,15 @@ class ConsoleFtp(object):
     def __init__(self):
         self._ftp = FTP(settings.FTP_HOST)
         self._ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
-        self._use_mlsd = True
-        try:
-        # Perform a simple mlsd test
-            len([fname for fname, fmeta in self._ftp.mlsd(path=PATHS['pck'])])
-        except Exception as e:
-            app.config['USE_MLSD'] = False
-            self._use_mlsd = False
-            logger.debug(e.message)
-        logger.debug("Setting MLSD:" + str(app.config['USE_MLSD']))
+        # self._use_mlsd = True
+        # try:
+        # # Perform a simple mlsd test
+        #     len([fname for fname, fmeta in self._ftp.mlsd(path=PATHS['pck'])])
+        # except Exception as e:
+        #     app.config['USE_MLSD'] = False
+        #     self._use_mlsd = False
+        #     logger.debug(e.message)
+        # logger.debug("Setting MLSD:" + str(app.config['USE_MLSD']))
 
     def get_folder_contents(self, path):
         file_list = []
@@ -330,34 +330,8 @@ def validate():
 
 @app.route('/ftp.json')
 def ftp_list():
-    # return jsonify(get_ftp_contents())
-    return """
-{
-  "image": [
-    {
-      "filename": "S000000003.JPG"
-    },
-    {
-      "filename": "S000000004.JPG"
-    }
-  ],
-  "index": [
-    {
-      "filename": "EDC_023_20161213_1002.csv"
-    }
-  ],
-  "pck": [
-    {
-      "filename": "023_1002"
-    }
-  ],
-  "receipt": [
-    {
-      "filename": "REC1312_1002.DAT"
-    }
-  ]
-}
-    """
+    return jsonify(get_ftp_contents())
+
 
 @app.route('/view/<datatype>/<filename>')
 def view_file(datatype, filename):
