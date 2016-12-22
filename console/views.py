@@ -248,8 +248,14 @@ def submit():
 
         ftp = ConsoleFtp()
         l = []
-        ftp._ftp.dir("/EDC_QImages/Images", l.append)
+        ftp._ftp.dir("/EDC_QData", l.append)
         # l = ftp._ftp.nlst('EDC_QData')
+        try:
+        # Perform a simple mlsd test
+            len([fname for fname, fmeta in ftp._ftp.mlsd(path=PATHS['pck'])])
+        except Exception as e:
+            ftp.close()
+            return e.message
         ftp.close()
         # d = []
         # for i in l:
