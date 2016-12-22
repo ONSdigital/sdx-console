@@ -198,7 +198,6 @@ def submit():
         #                        surveys=surveys)
 
         return render_template('index.html',
-                               dirlist=l,
                                enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
 
 
