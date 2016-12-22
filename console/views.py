@@ -188,8 +188,8 @@ def submit():
         return data
     else:
 
-        with ConsoleFtp() as ftp:
-            l = ftp.get_folder_contents('EDC_QData')
+        # with ConsoleFtp() as ftp:
+        #     l = ftp.get_folder_contents('EDC_QData')
 
         # surveys = list_surveys()
         #
