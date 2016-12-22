@@ -254,8 +254,8 @@ def submit():
         # Perform a simple mlsd test
             len([fname for fname, fmeta in ftp._ftp.mlsd(path=PATHS['pck'])])
         except Exception as e:
-            ftp.close()
-            return e.message
+            # ftp.close()
+            return "no mlsd"
         ftp.close()
         # d = []
         # for i in l:
