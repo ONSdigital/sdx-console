@@ -71,7 +71,8 @@ class ConsoleFtp(object):
                 bits = unparsed_line.split()
                 date_string = ' '.join([bits[0], bits[1]])
                 fname = ' '.join(bits[3:])
-                if fname not in ('.', '..', '.DS_Store'):
+                # the isdigit() checks this is a file and a directory
+                if fname not in ('.', '..', '.DS_Store') and bits[2].isdigit():
                     meta = {
                         'name': fname,
                         'modify': datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat(),
