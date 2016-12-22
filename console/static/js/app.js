@@ -321,11 +321,11 @@ $(function () {
                     $("#" + dataType + "-data tbody").append($tableRow);
                 });
             }
-            $('#ftp-loading-sign').hide();
+
             setTimeout(refreshFTP, 2000);
 
         }, function (error) {
-            $('#ftp-loading-sign').hide();
+            $('#ftp-loading-sign').show();
             console.error("Failed!", error);
         });
     }
