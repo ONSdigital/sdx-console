@@ -24,6 +24,9 @@
         </form>
     </div>
     <div id='response-data-wrapper' class='col-md-6'>
+        {% for d in dirlist %}
+        {{ d }}<br>
+        {% endfor %}
         <h3>Receiver</h3>
         <p>This is lists of the <strong>most recent 10 files</strong> on FTP</p>
         <ul class='nav nav-tabs' role='tablist'>

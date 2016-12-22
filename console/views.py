@@ -83,7 +83,7 @@ class ConsoleFtp(object):
 
     def get_folder_contents(self, path):
         file_list = []
-        for fname in self._ftp.nlst(path):
+        for fname in self._ftp.retrlines(path):
             fmeta = {}
             if fname not in ('.', '..'):
                 fname = os.path.basename(fname)
@@ -98,6 +98,9 @@ class ConsoleFtp(object):
         # # sort by newest first:
         # file_list.sort(key=operator.itemgetter('modify'), reverse=True)
         return file_list
+
+    def close(self):
+        self._ftp.quit()
 
 
 def get_ftp_contents():
@@ -243,12 +246,24 @@ def submit():
         return data
     else:
 
+        ftp = ConsoleFtp()
+        l = []
+        ftp._ftp.dir("/EDC_QImages/Images", l.append)
+        # l = ftp._ftp.nlst('EDC_QData')
+        ftp.close()
+        # d = []
+        # for i in l:
+        #     # d.append([i.split()[-1], i.split()[4]])
+        #     d.append(i.split())
+
         # surveys = list_surveys()
         #
         # return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP,
         #                        surveys=surveys)
 
-        return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
+        return render_template('index.html',
+                               dirlist=l,
+                               enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
 
 
 def client_error(error=None):
