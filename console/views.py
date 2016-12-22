@@ -71,33 +71,48 @@ class ConsoleFtp(object):
     def __init__(self):
         self._ftp = FTP(settings.FTP_HOST)
         self._ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
-        # self._use_mlsd = True
-        # try:
-        # # Perform a simple mlsd test
-        #     len([fname for fname, fmeta in self._ftp.mlsd(path=PATHS['pck'])])
-        # except Exception as e:
-        #     app.config['USE_MLSD'] = False
-        #     self._use_mlsd = False
-        #     logger.debug(e.message)
-        # logger.debug("Setting MLSD:" + str(app.config['USE_MLSD']))
+        self._mlsd_enabled = True
+        try:
+        # Perform a simple mlsd test to see if the ftp server has the extra functionality:
+            len([fname for fname, fmeta in self._ftp.mlsd(path=PATHS['pck'])])
+        except Exception as e:
+            app.config['USE_MLSD'] = False
+            self._mlsd_enabled = False
 
-    def get_folder_contents(self, path):
-        file_list = []
-        for fname in self._ftp.retrlines(path):
-            fmeta = {}
-            if fname not in ('.', '..'):
-                fname = os.path.basename(fname)
-                fmeta["filename"] = fname
-                file_list.append(fmeta)
-        # for fname, fmeta in self._ftp.mlsd(path=path):
-        #     if fname not in ('.', '..', '.DS_Store'):
-        #         fmeta['modify'] = mod_to_iso(fmeta['modify'])
-        #         fmeta['size'] = fmeta['size']
-        #         fmeta['filename'] = fname
-        #         file_list.append(fmeta)
-        # # sort by newest first:
-        # file_list.sort(key=operator.itemgetter('modify'), reverse=True)
-        return file_list
+    # def get_folder_contents(self, path):
+    #
+    #     unsorted_file_list = []
+    #
+    #     if self._mlsd_enabled:
+    #         for fname, fmeta in self._ftp.mlsd(path=path):
+    #             if fname not in ('.', '..', '.DS_Store'):
+    #                 meta = {}
+    #                 meta['name'] = fname
+    #                 meta['modify'] = fmeta['modify']
+    #                 meta['size'] = fmeta['size']
+    #                 unsorted_file_list.append(meta)
+    #
+    #     else:
+    #         pre = []
+    #         self._ftp.dir("/{}".format(path), pre.append)
+    #         for unparsed_line in pre:
+    #
+    #
+    #     for fname in self._ftp.retrlines(path):
+    #         fmeta = {}
+    #         if fname not in ('.', '..'):
+    #             fname = os.path.basename(fname)
+    #             fmeta["filename"] = fname
+    #             file_list.append(fmeta)
+    #     # for fname, fmeta in self._ftp.mlsd(path=path):
+    #     #     if fname not in ('.', '..', '.DS_Store'):
+    #     #         fmeta['modify'] = mod_to_iso(fmeta['modify'])
+    #     #         fmeta['size'] = fmeta['size']
+    #     #         fmeta['filename'] = fname
+    #     #         file_list.append(fmeta)
+    #     # # sort by newest first:
+    #     # file_list.sort(key=operator.itemgetter('modify'), reverse=True)
+    #     return file_list
 
     def close(self):
         self._ftp.quit()
@@ -250,12 +265,6 @@ def submit():
         l = []
         ftp._ftp.dir("/EDC_QData", l.append)
         # l = ftp._ftp.nlst('EDC_QData')
-        try:
-        # Perform a simple mlsd test
-            len([fname for fname, fmeta in ftp._ftp.mlsd(path=PATHS['pck'])])
-        except Exception as e:
-            # ftp.close()
-            return "no mlsd"
         ftp.close()
         # d = []
         # for i in l:
