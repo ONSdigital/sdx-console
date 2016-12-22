@@ -302,7 +302,7 @@ $(function () {
                 $("#" + dataType + "-data tbody").empty();
 
                 $.each(tableData, function (filename, metadata) {
-                    var $tableRow = $('<tr id="' + metadata['filename'] + '"><td><a href="#">' + metadata['filename'] + '</a></td><td>' + metadata['size'] * 0.001 + ' kb</td><td>' + metadata['modify'] + '</td></tr>');
+                    var $tableRow = $('<tr id="' + metadata['name'] + '"><td><a href="#">' + metadata['name'] + '</a></td><td>' + metadata['size'] + 'b</td><td>' + metadata['modify'] + '</td></tr>');
 
                     var onClickType = dataType;
 

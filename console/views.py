@@ -31,42 +31,13 @@ logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT
 logger = wrap_logger(logging.getLogger(__name__))
 
 
-# class ConsoleFtp(object):
-#
-#     def __init__(self):
-#         self._ftp = FTP(settings.FTP_HOST)
-#         self._ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
-#         self._use_mlsd = True
-#         try:
-#         # Perform a simple mlsd test
-#             len([fname for fname, fmeta in self._ftp.mlsd(path=PATHS['pck'])])
-#         except Exception as e:
-#             app.config['USE_MLSD'] = False
-#             self._use_mlsd = False
-#             logger.debug(e.message)
-#         logger.debug("Setting MLSD:" + str(app.config['USE_MLSD']))
-#
-#     def get_folder_contents(self, path):
-#         file_list = []
-#         if self._use_mlsd:
-#             for fname, fmeta in self._ftp.mlsd(path=path):
-#                 fmeta = {}
-#                 if fname not in ('.', '..'):
-#                     fmeta['modify'] = mod_to_iso(fmeta['modify'])
-#                     fmeta['filename'] = fname
-#                     fmeta['size'] = fmeta['size']
-#                     file_list.append(fmeta)
-#         else:
-#             for fname in self._ftp.nlst(path):
-#                 fmeta = {}
-#                 if fname not in ('.', '..'):
-#                     fname = os.path.basename(fname)
-#                     fmeta["filename"] = fname
-#                     file_list.append(fmeta)
-#         return file_list
-
-
 class ConsoleFtp(object):
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._ftp.quit()
 
     def __init__(self):
         self._ftp = FTP(settings.FTP_HOST)
@@ -79,72 +50,49 @@ class ConsoleFtp(object):
             app.config['USE_MLSD'] = False
             self._mlsd_enabled = False
 
-    # def get_folder_contents(self, path):
-    #
-    #     unsorted_file_list = []
-    #
-    #     if self._mlsd_enabled:
-    #         for fname, fmeta in self._ftp.mlsd(path=path):
-    #             if fname not in ('.', '..', '.DS_Store'):
-    #                 meta = {}
-    #                 meta['name'] = fname
-    #                 meta['modify'] = fmeta['modify']
-    #                 meta['size'] = fmeta['size']
-    #                 unsorted_file_list.append(meta)
-    #
-    #     else:
-    #         pre = []
-    #         self._ftp.dir("/{}".format(path), pre.append)
-    #         for unparsed_line in pre:
-    #
-    #
-    #     for fname in self._ftp.retrlines(path):
-    #         fmeta = {}
-    #         if fname not in ('.', '..'):
-    #             fname = os.path.basename(fname)
-    #             fmeta["filename"] = fname
-    #             file_list.append(fmeta)
-    #     # for fname, fmeta in self._ftp.mlsd(path=path):
-    #     #     if fname not in ('.', '..', '.DS_Store'):
-    #     #         fmeta['modify'] = mod_to_iso(fmeta['modify'])
-    #     #         fmeta['size'] = fmeta['size']
-    #     #         fmeta['filename'] = fname
-    #     #         file_list.append(fmeta)
-    #     # # sort by newest first:
-    #     # file_list.sort(key=operator.itemgetter('modify'), reverse=True)
-    #     return file_list
+    def get_folder_contents(self, path):
 
-    def close(self):
-        self._ftp.quit()
+        file_list = []
+
+        if self._mlsd_enabled:
+            for fname, fmeta in self._ftp.mlsd(path=path):
+                if fname not in ('.', '..', '.DS_Store'):
+                    meta = {
+                        'name': fname,
+                        'modify': datetime.strptime(fmeta['modify'], '%Y%m%d%H%M%S').isoformat(),
+                        'size': fmeta['size']
+                    }
+                    file_list.append(meta)
+
+        else:
+            pre = []
+            self._ftp.dir("/{}".format(path), pre.append)
+            for unparsed_line in pre:
+                bits = unparsed_line.split()
+                date_string = ' '.join([bits[0], bits[1]])
+                fname = ' '.join(bits[3:])
+                if fname not in ('.', '..', '.DS_Store'):
+                    meta = {
+                        'name': fname,
+                        'modify': datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat(),
+                        'size': int(bits[2])
+                    }
+                    file_list.append(meta)
+
+        file_list.sort(key=operator.itemgetter('modify'), reverse=True)
+        return file_list
 
 
 def get_ftp_contents():
 
     ftp_data = {}
-    ftp = ConsoleFtp()
-    ftp_data["pck"] = ftp.get_folder_contents(PATHS["pck"])[0:10]
-    ftp_data["index"] = ftp.get_folder_contents(PATHS["index"])[0:10]
-    ftp_data["image"] = ftp.get_folder_contents(PATHS["image"])[0:10]
-    ftp_data["receipt"] = ftp.get_folder_contents(PATHS["receipt"])[0:10]
+    with ConsoleFtp() as ftp:
+        ftp_data["pck"] = ftp.get_folder_contents(PATHS["pck"])[0:10]
+        ftp_data["index"] = ftp.get_folder_contents(PATHS["index"])[0:10]
+        ftp_data["image"] = ftp.get_folder_contents(PATHS["image"])[0:10]
+        ftp_data["receipt"] = ftp.get_folder_contents(PATHS["receipt"])[0:10]
 
     return ftp_data
-
-
-# def login_to_ftp():
-#     ftp = FTP(settings.FTP_HOST)
-#     ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
-#
-#     try:
-#         # Perform a simple mlsd test
-#         len([fname for fname, fmeta in ftp.mlsd(path=PATHS['pck'])])
-#     except:
-#         app.config['USE_MLSD'] = False
-#
-#     logger.debug("Setting mlsd:" + str(app.config['USE_MLSD']))
-#
-#     return ftp
-#
-# ftp = login_to_ftp()
 
 
 @app.route('/surveys.json')
@@ -204,27 +152,6 @@ def get_file_contents(datatype, filename):
     return transferred.read()
 
 
-# def get_folder_contents(path):
-#     data = []
-#
-#     if app.config['USE_MLSD']:
-#         for fname, fmeta in ftp.mlsd(path=path):
-#             if fname not in ('.', '..'):
-#                 fmeta['modify'] = mod_to_iso(fmeta['modify'])
-#                 fmeta['filename'] = fname
-#                 data.append(fmeta)
-#     else:
-#         for fname in ftp.nlst(path):
-#             fmeta = {}
-#             if fname not in ('.', '..'):
-#                 fname = os.path.basename(fname)
-#                 fmeta['filename'] = fname
-#
-#                 data.append(fmeta)
-#
-#     return data
-
-
 # @asyncio.coroutine
 # def ftp_stream():
 #     while True:
@@ -261,15 +188,8 @@ def submit():
         return data
     else:
 
-        ftp = ConsoleFtp()
-        l = []
-        ftp._ftp.dir("/EDC_QData", l.append)
-        # l = ftp._ftp.nlst('EDC_QData')
-        ftp.close()
-        # d = []
-        # for i in l:
-        #     # d.append([i.split()[-1], i.split()[4]])
-        #     d.append(i.split())
+        with ConsoleFtp() as ftp:
+            l = ftp.get_folder_contents('EDC_QData')
 
         # surveys = list_surveys()
         #
