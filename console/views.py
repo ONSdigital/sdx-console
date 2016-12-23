@@ -66,7 +66,7 @@ class ConsoleFtp(object):
 
         else:
             pre = []
-            self._ftp.dir("/{}".format(path), pre.append)
+            self._ftp.dir("{}".format(path), pre.append)
             for unparsed_line in pre:
                 bits = unparsed_line.split()
                 date_string = ' '.join([bits[0], bits[1]])
@@ -83,6 +83,11 @@ class ConsoleFtp(object):
         file_list.sort(key=operator.itemgetter('modify'), reverse=True)
         return file_list
 
+    def get_file_contents(self, datatype, filename):
+        self._ftp.retrbinary("RETR " + PATHS[datatype] + "/" + filename, open('tmpfile', 'wb').write)
+        transferred = open('tmpfile', 'r')
+        return transferred.read()
+
 
 def get_ftp_contents():
 
@@ -96,7 +101,6 @@ def get_ftp_contents():
     return ftp_data
 
 
-@app.route('/surveys.json')
 def list_surveys():
     return [f for f in os.listdir('console/static/surveys') if os.path.isfile(os.path.join('console/static/surveys', f))]
 
@@ -140,30 +144,16 @@ def get_image(filename):
     if os.path.exists(tmp_image_path):
         os.unlink(tmp_image_path)
 
-    ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
+    with ConsoleFtp() as ftp:
+        ftp._ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
 
     return tmp_image_url
 
 
 def get_file_contents(datatype, filename):
-    ftp.retrbinary("RETR " + PATHS[datatype] + "/" + filename, open('tmpfile', 'wb').write)
 
-    transferred = open('tmpfile', 'r')
-
-    return transferred.read()
-
-
-# @asyncio.coroutine
-# def ftp_stream():
-#     while True:
-#         yield 'data: ' + json.dumps(get_ftp_contents()) + '\n\n'
-#         time.sleep(1)
-#
-#
-# @asyncio.coroutine
-# @app.route('/ftpstream', methods=['GET', 'POST'])
-# def stream():
-#     return Response(ftp_stream(), mimetype="text/event-stream")
+    with ConsoleFtp() as ftp:
+        return ftp.get_file_contents(datatype, filename)
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -189,13 +179,9 @@ def submit():
         return data
     else:
 
-        # with ConsoleFtp() as ftp:
-        #     l = ftp.get_folder_contents('EDC_QData')
-
-        # surveys = list_surveys()
-        #
+        # survey_list = list_surveys()
         # return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP,
-        #                        surveys=surveys)
+        #                        surveys=survey_list)
 
         return render_template('index.html',
                                enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
@@ -304,17 +290,19 @@ def view_file(datatype, filename):
 def clear():
     removed = 0
 
-    if app.config['USE_MLSD']:
-        for key, path in PATHS.items():
-            for fname, fmeta in ftp.mlsd(path=path):
-                if fname not in ('.', '..'):
-                    ftp.delete(path + "/" + fname)
-                    removed += 1
-    else:
-        for key, path in PATHS.items():
-            for fname, fmeta in ftp.nlst(path):
-                if fname not in ('.', '..'):
-                    ftp.delete(path + "/" + fname)
-                    removed += 1
+    with ConsoleFtp() as ftp:
 
-    return json.dumps({"removed": removed})
+        if app.config['USE_MLSD']:
+            for key, path in PATHS.items():
+                for fname, fmeta in ftp._ftp.mlsd(path=path):
+                    if fname not in ('.', '..'):
+                        ftp._ftp.delete(path + "/" + fname)
+                        removed += 1
+        else:
+            for key, path in PATHS.items():
+                for fname, fmeta in ftp._ftp.nlst(path):
+                    if fname not in ('.', '..'):
+                        ftp._ftp.delete(path + "/" + fname)
+                        removed += 1
+
+        return json.dumps({"removed": removed})
