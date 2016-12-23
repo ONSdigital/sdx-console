@@ -179,10 +179,6 @@ def submit():
         return data
     else:
 
-        # survey_list = list_surveys()
-        # return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP,
-        #                        surveys=survey_list)
-
         return render_template('index.html',
                                enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
 
