@@ -13,7 +13,7 @@
         <script src="static/js/jquery-1.12.1.min.js"></script>
         <script src="static/js/moment.min.js"></script>
         <script src="static/js/bootstrap.min.js"></script>
-        <script src="static/js/app.js"></script>
+        <script src="static/js/app.js?v=18"></script>
     </head>
     <body>
         <div class='container'>
@@ -39,7 +39,9 @@
                     </div>
                 </div>
             </nav>
-            <div class="alert hidden" role="alert"></div>
+            <div class="alert hidden alert-dismissible" role="alert">
+{#                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>#}
+            </div>
             <div class="row">
                 {% block body %}{% endblock %}
             </div>
