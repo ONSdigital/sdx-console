@@ -1,8 +1,7 @@
-from flask import request, render_template, jsonify, Response
+from flask import request, render_template, jsonify
 
 from console import app
 
-import time
 import operator
 from ftplib import FTP
 from datetime import datetime
@@ -44,9 +43,10 @@ class ConsoleFtp(object):
         self._ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
         self._mlsd_enabled = True
         try:
-        # Perform a simple mlsd test to see if the ftp server has the extra functionality:
+            # Perform a simple mlsd test to see if the ftp server has the extra functionality:
             len([fname for fname, fmeta in self._ftp.mlsd(path=PATHS['pck'])])
         except Exception as e:
+            logger.error("Exception initialising consoleftp", exception=e)
             app.config['USE_MLSD'] = False
             self._mlsd_enabled = False
 
