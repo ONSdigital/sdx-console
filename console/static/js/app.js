@@ -74,7 +74,6 @@ $(function () {
         }
         utc_datetime = moment.utc(utc_dt);
         datetime = utc_datetime.local();
-        // return datetime.format('MMMM Do YYYY, H:mm:ss');
         return datetime.format('Y-m-d H:mm:ss');
     }
 
@@ -103,7 +102,6 @@ $(function () {
             obj["submitted_at"] = moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')
         }
         return obj;
-        // return JSON.stringify(obj, undefined, 1);
     }
 
     $('.utc_datetime').each(function (index, obj) {
@@ -176,10 +174,6 @@ $(function () {
         }, function (error) {
             console.error("Failed!", error);
         });
-
-        // $.get('/surveys/' + $(event.target).val(), function (data) {
-        //     $("#post-data").text(data);
-        // });
     });
 
     $("#empty-ftp").on("click", function (event) {
