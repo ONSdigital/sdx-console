@@ -4,6 +4,7 @@
 
 The Survey Data Exchange (SDX) Console is a component of the Office of National Statistics (ONS) SDX project, which takes an encrypted json payload and transforms it into a number of formats for use within the ONS. This console allows for insertion of input and checking of transformed output files, using the sdx-decrypt, sdx-validate, sdx-downstream and sdx-transform-* services.
 
+Should only be deployed on-demand as required in an environment.
 
 ## Installation
 
@@ -20,4 +21,13 @@ There are two endpoints. The default takes JSON as input, encrypts it and places
  * `POST /`
  * `POST /decrypt`
 
+## Configuration
 
+Some of important environment variables available for configuration are listed below:
+
+| Environment Variable  | Default     | Description
+|-----------------------|-------------|----------------
+| FTP_HOST              | `pure-ftpd` | FTP to monitor
+| FTP_USER              | _none_      | User for FTP account if required
+| FTP_PASS              | _none_      | Password for FTP account if required
+| ENABLE_EMPTY_FTP      | `0`         | `1=on,0=off` Enables the ability to auto-empty the target FTP - **SHOULD NOT BE SWITCHED ON IN A PRODUCTION ENVIRONMENT!**

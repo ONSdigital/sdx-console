@@ -24,14 +24,16 @@
         </form>
     </div>
     <div id='response-data-wrapper' class='col-md-6'>
-        <h3>Receiver</h3>
+        <h3>Receiver <img src="static/images/ajax-loader.gif" id="ftp-loading-sign" style="position: relative; display: none;"></h3>
+        <p>Lists of the <strong>most recent 10 files</strong> to hit the FTP server:</p>
         <ul class='nav nav-tabs' role='tablist'>
           <li role="presentation" class="active"><a href="#pcks" aria-controls="pcks" role="tab" data-toggle="tab">PCKs:</a></li>
           <li role="presentation"><a href="#images" aria-controls="images" role="tab" data-toggle="tab">Images:</a></li>
           <li role="presentation"><a href="#indices" aria-controls="indices" role="tab" data-toggle="tab">Image Indices:</a></li>
           <li role="presentation"><a href="#receipts" aria-controls="receipts" role="tab" data-toggle="tab">Receipts:</a></li>
         </ul>
-        <div class="tab-content">
+{#        <div id="ftp-loading" style="text-align: center; padding: 20px; display: none;"><img src="static/images/reload.gif"></div>#}
+        <div class="tab-content" id="ftp-tab-content">
           <div role="tabpanel" class="tab-pane active" id="pcks">
             <table id="pck-data" class="table table-hover">
                 <thead>
@@ -85,6 +87,7 @@
             </table>
           </div>
         </div>
+{#        <button id="refresh-ftp" class="btn btn-primary" data-loading-text="Refreshing">Refresh FTP</button>#}
         {% if enable_empty_ftp %}<button id="empty-ftp" class="btn btn-default">Empty FTP</button>{% endif %}
     </div>
     <div class="modal fade" id="contentModal" tabindex="-1" role="dialog">

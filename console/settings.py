@@ -36,7 +36,7 @@ FTP_HOST = os.getenv('FTP_HOST', 'pure-ftpd')
 FTP_USER = os.getenv('FTP_USER')
 FTP_PASS = os.getenv('FTP_PASS')
 
-ENABLE_EMPTY_FTP = os.getenv('ENABLE_EMPTY_FTP', 1)
+ENABLE_EMPTY_FTP = os.getenv('ENABLE_EMPTY_FTP', 0)
 
 RABBIT_QUEUE = os.getenv('RABBITMQ_QUEUE', 'survey')
 

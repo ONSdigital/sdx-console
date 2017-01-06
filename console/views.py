@@ -2,6 +2,7 @@ from flask import request, render_template, jsonify
 
 from console import app
 
+import operator
 from ftplib import FTP
 from datetime import datetime
 from console.encrypter import Encrypter
@@ -17,32 +18,87 @@ import logging.handlers
 
 from flask_paginate import Pagination
 
+
 PATHS = {
-    'pck': "EDC_QData",
-    'image': "EDC_QImages/Images",
-    'index': "EDC_QImages/Index",
-    'receipt': "EDC_QReceipts"
+    "pck": "EDC_QData",
+    "image": "EDC_QImages/Images",
+    "index": "EDC_QImages/Index",
+    "receipt": "EDC_QReceipts"
 }
 
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
 logger = wrap_logger(logging.getLogger(__name__))
 
 
-def login_to_ftp():
-    ftp = FTP(settings.FTP_HOST)
-    ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
+class ConsoleFtp(object):
 
-    try:
-        # Perform a simple mlsd test
-        len([fname for fname, fmeta in ftp.mlsd(path=PATHS['pck'])])
-    except:
-        app.config['USE_MLSD'] = False
+    def __enter__(self):
+        return self
 
-    logger.debug("Setting mlsd:" + str(app.config['USE_MLSD']))
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._ftp.quit()
 
-    return ftp
+    def __init__(self):
+        self._ftp = FTP(settings.FTP_HOST)
+        self._ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
+        self._mlsd_enabled = True
+        try:
+            # Perform a simple mlsd test to see if the ftp server has the extra functionality:
+            len([fname for fname, fmeta in self._ftp.mlsd(path=PATHS['pck'])])
+        except Exception as e:
+            logger.error("Exception initialising consoleftp", exception=e)
+            app.config['USE_MLSD'] = False
+            self._mlsd_enabled = False
 
-ftp = login_to_ftp()
+    def get_folder_contents(self, path):
+
+        file_list = []
+
+        if self._mlsd_enabled:
+            for fname, fmeta in self._ftp.mlsd(path=path):
+                if fname not in ('.', '..', '.DS_Store'):
+                    meta = {
+                        'name': fname,
+                        'modify': datetime.strptime(fmeta['modify'], '%Y%m%d%H%M%S').isoformat(),
+                        'size': fmeta['size']
+                    }
+                    file_list.append(meta)
+
+        else:
+            pre = []
+            self._ftp.dir("{}".format(path), pre.append)
+            for unparsed_line in pre:
+                bits = unparsed_line.split()
+                date_string = ' '.join([bits[0], bits[1]])
+                fname = ' '.join(bits[3:])
+                # the isdigit() checks this is a file and a directory
+                if fname not in ('.', '..', '.DS_Store') and bits[2].isdigit():
+                    meta = {
+                        'name': fname,
+                        'modify': datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat(),
+                        'size': int(bits[2])
+                    }
+                    file_list.append(meta)
+
+        file_list.sort(key=operator.itemgetter('modify'), reverse=True)
+        return file_list
+
+    def get_file_contents(self, datatype, filename):
+        self._ftp.retrbinary("RETR " + PATHS[datatype] + "/" + filename, open('tmpfile', 'wb').write)
+        transferred = open('tmpfile', 'r')
+        return transferred.read()
+
+
+def get_ftp_contents():
+
+    ftp_data = {}
+    with ConsoleFtp() as ftp:
+        ftp_data["pck"] = ftp.get_folder_contents(PATHS["pck"])[0:10]
+        ftp_data["index"] = ftp.get_folder_contents(PATHS["index"])[0:10]
+        ftp_data["image"] = ftp.get_folder_contents(PATHS["image"])[0:10]
+        ftp_data["receipt"] = ftp.get_folder_contents(PATHS["receipt"])[0:10]
+
+    return ftp_data
 
 
 def list_surveys():
@@ -88,53 +144,21 @@ def get_image(filename):
     if os.path.exists(tmp_image_path):
         os.unlink(tmp_image_path)
 
-    ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
+    with ConsoleFtp() as ftp:
+        ftp._ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
 
     return tmp_image_url
 
 
 def get_file_contents(datatype, filename):
-    ftp.retrbinary("RETR " + PATHS[datatype] + "/" + filename, open('tmpfile', 'wb').write)
 
-    transferred = open('tmpfile', 'r')
-
-    return transferred.read()
-
-
-def get_folder_contents(path):
-    data = []
-
-    if app.config['USE_MLSD']:
-        for fname, fmeta in ftp.mlsd(path=path):
-            if fname not in ('.', '..'):
-                fmeta['modify'] = mod_to_iso(fmeta['modify'])
-                fmeta['filename'] = fname
-                data.append(fmeta)
-    else:
-        for fname in ftp.nlst(path):
-            fmeta = {}
-            if fname not in ('.', '..'):
-                fname = os.path.basename(fname)
-                fmeta['filename'] = fname
-
-                data.append(fmeta)
-
-    return data
-
-
-def get_ftp_contents():
-
-    ftp_data = {}
-    ftp_data['pck'] = get_folder_contents(PATHS['pck'])
-    ftp_data['index'] = get_folder_contents(PATHS['index'])
-    ftp_data['image'] = get_folder_contents(PATHS['image'])
-    ftp_data['receipt'] = get_folder_contents(PATHS['receipt'])
-
-    return ftp_data
+    with ConsoleFtp() as ftp:
+        return ftp.get_file_contents(datatype, filename)
 
 
 @app.route('/', methods=['POST', 'GET'])
 def submit():
+
     if request.method == 'POST':
 
         logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
@@ -155,12 +179,8 @@ def submit():
         return data
     else:
 
-        ftp_data = get_ftp_contents()
-        surveys = list_surveys()
-
-        return render_template('index.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP,
-                               ftp_data=json.dumps(ftp_data),
-                               surveys=surveys)
+        return render_template('index.html',
+                               enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
 
 
 def client_error(error=None):
@@ -249,12 +269,9 @@ def validate():
         return render_template('decrypt.html', ftp_data=json.dumps(ftp_data))
 
 
-@app.route('/list')
-def list():
-
-    ftp_data = get_ftp_contents()
-
-    return jsonify(ftp_data)
+@app.route('/ftp.json')
+def ftp_list():
+    return jsonify(get_ftp_contents())
 
 
 @app.route('/view/<datatype>/<filename>')
@@ -269,17 +286,19 @@ def view_file(datatype, filename):
 def clear():
     removed = 0
 
-    if app.config['USE_MLSD']:
-        for key, path in PATHS.items():
-            for fname, fmeta in ftp.mlsd(path=path):
-                if fname not in ('.', '..'):
-                    ftp.delete(path + "/" + fname)
-                    removed += 1
-    else:
-        for key, path in PATHS.items():
-            for fname, fmeta in ftp.nlst(path):
-                if fname not in ('.', '..'):
-                    ftp.delete(path + "/" + fname)
-                    removed += 1
+    with ConsoleFtp() as ftp:
 
-    return json.dumps({"removed": removed})
+        if app.config['USE_MLSD']:
+            for key, path in PATHS.items():
+                for fname, fmeta in ftp._ftp.mlsd(path=path):
+                    if fname not in ('.', '..'):
+                        ftp._ftp.delete(path + "/" + fname)
+                        removed += 1
+        else:
+            for key, path in PATHS.items():
+                for fname, fmeta in ftp._ftp.nlst(path):
+                    if fname not in ('.', '..'):
+                        ftp._ftp.delete(path + "/" + fname)
+                        removed += 1
+
+        return json.dumps({"removed": removed})
