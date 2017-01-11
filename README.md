@@ -1,5 +1,6 @@
 # sdx-console
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4758006464e4407ca06d263ac2c3eea6)](https://www.codacy.com/app/necrophonic/sdx-console?utm_source=github.com&utm_medium=referral&utm_content=ONSdigital/sdx-console&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/ONSdigital/sdx-console.svg?branch=master)](https://travis-ci.org/ONSdigital/sdx-console)
 
 The Survey Data Exchange (SDX) Console is a component of the Office of National Statistics (ONS) SDX project, which takes an encrypted json payload and transforms it into a number of formats for use within the ONS. This console allows for insertion of input and checking of transformed output files, using the sdx-decrypt, sdx-validate, sdx-downstream and sdx-transform-* services.
