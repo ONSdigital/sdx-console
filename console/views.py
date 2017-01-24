@@ -207,7 +207,8 @@ def get_paginate_info(ru_ref):
 
 
 @app.route('/store', methods=['POST', 'GET'])
-def store():
+@app.route('/store/<invalid>', methods=['POST', 'GET'])
+def store(invalid=False):
     if request.method == 'POST':
         mongo_id = request.get_data().decode('UTF8')
         result = requests.post(settings.STORE_ENDPOINT + 'queue', json={"id": mongo_id})
@@ -219,7 +220,11 @@ def store():
         params['per_page'] = request.args.get('per_page', type=int, default=25)
         params['ru_ref'] = request.args.get('ru_ref', type=str, default="")
 
-        result = requests.get(settings.STORE_ENDPOINT + 'responses', params)
+        request_url = '{}{}'.format(settings.STORE_ENDPOINT, 'responses')
+        if invalid:
+            invalid = True
+            request_url = '{}/{}'.format(request_url, 'invalid')
+        result = requests.get(request_url, params)
         content = result.content.decode('UTF8')
         data = json.loads(content)
         count = data['total_hits']
@@ -228,7 +233,8 @@ def store():
         pagination = Pagination(page=params['page'], total=count, record_name='submissions',
                                 css_framework='bootstrap3', per_page=params['per_page'],
                                 display_msg=display)
-        return render_template('store.html', data=data, ru_ref=params['ru_ref'], pagination=pagination)
+        return render_template('store.html', data=data,
+                               ru_ref=params['ru_ref'], pagination=pagination, invalid=invalid)
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])
