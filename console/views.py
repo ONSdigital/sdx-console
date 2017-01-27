@@ -173,20 +173,17 @@ def submit():
         no_of_submissions = int(unencrypted_json['quantity'])
 
         encrypter = Encrypter()
-        # payload = encrypter.encrypt(unencrypted_json['survey'])
 
-        for i in range(0,no_of_submissions):
+        for i in range(0, nno_of_submissions):
 
             # If submitting more than one then randomise the tx_id
             if no_of_submissions > 1:
                 tx_id = str(uuid.uuid4())
                 unencrypted_json['survey']['tx_id'] = tx_id
                 logger.info("Auto setting tx_id", tx_id=tx_id)
-            
-            payload = encrypter.encrypt(unencrypted_json['survey'])
-            send_payload(payload, 1) # let the loop handle the submission
 
-        # send_payload(payload, no_of_submissions)
+            payload = encrypter.encrypt(unencrypted_json['survey'])
+            send_payload(payload, 1)  # let the loop handle the submission
 
         return data
     else:
