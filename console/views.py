@@ -174,7 +174,7 @@ def submit():
 
         encrypter = Encrypter()
 
-        for i in range(0, nno_of_submissions):
+        for i in range(0, no_of_submissions):
 
             # If submitting more than one then randomise the tx_id
             if no_of_submissions > 1:
