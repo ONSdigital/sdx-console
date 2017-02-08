@@ -36,9 +36,13 @@ FTP_HOST = os.getenv('FTP_HOST', 'pure-ftpd')
 FTP_USER = os.getenv('FTP_USER')
 FTP_PASS = os.getenv('FTP_PASS')
 
+SDX_FTP_IMAGE_PATH = os.getenv("SDX_FTP_IMAGES_PATH", "EDC_QImages")
+SDX_FTP_DATA_PATH = os.getenv("SDX_FTP_DATA_PATH", "EDC_QData")
+SDX_FTP_RECEIPT_PATH = os.getenv("SDX_FTP_RECEIPT_PATH", "EDC_QReceipts")
+
 ENABLE_EMPTY_FTP = os.getenv('ENABLE_EMPTY_FTP', 0)
 
-RABBIT_QUEUE = os.getenv('RABBITMQ_QUEUE', 'survey')
+RABBIT_QUEUE = os.getenv('RABBIT_SURVEY_QUEUE', 'survey')
 
 RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
     hostname=os.getenv('RABBITMQ_HOST', 'rabbit'),
