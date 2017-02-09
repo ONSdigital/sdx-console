@@ -21,10 +21,10 @@ from flask_paginate import Pagination
 
 
 PATHS = {
-    "pck": "EDC_QData",
-    "image": "EDC_QImages/Images",
-    "index": "EDC_QImages/Index",
-    "receipt": "EDC_QReceipts"
+    "pck": settings.SDX_FTP_DATA_PATH,
+    "image": settings.SDX_FTP_IMAGE_PATH + "/Images",
+    "index": settings.SDX_FTP_IMAGE_PATH + "/Index",
+    "receipt": settings.SDX_FTP_RECEIPT_PATH
 }
 
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
