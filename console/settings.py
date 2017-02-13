@@ -30,7 +30,7 @@ PRIVATE_KEY = get_key(os.getenv('PRIVATE_KEY', "/keys/sdc-submission-encryption-
 PRIVATE_KEY_PASSWORD = os.getenv("PRIVATE_KEY_PASSWORD", "digitaleq")
 
 VALIDATE_ENDPOINT = os.getenv('VALIDATE_ENDPOINT', 'http://sdx-validate:5000/validate')
-STORE_ENDPOINT = os.getenv('STORE_ENDPOINT', 'http://sdx-store:5000/')
+STORE_URL = os.getenv('STORE_URL', 'http://sdx-store:5000/')
 
 FTP_HOST = os.getenv('FTP_HOST', 'pure-ftpd')
 FTP_USER = os.getenv('FTP_USER')
