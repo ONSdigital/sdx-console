@@ -15,15 +15,16 @@ import json
 import requests
 import logging
 import logging.handlers
+import uuid
 
 from flask_paginate import Pagination
 
 
 PATHS = {
-    "pck": "EDC_QData",
-    "image": "EDC_QImages/Images",
-    "index": "EDC_QImages/Index",
-    "receipt": "EDC_QReceipts"
+    "pck": settings.SDX_FTP_DATA_PATH,
+    "image": settings.SDX_FTP_IMAGE_PATH + "/Images",
+    "index": settings.SDX_FTP_IMAGE_PATH + "/Index",
+    "receipt": settings.SDX_FTP_RECEIPT_PATH
 }
 
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
@@ -172,9 +173,17 @@ def submit():
         no_of_submissions = int(unencrypted_json['quantity'])
 
         encrypter = Encrypter()
-        payload = encrypter.encrypt(unencrypted_json['survey'])
 
-        send_payload(payload, no_of_submissions)
+        for i in range(0, no_of_submissions):
+
+            # If submitting more than one then randomise the tx_id
+            if no_of_submissions > 1:
+                tx_id = str(uuid.uuid4())
+                unencrypted_json['survey']['tx_id'] = tx_id
+                logger.info("Auto setting tx_id", tx_id=tx_id)
+
+            payload = encrypter.encrypt(unencrypted_json['survey'])
+            send_payload(payload, 1)  # let the loop handle the submission
 
         return data
     else:
@@ -207,28 +216,42 @@ def get_paginate_info(ru_ref):
 
 
 @app.route('/store', methods=['POST', 'GET'])
-def store():
+def store(invalid=False):
     if request.method == 'POST':
         mongo_id = request.get_data().decode('UTF8')
         result = requests.post(settings.STORE_ENDPOINT + 'queue', json={"id": mongo_id})
         return mongo_id if result.status_code is 200 else result
 
     else:
-        params = {}
-        params['page'] = request.args.get('page', type=int, default=1)
-        params['per_page'] = request.args.get('per_page', type=int, default=25)
-        params['ru_ref'] = request.args.get('ru_ref', type=str, default="")
+        return fetch_responses_from_store(invalid=False)
 
-        result = requests.get(settings.STORE_ENDPOINT + 'responses', params)
-        content = result.content.decode('UTF8')
-        data = json.loads(content)
-        count = data['total_hits']
 
-        display = get_paginate_info(params['ru_ref'])
-        pagination = Pagination(page=params['page'], total=count, record_name='submissions',
-                                css_framework='bootstrap3', per_page=params['per_page'],
-                                display_msg=display)
-        return render_template('store.html', data=data, ru_ref=params['ru_ref'], pagination=pagination)
+@app.route('/store/invalid', methods=['GET'])
+def store_invalid():
+    return fetch_responses_from_store(invalid=True)
+
+
+def fetch_responses_from_store(invalid=False):
+    params = {}
+    params['page'] = request.args.get('page', type=int, default=1)
+    params['per_page'] = request.args.get('per_page', type=int, default=25)
+    params['ru_ref'] = request.args.get('ru_ref', type=str, default="")
+
+    request_url = '{}{}'.format(settings.STORE_ENDPOINT, 'responses')
+    if invalid:
+        invalid = True
+        request_url = '{}{}'.format(settings.STORE_ENDPOINT, 'invalid-responses')
+    result = requests.get(request_url, params)
+    content = result.content.decode('UTF8')
+    data = json.loads(content)
+    count = data['total_hits']
+
+    display = get_paginate_info(params['ru_ref'])
+    pagination = Pagination(page=params['page'], total=count, record_name='submissions',
+                            css_framework='bootstrap3', per_page=params['per_page'],
+                            display_msg=display)
+    return render_template('store.html', data=data,
+                           ru_ref=params['ru_ref'], pagination=pagination, invalid=invalid)
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])

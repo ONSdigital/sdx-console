@@ -108,11 +108,6 @@ $(function () {
         obj.innerHTML = convert_utc_to_local(obj.innerHTML);
     });
 
-    $('ul.nav.nav-tabs li a').click(function (e) {
-        e.preventDefault();
-        $(this).tab('show');
-    });
-
     $('#submitter-form').on('submit', function (event) {
         event.preventDefault();
         var postData = get_survey_data();
