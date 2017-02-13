@@ -4,5 +4,5 @@ gevent==1.2.1
 gunicorn==19.6.0
 pika==0.10.0
 PyJWT==1.4.2
-requests==2.13.0
+requests==2.12.4
 structlog==16.1.0
