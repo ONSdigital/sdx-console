@@ -219,7 +219,7 @@ def get_paginate_info(ru_ref):
 def store(invalid=False):
     if request.method == 'POST':
         mongo_id = request.get_data().decode('UTF8')
-        result = requests.post(settings.STORE_ENDPOINT + 'queue', json={"id": mongo_id})
+        result = requests.post(settings.SDX_STORE_URL + 'queue', json={"id": mongo_id})
         return mongo_id if result.status_code is 200 else result
 
     else:
@@ -237,10 +237,10 @@ def fetch_responses_from_store(invalid=False):
     params['per_page'] = request.args.get('per_page', type=int, default=25)
     params['ru_ref'] = request.args.get('ru_ref', type=str, default="")
 
-    request_url = '{}{}'.format(settings.STORE_ENDPOINT, 'responses')
+    request_url = '{}{}'.format(settings.SDX_STORE_URL, 'responses')
     if invalid:
         invalid = True
-        request_url = '{}{}'.format(settings.STORE_ENDPOINT, 'invalid-responses')
+        request_url = '{}{}'.format(settings.SDX_STORE_URL, 'invalid-responses')
     result = requests.get(request_url, params)
     content = result.content.decode('UTF8')
     data = json.loads(content)
@@ -280,9 +280,9 @@ def validate():
 
         logger.debug("Validating json...{}".format(payload))
 
-        logger.debug("Validate URL: {}".format(settings.VALIDATE_ENDPOINT))
+        logger.debug("Validate URL: {}".format(settings.SDX_VALIDATE_URL))
 
-        r = requests.post(settings.VALIDATE_ENDPOINT, data=payload)
+        r = requests.post(settings.SDX_VALIDATE_URL, data=payload)
 
         return jsonify(json.loads(r.text))
     else:
