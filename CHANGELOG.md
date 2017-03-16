@@ -1,4 +1,5 @@
 ### Unreleased
+  - Log version number on startup, at info level
   - Add configurable log level
   - Add change log
   - Fix [#36](https://github.com/ONSdigital/sdx-console/issues/36) crash/hang when FTP takes too long to respond
