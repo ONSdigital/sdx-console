@@ -25,9 +25,20 @@ There are two endpoints. The default takes JSON as input, encrypts it and places
 
 Some of important environment variables available for configuration are listed below:
 
-| Environment Variable  | Default     | Description
-|-----------------------|-------------|----------------
-| FTP_HOST              | `pure-ftpd` | FTP to monitor
-| FTP_USER              | _none_      | User for FTP account if required
-| FTP_PASS              | _none_      | Password for FTP account if required
-| ENABLE_EMPTY_FTP      | `0`         | `1=on,0=off` Enables the ability to auto-empty the target FTP - **SHOULD NOT BE SWITCHED ON IN A PRODUCTION ENVIRONMENT!**
+| Environment Variable    | Default                               | Description
+|-------------------------|---------------------------------------|----------------
+| FTP_HOST                | `pure-ftpd`                           | FTP to monitor
+| FTP_USER                | _none_                                | User for FTP account if required
+| FTP_PASS                | _none_                                | Password for FTP account if required
+| ENABLE_EMPTY_FTP        | `0`                                   | `1=on,0=off` Enables the ability to auto-empty the target FTP - **SHOULD NOT BE SWITCHED ON IN A PRODUCTION ENVIRONMENT!**
+| EQ_PUBLIC_KEY           | _xxx/xxxx.pem_                        | EQ public key
+| EQ_PRIVATE_KEY          | _xxx/xxxx.pem_                        | EQ private key
+| EQ_PRIVATE_KEY_PASSWORD | _xxxx_                                | Password for EQ private key
+| PRIVATE_KEY             | _xxx/xxxx.pem_                        | Private key
+| PRIVATE_KEY_PASSWORD    | _xxxx_                                | Password for private key
+| SDX_VALIDATE_URL        | `http://sdx-validate:5000/validate`   | URL of the ``sdx-validate`` service
+| SDX_STORE_URL           | `http://sdx-store:5000/`              | URL of the ``sdx-store`` service
+| RABBIT_QUEUE            | `survey`                              | Rabbit survey queue
+| SDX_FTP_IMAGE_PATH      | `EDC_QImages`                         | FTP Image path
+| SDX_FTP_DATA_PATH       | `EDC_QData`                           | FTP Data path
+| SDX_FTP_RECEIPT_PATH    | `EDC_QReceipts`                       | FTP Receipt path
