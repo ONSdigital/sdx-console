@@ -121,7 +121,6 @@ def survey(survey_id):
 
 def send_payload(payload, no_of_submissions=1):
     logger.debug(" [x] Sending encrypted Payload")
-    logger.debug(payload)
 
     publisher = QueuePublisher(logger, settings.RABBIT_URLS, settings.RABBIT_QUEUE)
     for i in range(no_of_submissions):
@@ -162,11 +161,9 @@ def submit():
 
     if request.method == 'POST':
 
-        logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
-
         data = request.get_data().decode('UTF8')
 
-        logger.debug(" [x] Encrypting data: {}".format(data))
+        logger.debug(" [x] Encrypting data")
 
         unencrypted_json = json.loads(data)
 
@@ -193,7 +190,7 @@ def submit():
 
 
 def client_error(error=None):
-    logger.error(error, request=request.data.decode('UTF8'))
+    logger.error(error)
     message = {
         'status': 400,
         'message': error,
@@ -258,8 +255,6 @@ def fetch_responses_from_store(invalid=False):
 def decrypt():
     if request.method == 'POST':
 
-        logger.debug("Rabbit URL: {}".format(settings.RABBIT_URL))
-
         payload = request.get_data().decode('UTF8')
 
         send_payload(payload)
@@ -278,7 +273,7 @@ def validate():
 
         payload = request.get_data()
 
-        logger.debug("Validating json...{}".format(payload))
+        logger.debug("Validating json...")
 
         logger.debug("Validate URL: {}".format(settings.SDX_VALIDATE_URL))
 
