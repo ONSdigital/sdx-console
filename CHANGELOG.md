@@ -7,5 +7,10 @@
   - Add QBS template
   - Add all environment variables to README
 
+### console 2.0
+  - Removed old functionality
+  - Added heartbeat
+  - Added unittests
+
 ### 1.0.0 2016-08-16
   - Initial release
