@@ -7,7 +7,6 @@
   - Add QBS template
   - Add all environment variables to README
 
-### console 2.0
   - Removed old functionality
   - Added heartbeat
   - Added unittests

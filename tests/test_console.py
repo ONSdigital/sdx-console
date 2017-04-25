@@ -1,21 +1,23 @@
-from server import app
+import server
 import unittest
+from time import sleep
 
 from testfixtures import log_capture
-from time import sleep
 
 
 class TestConsole(unittest.TestCase):
 
     def setUp(self):
-        # creates a test client
-        self.app = app.test_client()
-        # propagate the exceptions to the test client
+        self.app = server.app.test_client()
         self.app.testing = True
+        self.hb = server.HeartbeatTimer(5, server.heartbeat, server.logger)
+
+    def tearDown(self):
+        self.hb.stop()
 
     @log_capture()
     def test_heartbeat(self, l):
-        sleep(30.0)
+        sleep(10.0)
         l.check(
-            ('console.views', 'INFO', "event='Heartbeat 1'")
+            ('server', 'INFO', "event='Heartbeat'")
         )
