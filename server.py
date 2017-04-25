@@ -45,6 +45,6 @@ def heartbeat(logger=logger):
 
 if __name__ == '__main__':
     logger.info("Starting server: version='{}'".format(__version__))
-    port = int(os.getenv("$PORT", 5000))
-    hb = HeartbeatTimer(os.getenv("$HBDelay", 30), heartbeat, logger)
+    port = int(os.getenv("PORT", 5000))
+    hb = HeartbeatTimer(os.getenv("HBDelay", 30), heartbeat, logger)
     app.run(debug=True, host='0.0.0.0', port=port)
