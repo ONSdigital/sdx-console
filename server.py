@@ -1,12 +1,12 @@
 import os
-from threading import Timer
 import logging
+from threading import Timer
 
 from structlog import wrap_logger
 
-from console import app
 from console import __version__
-import console.settings as settings
+from console import app
+from console import settings
 
 
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
