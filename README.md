@@ -42,3 +42,4 @@ Some of important environment variables available for configuration are listed b
 | SDX_FTP_IMAGE_PATH      | `EDC_QImages`                         | FTP Image path
 | SDX_FTP_DATA_PATH       | `EDC_QData`                           | FTP Data path
 | SDX_FTP_RECEIPT_PATH    | `EDC_QReceipts`                       | FTP Receipt path
+| HB_INTERVAL             | `30`                                  | Interval for console heartbeat           
