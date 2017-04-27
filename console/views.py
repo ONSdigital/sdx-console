@@ -23,14 +23,14 @@ def decrypt():
     if request.method == "POST":
         logger.info("POSTing data to sdx-decrypt")
 
-        data = request.get_data()
+        data = request.form['EncryptedData']
 
         url = settings.SDX_DECRYPT_URL
 
         decrypted_data = send_data(url, data)
-        status_code = decrypted_data['status']
+        # status_code = decrypted_data['status']
 
-        return str(status_code)
+        return str(decrypted_data)
 
     else:
         return render_template('decrypt.html')
