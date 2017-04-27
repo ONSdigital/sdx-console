@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 from threading import Timer
 
 from structlog import wrap_logger
@@ -27,6 +27,8 @@ class HeartbeatTimer(object):
         self.is_running = False
         self.start()
         self.function(*self.args, **self.kwargs)
+        if self._timer:
+            self._timer.join()
 
     def start(self):
         if not self.is_running:
@@ -45,6 +47,6 @@ def heartbeat(logger=logger):
 
 if __name__ == '__main__':
     logger.info("Starting server: version='{}'".format(__version__))
-    port = int(os.getenv("PORT", 5000))
-    hb = HeartbeatTimer(os.getenv("HB_INTERVAL", 30), heartbeat, logger)
+    port = int(settings.PORT)
+    hb = HeartbeatTimer(settings.HB_INTERVAL, heartbeat, logger)
     app.run(debug=True, host='0.0.0.0', port=port)
