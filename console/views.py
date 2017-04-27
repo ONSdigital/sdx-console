@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import requests
@@ -14,7 +15,8 @@ logger = wrap_logger(logging.getLogger(__name__))
 
 def send_data(url, data):
     r = requests.post(url, data)
-    return r.status_code
+    json_data = json.loads(r.text)
+    return json_data
 
 @app.route('/decrypt', methods=['POST', 'GET'])
 def decrypt():
@@ -22,11 +24,13 @@ def decrypt():
         logger.info("POSTing data to sdx-decrypt")
 
         data = request.get_data()
+
         url = settings.SDX_DECRYPT_URL
 
         decrypted_data = send_data(url, data)
+        status_code = decrypted_data['status']
 
-        return decrypted_data
+        return str(status_code)
 
     else:
         return render_template('decrypt.html')
