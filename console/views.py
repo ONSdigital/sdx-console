@@ -28,9 +28,8 @@ def decrypt():
         url = settings.SDX_DECRYPT_URL
 
         decrypted_data = send_data(url, data)
-        # status_code = decrypted_data['status']
 
-        return str(decrypted_data)
+        return render_template('decrypt.html', decrypted_data=decrypted_data)
 
     else:
         return render_template('decrypt.html')
