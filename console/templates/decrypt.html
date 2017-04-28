@@ -8,16 +8,17 @@
   <div class='container'>
     <div class="row">
       <div class="col-sm-6">
-        <form action="/decrypt" method="POST">
-          Decrypt Data:<br>
+        <form class="form-group" action="/decrypt" method="POST">
+          <h3>Data to be decrypyted</h3><br>
           <div>
-            <textarea name="EncryptedData" cols='40' rows='10'></textarea>
+            <textarea class="form-control" name="EncryptedData" cols='40' rows='15'></textarea>
           </div>
           <input type="submit">
         </form>
       </div>
       <div class="col-sm-6">
-        {{decrypted_data}}
+        <h3>sdx-decrypt Response</h3><br>
+        <textarea class="form-control" name="EncryptedData" cols='40' rows='15'>{{decrypted_data}}</textarea>
       </div>
     </div>
   </div>

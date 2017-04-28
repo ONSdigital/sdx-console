@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 import requests
 
 from flask import render_template
@@ -13,10 +12,11 @@ from console import settings
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
 logger = wrap_logger(logging.getLogger(__name__))
 
+
 def send_data(url, data):
     r = requests.post(url, data)
-    json_data = json.loads(r.text)
-    return json_data
+    return r
+
 
 @app.route('/decrypt', methods=['POST', 'GET'])
 def decrypt():
@@ -27,7 +27,8 @@ def decrypt():
 
         url = settings.SDX_DECRYPT_URL
 
-        decrypted_data = send_data(url, data)
+        decrypt_response = send_data(url, data)
+        decrypted_data = json.loads(decrypt_response.text)
 
         return render_template('decrypt.html', decrypted_data=decrypted_data)
 

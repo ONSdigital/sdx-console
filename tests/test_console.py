@@ -1,8 +1,10 @@
+from requests import Response
 import server
+# from time import sleep
 import unittest
-from time import sleep
+from unittest import mock
 
-from testfixtures import log_capture
+# from testfixtures import log_capture
 
 
 class TestConsole(unittest.TestCase):
@@ -21,3 +23,12 @@ class TestConsole(unittest.TestCase):
         l.check(
             ('server', 'INFO', "event='Heartbeat'")
         )
+
+    def test_decrypt_page(self):
+        r = Response()
+        with mock.patch('console.views.send_data') as send_mock:
+            send_mock.return_value = r
+            r.headers = "{'content-type' : 'application/json'}"
+            r.data = "{'test_json': 'test'}"
+            self.app.post('/decrypt', headers={'content-type': 'application/json'}, data={'EncryptedData': 'Test'})
+            self.assert_template_used('decrypt.html')
