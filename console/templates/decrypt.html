@@ -5,18 +5,20 @@
     <link rel="stylesheet" href="/static/css/app.css">
     <script src="/static/js/bootstrap.min.js"></script>
   </head>
-  <div class="row">
-    <div class="col-sm-6">
-      <form action="/decrypt" method="POST">
-        Decrypt Data:<br>
-        <div>
-          <textarea name="EncryptedData" cols='40' rows='10'></textarea>
-        </div>
-        <input type="submit">
-      </form>
-    </div>
-    <div class="col-sm-6">
-      {{decrypted_data}}
+  <div class='container'>
+    <div class="row">
+      <div class="col-sm-6">
+        <form action="/decrypt" method="POST">
+          Decrypt Data:<br>
+          <div>
+            <textarea name="EncryptedData" cols='40' rows='10'></textarea>
+          </div>
+          <input type="submit">
+        </form>
+      </div>
+      <div class="col-sm-6">
+        {{decrypted_data}}
+      </div>
     </div>
   </div>
 </html>
