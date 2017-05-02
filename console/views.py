@@ -1,4 +1,3 @@
-import json
 import logging
 import requests
 
@@ -15,21 +14,27 @@ logger = wrap_logger(logging.getLogger(__name__))
 
 def send_data(url, data):
     r = requests.post(url, data)
+    if r.status_code == 400:
+        logger.error('Could not connect to ' + url, status_code=r.status_code)
+        raise Exception('404 Error')
+    else:
+        logger.info('Returned from ' + url, status_code=r.status_code)
     return r
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])
 def decrypt():
     if request.method == "POST":
-        logger.info("POSTing data to sdx-decrypt")
-
         data = request.form['EncryptedData']
-
         url = settings.SDX_DECRYPT_URL
-
-        decrypt_response = send_data(url, data)
-        decrypted_data = json.loads(decrypt_response.text)
-
+        decrypt_response = requests.Response()
+        try:
+            logger.info("Posting data to sdx-decrypt")
+            decrypt_response = send_data(url, data)
+        except:
+            errormsg = 'Could not connect to sdx-decrypt'
+            return render_template('decrypt.html', decrypted_data=errormsg)
+        decrypted_data = decrypt_response.text
         return render_template('decrypt.html', decrypted_data=decrypted_data)
 
     else:

@@ -9,6 +9,7 @@
   - Removed old functionality
   - Added heartbeat
   - Added unittests
+  - Added new decrypt functionality
 
 ### 1.0.0 2016-08-16
   - Initial release
