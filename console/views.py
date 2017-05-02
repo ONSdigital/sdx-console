@@ -14,7 +14,7 @@ logger = wrap_logger(logging.getLogger(__name__))
 
 def send_data(url, data):
     r = requests.post(url, data)
-    if r.status_code == 400:
+    if r.status_code == 404:
         logger.error('Could not connect to ' + url, status_code=r.status_code)
         raise Exception('404 Error')
     else:
