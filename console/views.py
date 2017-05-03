@@ -17,17 +17,16 @@ def send_data(url, data):
     try:
         r = requests.post(url, data)
     except requests.exceptions.ConnectionError as e:
-        logger.error('Could not connect to sdx-decrypt', response="connection error")
+        logger.error('Could not connect to ' + url, response="Connection error")
         raise e
-        return
 
-    if (r.status_code > 199 and r.status_code < 300):
-        logger.info('Returned from ' + url, response="ok", status_code=r.status_code)
-    elif (r.status_code > 399 and r.status_code < 500):
-        logger.error('Could not decrypt message', response="client error", status_code=r.status_code)
+    if 199 < r.status_code < 300:
+        logger.info('Returned from ' + url, response=r.reason, status_code=r.status_code)
+    elif 399 < r.status_code < 500:
+        logger.error('Returned from ' + url, response=r.reason, status_code=r.status_code)
         raise ClientError
     elif r.status_code > 499:
-        logger.error('Could not decrypt message', response="service error", status_code=r.status_code)
+        logger.error('Returned from ' + url, response=r.reason, status_code=r.status_code)
         raise ServiceError
 
     return r
@@ -38,20 +37,22 @@ def decrypt():
     if request.method == "POST":
         data = request.form['EncryptedData']
         url = settings.SDX_DECRYPT_URL
-        decrypt_response = requests.Response()
+        decrypted_data = ""
 
         try:
             logger.info("Posting data to sdx-decrypt")
             decrypt_response = send_data(url, data)
         except ClientError:
-            return render_template('decrypt.html', decrypted_data='Client error')
+            error = 'Client error'
         except ServiceError:
-            return render_template('decrypt.html', decrypted_data='Server error')
+            error = 'Service error'
         except requests.exceptions.ConnectionError:
-            return render_template('decrypt.html', decrypted_data='Could not connect to sdx-decrypt')
+            error = 'Connection error'
+        else:
+            decrypted_data = decrypt_response.text
+            error = ""
 
-        decrypted_data = decrypt_response.text
-        return render_template('decrypt.html', decrypted_data=decrypted_data)
+        return render_template('decrypt.html', decrypted_data=decrypted_data, error=error)
 
     else:
         return render_template('decrypt.html')
