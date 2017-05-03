@@ -1,4 +1,4 @@
-from requests import Response
+import requests
 import server
 from time import sleep
 import unittest
@@ -7,6 +7,7 @@ from unittest import mock
 from testfixtures import log_capture
 
 from console import views
+from console.helpers.exceptions import ClientError, ServiceError
 
 
 class TestConsole(unittest.TestCase):
@@ -27,21 +28,39 @@ class TestConsole(unittest.TestCase):
 
     @log_capture()
     def test_send_data_200(self, l):
-        r = Response()
-        rt = Response()
+        r = requests.Response()
+        rt = requests.Response()
         rt.status_code = 200
         with mock.patch('requests.post') as mock_post:
             mock_post.return_value = r
             r.status_code = 200
-            response = views.send_data("test", "")
+            response = views.send_data("", "")
             self.assertEqual(response.status_code, rt.status_code)
 
+    def test_send_data_400(self):
+        r = requests.Response()
+        with mock.patch('requests.post') as mock_post:
+            mock_post.return_value = r
+            r.status_code = 400
+            with self.assertRaises(ClientError):
+                views.send_data("", "")
+
     def test_send_data_404(self):
-        r = Response()
+        r = requests.Response()
         with mock.patch('requests.post') as mock_post:
             mock_post.return_value = r
             r.status_code = 404
-            with self.assertRaises(Exception) as context:
+            with self.assertRaises(ClientError):
                 views.send_data("", "")
 
-            self.assertTrue('404 Error' in str(context.exception))
+    def test_send_data_500(self):
+        r = requests.Response()
+        with mock.patch('requests.post') as mock_post:
+            mock_post.return_value = r
+            r.status_code = 500
+            with self.assertRaises(ServiceError):
+                views.send_data("", "")
+
+    def test_send_data_no_endpoint(self):
+        with self.assertRaises(requests.exceptions.ConnectionError):
+            views.send_data("http://sdx-decrypt/", "")
