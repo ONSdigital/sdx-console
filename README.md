@@ -38,6 +38,7 @@ Some of important environment variables available for configuration are listed b
 | PRIVATE_KEY_PASSWORD    | _xxxx_                                | Password for private key
 | SDX_VALIDATE_URL        | `http://sdx-validate:5000/validate`   | URL of the ``sdx-validate`` service
 | SDX_STORE_URL           | `http://sdx-store:5000/`              | URL of the ``sdx-store`` service
+| SDX_DECRYPT_URL         | `http://sdx-decrypt:5000/`            | URL of the ``sdx-decrypt`` service
 | RABBIT_QUEUE            | `survey`                              | Rabbit survey queue
 | SDX_FTP_IMAGE_PATH      | `EDC_QImages`                         | FTP Image path
 | SDX_FTP_DATA_PATH       | `EDC_QData`                           | FTP Data path
