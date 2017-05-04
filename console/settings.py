@@ -8,7 +8,6 @@ LOGGING_LEVEL = logging.getLevelName(os.getenv('LOGGING_LEVEL', 'DEBUG'))
 
 
 def get_key(key_name):
-
     """
     TODO remove these once the encrypted key story is finished
     :return:
