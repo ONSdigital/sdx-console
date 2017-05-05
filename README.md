@@ -25,7 +25,7 @@ There are two endpoints. The default takes JSON as input, encrypts it and places
 
 Some of important environment variables available for configuration are listed below:
 
-| Environment Variable    | Default                               | Description
+| Environment Variable    | Example                               | Description
 |-------------------------|---------------------------------------|----------------
 | FTP_HOST                | `pure-ftpd`                           | FTP to monitor
 | FTP_USER                | _none_                                | User for FTP account if required
