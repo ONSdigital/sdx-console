@@ -1,24 +1,28 @@
 import logging
 import requests
 
+from flask import redirect
 from flask import render_template
 from flask import request
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from flask.ext import security
-from flask.ext.sqlalchemy import SQLAlchemy
+import flask_security
+from flask_sqlalchemy import SQLAlchemy
 from structlog import wrap_logger
 
 from console import app
-from console.authentication import db, user_datastore, User
+from console.authentication import db, user_datastore, User, Role, UserAdmin, RoleAdmin
 from console import settings
 from console.helpers.exceptions import ClientError, ServiceError
 
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
 logger = wrap_logger(logging.getLogger(__name__))
 
-admin = Admin(app, template_mode='bootstrap3')
-admin.add_view(ModelView(User, db.session))
+
+@app.route('/', methods=['GET'])
+@flask_security.login_required
+def login():
+    return redirect('/decrypt')
 
 
 def send_data(url, data):
@@ -41,7 +45,6 @@ def send_data(url, data):
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])
-@security.login_required
 def decrypt():
     if request.method == "POST":
         data = request.form['EncryptedData']
@@ -65,3 +68,8 @@ def decrypt():
 
     else:
         return render_template('decrypt.html')
+
+admin = Admin(app, template_mode='bootstrap3')
+# admin.add_view(ModelView(User, db.session))
+admin.add_view(UserAdmin(User, db.session))
+admin.add_view(RoleAdmin(Role, db.session))
