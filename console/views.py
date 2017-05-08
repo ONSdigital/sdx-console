@@ -11,7 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 from structlog import wrap_logger
 
 from console import app
-from console.authentication import db, user_datastore, User, Role, UserAdmin, RoleAdmin
+from console.authentication import db, user_datastore, User, UserAdmin, Role, RoleAdmin
 from console import settings
 from console.helpers.exceptions import ClientError, ServiceError
 
@@ -45,6 +45,7 @@ def send_data(url, data):
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])
+@flask_security.roles_required('SDX Developer')
 def decrypt():
     if request.method == "POST":
         data = request.form['EncryptedData']

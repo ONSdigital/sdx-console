@@ -12,6 +12,10 @@ db = SQLAlchemy(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = settings.DB_URI
 app.config['SECRET_KEY'] = settings.SECRET_KEY
+app.config['SECURITY_PASSWORD_HASH'] = settings.SECURITY_PASSWORD_HASH
+app.config['SECURITY_PASSWORD_SALT'] = settings.SECURITY_PASSWORD_SALT
+app.config['SECURITY_TOKEN_MAX_AGE'] = settings.SECURITY_TOKEN_MAX_AGE
+# app.config['SECURITY_TRACKABLE'] = settings.SECURITY_TRACKABLE
 
 role_users = db.Table('roles_users',
     db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
@@ -37,13 +41,21 @@ class User(db.Model, flask_security.UserMixin):
     confirmed_at = db.Column(db.DateTime())
     roles = db.relationship('Role', secondary=role_users, backref=db.backref('users', lazy='dynamic'))
 
+    def __str__(self):
+        return self.email
+
+    def __hash__(self):
+        return hash(self.email)
+
 class UserAdmin(sqla.ModelView):
     column_exclude_list = ('password',)
     form_excluded_columns = ('password',)
     column_auto_select_related = True
 
     def is_accessible(self):
-        return flask_security.core.current_user.has_role('Admin')
+        roleb = flask_security.core.current_user.has_role('Admin')
+        # authb = flask_security.core.current_user.is_authenticated()
+        return (roleb)
 
     def scaffold_form(self):
         form_class = super(UserAdmin, self).scaffold_form()
