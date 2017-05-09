@@ -45,7 +45,7 @@ def send_data(url, data):
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])
-@flask_security.roles_required('SDX Developer')
+@flask_security.roles_required('SDX-Developer')
 def decrypt():
     if request.method == "POST":
         data = request.form['EncryptedData']

@@ -12,10 +12,7 @@ db = SQLAlchemy(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = settings.DB_URI
 app.config['SECRET_KEY'] = settings.SECRET_KEY
-app.config['SECURITY_PASSWORD_HASH'] = settings.SECURITY_PASSWORD_HASH
 app.config['SECURITY_PASSWORD_SALT'] = settings.SECURITY_PASSWORD_SALT
-app.config['SECURITY_TOKEN_MAX_AGE'] = settings.SECURITY_TOKEN_MAX_AGE
-# app.config['SECURITY_TRACKABLE'] = settings.SECURITY_TRACKABLE
 
 role_users = db.Table('roles_users',
     db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
@@ -42,10 +39,31 @@ class User(db.Model, flask_security.UserMixin):
     roles = db.relationship('Role', secondary=role_users, backref=db.backref('users', lazy='dynamic'))
 
     def __str__(self):
-        return self.email
+        return self.name
 
     def __hash__(self):
-        return hash(self.email)
+        return hash(self.name)
+
+
+@app.before_first_request
+def before_first_request():
+
+    db.create_all()
+
+    user_datastore.find_or_create_role(name='Admin', description='Edit Roles/Users')
+    user_datastore.find_or_create_role(name='SDX-Developer', description='Usual console functionality')
+
+    encrypted_password = flask_security.utils.encrypt_password('password')
+    if not user_datastore.get_user('admin'):
+        user_datastore.create_user(email='admin', password=encrypted_password)
+    if not user_datastore.get_user('test'):
+        user_datastore.create_user(email='test', password=encrypted_password)
+
+    db.session.commit()
+
+    user_datastore.add_role_to_user('admin', 'Admin')
+    user_datastore.add_role_to_user('test', 'SDX-Developer')
+    db.session.commit()
 
 class UserAdmin(sqla.ModelView):
     column_exclude_list = ('password',)
@@ -53,9 +71,7 @@ class UserAdmin(sqla.ModelView):
     column_auto_select_related = True
 
     def is_accessible(self):
-        roleb = flask_security.core.current_user.has_role('Admin')
-        # authb = flask_security.core.current_user.is_authenticated()
-        return (roleb)
+        return flask_security.core.current_user.has_role('Admin')
 
     def scaffold_form(self):
         form_class = super(UserAdmin, self).scaffold_form()
