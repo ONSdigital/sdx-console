@@ -7,6 +7,7 @@
   - Add QBS template
   - Add all environment variables to README
   - Remove secure data from logging messages
+  - Add license
 
 ### 1.0.0 2016-08-16
   - Initial release
