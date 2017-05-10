@@ -42,3 +42,9 @@ Some of important environment variables available for configuration are listed b
 | SDX_FTP_IMAGE_PATH      | `EDC_QImages`                         | FTP Image path
 | SDX_FTP_DATA_PATH       | `EDC_QData`                           | FTP Data path
 | SDX_FTP_RECEIPT_PATH    | `EDC_QReceipts`                       | FTP Receipt path
+
+### License
+
+Copyright © 2016, Office for National Statistics (https://www.ons.gov.uk)
+
+Released under MIT license, see [LICENSE](LICENSE) for details.
