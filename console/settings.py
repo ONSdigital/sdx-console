@@ -17,9 +17,9 @@ DB_URI = 'postgresql://{}:{}@{}:{}/{}'.format(DB_USER,
                                               DB_PORT,
                                               DB_NAME)
 
-SECURITY_PASSWORD_HASH = 'bcrypt'
-SECRET_KEY = 'so-secret'
-SECURITY_PASSWORD_SALT = '1ab'
+SECURITY_PASSWORD_HASH = os.getenv('CONSOLE_PASSWORD_HASH', 'bcrypt')
+SECRET_KEY = os.getenv('CONSOLE_SECRET_KEY', 'secretwords')
+SECURITY_PASSWORD_SALT = os.getenv('CONSOLE_PASSWORD_SALT', '1ab')
 
 PORT = os.getenv("PORT", 5000)
 

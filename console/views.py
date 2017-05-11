@@ -1,17 +1,12 @@
 import logging
 import requests
 
-from flask import redirect
 from flask import render_template
 from flask import request
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
 import flask_security
-from flask_sqlalchemy import SQLAlchemy
 from structlog import wrap_logger
 
 from console import app
-from console.authentication import db, user_datastore, User, UserAdmin, Role, RoleAdmin
 from console import settings
 from console.helpers.exceptions import ClientError, ServiceError
 
@@ -21,8 +16,8 @@ logger = wrap_logger(logging.getLogger(__name__))
 
 @app.route('/', methods=['GET'])
 @flask_security.login_required
-def login():
-    return redirect('/decrypt')
+def home():
+    return "stuff"
 
 
 def send_data(url, data):
@@ -69,8 +64,3 @@ def decrypt():
 
     else:
         return render_template('decrypt.html')
-
-admin = Admin(app, template_mode='bootstrap3')
-# admin.add_view(ModelView(User, db.session))
-admin.add_view(UserAdmin(User, db.session))
-admin.add_view(RoleAdmin(Role, db.session))
