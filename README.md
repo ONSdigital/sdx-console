@@ -18,9 +18,13 @@ Console requires a PostgreSQL database to the appropriate sdx-compose branch sho
 ## Authentication
 
 This application uses Flask-Security for login and Flask-Admin for user management
+
 You will need to have an SDX-Console account set up by an administrator to access sdx-console while deployed
+
 Locally three accounts will be created on launch: 'admin', 'dev', and 'none'. With differing levels of permissions. All three have the password 'password'
+
 The login page is located at '/Login'. You can log out at '/Logout'
+
 If you the administrator role you can access the user management AI (Flask-Admin) at '/admin'
 
 ## UI
