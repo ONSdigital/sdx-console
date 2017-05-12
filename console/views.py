@@ -42,13 +42,14 @@ def send_data(url, data):
 @app.route('/decrypt', methods=['POST', 'GET'])
 @flask_security.roles_required('SDX-Developer')
 def decrypt():
+    logger.bind(user=flask_security.core.current_user.email)
     if request.method == "POST":
         data = request.form['EncryptedData']
         url = settings.SDX_DECRYPT_URL
         decrypted_data = ""
 
         try:
-            logger.info("Posting data to sdx-decrypt")
+            logger.info("Posting data to sdx-decrypt", user=flask_security.core.current_user.email)
             decrypt_response = send_data(url, data)
         except ClientError:
             error = 'Client error'

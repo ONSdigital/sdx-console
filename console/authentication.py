@@ -6,11 +6,8 @@ from flask_admin import Admin
 from flask_admin.contrib import sqla
 import flask_security
 from flask_sqlalchemy import SQLAlchemy
-from flask_wtf import FlaskForm as BaseForm
 from structlog import wrap_logger
-from wtforms import ValidationError
-from wtforms.fields import StringField, PasswordField, HiddenField, SubmitField
-from wtforms.validators import InputRequired
+from wtforms.fields import HiddenField, PasswordField
 
 from console import app
 from console import settings
@@ -27,7 +24,6 @@ def auth_config():
     app.config['SECRET_KEY'] = settings.SECRET_KEY
     app.config['SECURITY_PASSWORD_SALT'] = settings.SECURITY_PASSWORD_SALT
     app.config['WTF_CSRF_ENABLED'] = False
-    app.config['SECURITY_USER_IDENTITY_ATTRIBUTES'] = 'username'
 
 auth_config()
 
@@ -51,7 +47,6 @@ class Role(db.Model, flask_security.RoleMixin):
 class User(db.Model, flask_security.UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True)
-    username = db.Column(db.String(255), unique=True, index=True)
     password = db.Column(db.String(255))
     active = db.Column(db.Boolean())
     confirmed_at = db.Column(db.DateTime())
@@ -76,11 +71,11 @@ def create_initial_users():
     encrypted_password = flask_security.utils.encrypt_password('password')
 
     if not user_datastore.get_user('admin'):
-        user_datastore.create_user(username='admin', email='admin', password=encrypted_password)
+        user_datastore.create_user(email='admin', password=encrypted_password)
     if not user_datastore.get_user('dev'):
-        user_datastore.create_user(username='dev', email='dev', password=encrypted_password)
+        user_datastore.create_user(email='dev', password=encrypted_password)
     if not user_datastore.get_user('none'):
-        user_datastore.create_user(username='none', email='none', password=encrypted_password)
+        user_datastore.create_user(email='none', password=encrypted_password)
     db.session.commit()
 
     user_datastore.add_role_to_user('admin', 'Admin')
@@ -125,8 +120,7 @@ class RoleAdmin(sqla.ModelView):
 
 
 class LoginFormExtended(flask_security.forms.LoginForm):
-    ### Overriding LoginForm to remove remember me button
-    email = StringField('Username', [InputRequired()])
+    # Overriding LoginForm to remove remember me button
     remember = HiddenField('')
 
 
