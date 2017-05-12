@@ -81,9 +81,9 @@ class TestAuthentication(unittest.TestCase):
     def tearDown(self):
         self.postgres.stop()
 
-    def login(self, email, password):
+    def login(self, username, password):
         return self.app.post('/login',
-                             data=dict(email=email, password=password, remember='n'))
+                             data=dict(username=username, password=password))
 
     def test_login_success(self):
         response = self.login('admin', 'password')

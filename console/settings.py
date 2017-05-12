@@ -20,6 +20,7 @@ DB_URI = 'postgresql://{}:{}@{}:{}/{}'.format(DB_USER,
 SECURITY_PASSWORD_HASH = os.getenv('CONSOLE_PASSWORD_HASH', 'bcrypt')
 SECRET_KEY = os.getenv('CONSOLE_SECRET_KEY', 'secretwords')
 SECURITY_PASSWORD_SALT = os.getenv('CONSOLE_PASSWORD_SALT', '1ab')
+CONSOLE_LOGIN_TIMEOUT = os.getenv('CONSOLE_LOGIN_TIMEOUT', 10)
 
 PORT = os.getenv("PORT", 5000)
 
