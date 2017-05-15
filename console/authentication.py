@@ -100,7 +100,8 @@ class UserAdmin(sqla.ModelView):
     form_excluded_columns = ('password',)
     column_auto_select_related = True
 
-    def is_accessible(self):
+    @staticmethod
+    def is_accessible():
         return flask_security.core.current_user.has_role('Admin')
 
     def scaffold_form(self):
@@ -109,7 +110,8 @@ class UserAdmin(sqla.ModelView):
 
         return form_class
 
-    def on_model_change(self, form, model, is_created):
+    @staticmethod
+    def on_model_change(form, model, is_created):
         if len(model.password2):
             model.password = flask_security.utils.encrypt_password(model.password2)
 
