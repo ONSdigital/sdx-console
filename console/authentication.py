@@ -118,7 +118,7 @@ class UserAdmin(sqla.ModelView):
 
 class RoleAdmin(sqla.ModelView):
     @staticmethod
-    def is_accessible(:
+    def is_accessible():
         return flask_security.core.current_user.has_role('Admin')
 
 
