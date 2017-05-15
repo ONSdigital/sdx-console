@@ -10,6 +10,8 @@
   - Added heartbeat
   - Added unittests
   - Added new decrypt functionality with unit tests
+  - Added Authentication with flask_security
+  - Added Account Management with flask_admin
 
 ### 1.0.0 2016-08-16
   - Initial release

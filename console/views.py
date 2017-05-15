@@ -3,6 +3,7 @@ import requests
 
 from flask import render_template
 from flask import request
+import flask_security
 from structlog import wrap_logger
 
 from console import app
@@ -11,6 +12,12 @@ from console.helpers.exceptions import ClientError, ServiceError
 
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
 logger = wrap_logger(logging.getLogger(__name__))
+
+
+@app.route('/', methods=['GET'])
+@flask_security.login_required
+def home():
+    return "stuff"
 
 
 def send_data(url, data):
@@ -33,14 +40,16 @@ def send_data(url, data):
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])
+@flask_security.roles_required('SDX-Developer')
 def decrypt():
+    logger.bind(user=flask_security.core.current_user.email)
     if request.method == "POST":
         data = request.form['EncryptedData']
         url = settings.SDX_DECRYPT_URL
         decrypted_data = ""
 
         try:
-            logger.info("Posting data to sdx-decrypt")
+            logger.info("Posting data to sdx-decrypt", user=flask_security.core.current_user.email)
             decrypt_response = send_data(url, data)
         except ClientError:
             error = 'Client error'
