@@ -34,9 +34,12 @@ class QueuePublisher(object):
         except Exception as e:
             self._logger.error("Unable to close connection", exception=repr(e))
 
-    def _publish(self, message):
+    def _publish(self, message, tx_id):
         try:
-            self._channel.basic_publish(exchange='', routing_key=self._queue, body=message)
+            self._channel.basic_publish(exchange='',
+                                        routing_key=self._queue,
+                                        body=message,
+                                        properties=pika.BasicProperties(headers={'tx_id': tx_id}))
             self._logger.debug("Published message")
             return True
 
@@ -44,12 +47,12 @@ class QueuePublisher(object):
             self._logger.error("Unable to publish message", exception=repr(e))
             return False
 
-    def publish_message(self, message):
+    def publish_message(self, message, tx_id):
         self._logger.debug("Sending message")
         if not self._connect():
             return False
 
-        if not self._publish(message):
+        if not self._publish(message, tx_id):
             return False
 
         self._disconnect()

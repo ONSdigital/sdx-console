@@ -119,12 +119,12 @@ def survey(survey_id):
         return file_content
 
 
-def send_payload(payload, no_of_submissions=1):
+def send_payload(payload, tx_id, no_of_submissions=1):
     logger.debug(" [x] Sending encrypted Payload")
 
     publisher = QueuePublisher(logger, settings.RABBIT_URLS, settings.RABBIT_QUEUE)
     for i in range(no_of_submissions):
-        publisher.publish_message(payload)
+        publisher.publish_message(payload, tx_id)
 
     logger.debug(" [x] Sent Payload to rabbitmq!")
 
@@ -172,15 +172,16 @@ def submit():
         encrypter = Encrypter()
 
         for i in range(0, no_of_submissions):
-
             # If submitting more than one then randomise the tx_id
             if no_of_submissions > 1:
                 tx_id = str(uuid.uuid4())
                 unencrypted_json['survey']['tx_id'] = tx_id
                 logger.info("Auto setting tx_id", tx_id=tx_id)
+            else:
+                tx_id = unencrypted_json['survey']['tx_id']
 
             payload = encrypter.encrypt(unencrypted_json['survey'])
-            send_payload(payload, 1)  # let the loop handle the submission
+            send_payload(payload, tx_id, 1)  # let the loop handle the submission
 
         return data
     else:
@@ -257,7 +258,7 @@ def decrypt():
 
         payload = request.get_data().decode('UTF8')
 
-        send_payload(payload)
+        send_payload(payload, tx_id=None)
 
         return payload
     else:
