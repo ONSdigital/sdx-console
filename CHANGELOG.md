@@ -1,4 +1,5 @@
 ### Unreleased
+  - Adding tx_id to the message headers
   - Log version number on startup, at info level
   - Add configurable log level
   - Add change log
