@@ -20,10 +20,11 @@
         <tbody>
           {% for item in data %}
           <tr>
-            <td>{{ item.survey_response.tx_id }}</td>
-            <td>{{ item.survey_response.survey_id }}</td>
-            <td>{{ item.survey_response.metadata.ru_ref }}</td>
-            <td>{{ item.survey_response.metadata.user_id }}</td>
+            <td>{{ item.tx_id }}</td>
+            <td>{{ item.survey_id }}</td>
+            <td>{{ item.metadata.ru_ref }}</td>
+            <td>{{ item.metadata.user_id }}</td>
+            <td>{{ item.submitted_at }}</td>
           </tr>
           {% endfor %}
         </tbody>
