@@ -103,19 +103,30 @@ class SurveyResponse(db.Model):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
-def get_store_responses():
+def get_store_responses(tx_id, ru_ref, survey_id):
     responses = SurveyResponse.query.all()
 
     store_data = []
     for response in responses:
         store_data.append(response.data)
 
-    return store_data
+    final_data = []
+    for data in store_data:
+        if (tx_id == '') or (data['tx_id'] == tx_id):
+            if (ru_ref == '') or (data['metadata']['ru_ref'] == ru_ref):
+                if (survey_id == '') or (data['survey_id'] == survey_id):
+                    final_data.append(data)
+
+    return final_data
 
 
 @app.route('/store', methods=['GET'])
 def store():
-    store_data = get_store_responses()
+    tx_id = request.args.get('tx_id', type=str, default='')
+    ru_ref = request.args.get('ru_ref', type=str, default='')
+    survey_id = request.args.get('survey_id', type=str, default='')
+    date_earliest = request.args.get('date_earliest', type=str, default='01/01/2000')
+    store_data = get_store_responses(tx_id, ru_ref, survey_id)
 
     return render_template('store.html', data=store_data)
 
