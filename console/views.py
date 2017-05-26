@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 import requests
 import json
@@ -103,19 +104,28 @@ class SurveyResponse(db.Model):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
-def get_store_responses(tx_id, ru_ref, survey_id):
+def get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest):
     responses = SurveyResponse.query.all()
 
     store_data = []
     for response in responses:
         store_data.append(response.data)
 
-    final_data = []
+    filtered_data = []
     for data in store_data:
         if (tx_id == '') or (data['tx_id'] == tx_id):
             if (ru_ref == '') or (data['metadata']['ru_ref'] == ru_ref):
                 if (survey_id == '') or (data['survey_id'] == survey_id):
-                    final_data.append(data)
+                    filtered_data.append(data)
+
+    logger.info('testtest' + datetime_earliest)
+    datetime_earliest_f = datetime.strptime(datetime_earliest, "%Y-%m-%d %H:%M")
+    final_data = []
+    for data in filtered_data:
+        data_datetime_string = data['submitted_at'][:19]
+        datetime_data = datetime.strptime(data_datetime_string, "%Y-%m-%dT%H:%M:%S")
+        if datetime_data > datetime_earliest_f:
+            final_data.append(data)
 
     return final_data
 
@@ -125,8 +135,12 @@ def store():
     tx_id = request.args.get('tx_id', type=str, default='')
     ru_ref = request.args.get('ru_ref', type=str, default='')
     survey_id = request.args.get('survey_id', type=str, default='')
-    date_earliest = request.args.get('date_earliest', type=str, default='01/01/2000')
-    store_data = get_store_responses(tx_id, ru_ref, survey_id)
+    datetime_earliest = request.args.get('date_earliest', type=str, default='01/01/2000')
+    datetime_earliest_formatted = datetime_earliest[:10] + " " + datetime_earliest[11:16]
+    datetime_latest = request.args.get('latest', type=str, default='01/01/2000')
+    date_latest_formatted = datetime_latest[:10] + " " + datetime_latest[11:16]
+
+    store_data = get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest_formatted)
 
     return render_template('store.html', data=store_data)
 
