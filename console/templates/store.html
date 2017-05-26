@@ -1,0 +1,33 @@
+<html lang="en">
+  <title>SDX Console - Store</title>
+  <head>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/app.css">
+    <script src="/static/js/bootstrap.min.js"></script>
+  </head>
+  <div class="col-xs-12">
+    <div class="table-responsive">
+      <table class="table table-hover table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Survey ID</th>
+            <th>RU Ref</th>
+            <th>User ID</th>
+            <th>Added Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in data %}
+          <tr>
+            <td>{{ item.survey_response.tx_id }}</td>
+            <td>{{ item.survey_response.survey_id }}</td>
+            <td>{{ item.survey_response.metadata.ru_ref }}</td>
+            <td>{{ item.survey_response.metadata.user_id }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</html>

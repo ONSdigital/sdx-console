@@ -27,3 +27,4 @@ PORT = os.getenv("PORT", 5000)
 HB_INTERVAL = os.getenv("HB_INTERVAL", 30)
 
 SDX_DECRYPT_URL = os.getenv("SDX_DECRYPT_URL", "http://sdx-decrypt:5000/decrypt")
+SDX_STORE_URL = os.getenv("SDX_STORE_URL", "http://sdx-store:5000/")

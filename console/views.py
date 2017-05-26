@@ -1,5 +1,6 @@
 import logging
 import requests
+import json
 
 from flask import render_template
 from flask import request
@@ -20,9 +21,13 @@ def home():
     return "stuff"
 
 
-def send_data(url, data):
+def send_data(url, data=None, request_type="POST"):
     try:
-        r = requests.post(url, data)
+        if request_type=="POST":
+            logger.info("POSTING DATA")
+            r = requests.post(url, data)
+        else:
+            r = requests.get(url)
     except requests.exceptions.ConnectionError as e:
         logger.error('Could not connect to ' + url, response="Connection error")
         raise e
@@ -50,7 +55,7 @@ def decrypt():
 
         try:
             logger.info("Posting data to sdx-decrypt", user=flask_security.core.current_user.email)
-            decrypt_response = send_data(url, data)
+            decrypt_response = send_data(url, data, "POST")
         except ClientError:
             error = 'Client error'
         except ServiceError:
@@ -65,3 +70,40 @@ def decrypt():
 
     else:
         return render_template('decrypt.html')
+
+
+@app.route('/store', methods=['GET'])
+def store():
+
+    test_data = json.dumps(
+        {
+        "collection": {
+            "exercise_sid": "hfjdskf",
+            "instrument_id": "ce2016",
+            "period": "0616"
+        },
+        "data": {
+            "1": "2",
+            "2": "4",
+            "3": "2",
+            "4": "Y"
+        },
+        "metadata": {
+            "ru_ref": "12345678901A",
+            "user_id": "789473423"
+        },
+        "origin": "uk.gov.ons.edc.eq",
+        "submitted_at": "2017-04-27T14:23:13+00:00",
+        "survey_id": "0",
+        "tx_id": "f088d89d-a367-876e-f29f-ae8f1a26191b",
+        "type": "uk.gov.ons.edc.eq:surveyresponse",
+        "version": "0.0.1"
+        })
+
+    send_data(settings.SDX_STORE_URL + "responses", data=test_data, request_type="POST")
+
+    response = send_data(settings.SDX_STORE_URL + "responses", request_type="GET")
+    # content = response.content.decode('UTF8')
+    # store_data = json.loads(content)
+
+    return render_template('store.html', data=response.data)
