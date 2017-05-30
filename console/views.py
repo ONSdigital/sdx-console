@@ -104,7 +104,7 @@ class SurveyResponse(db.Model):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
-def get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest):
+def get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
     responses = SurveyResponse.query.all()
 
     store_data = []
@@ -118,86 +118,67 @@ def get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest):
                 if (survey_id == '') or (data['survey_id'] == survey_id):
                     filtered_data.append(data)
 
-    logger.info('testtest' + datetime_earliest)
-    datetime_earliest_f = datetime.strptime(datetime_earliest, "%Y-%m-%d %H:%M")
+    datetime_earliest_f = datetime.strptime(datetime_earliest, "%Y-%m-%dT%H:%M")
+    datetime_latest_f = datetime.strptime(datetime_latest, "%Y-%m-%dT%H:%M")
+    logger.info("testtest1 " + datetime_earliest)
+    logger.info("testtest2 " + datetime_latest)
+
     final_data = []
     for data in filtered_data:
         data_datetime_string = data['submitted_at'][:19]
-        datetime_data = datetime.strptime(data_datetime_string, "%Y-%m-%dT%H:%M:%S")
-        if datetime_data > datetime_earliest_f:
+        data_datetime = datetime.strptime(data_datetime_string, "%Y-%m-%dT%H:%M:%S")
+        if (data_datetime > datetime_earliest_f) and (data_datetime < datetime_latest_f):
             final_data.append(data)
 
     return final_data
 
 
 @app.route('/store', methods=['GET'])
+@flask_security.roles_required('SDX-Developer')
 def store():
     tx_id = request.args.get('tx_id', type=str, default='')
     ru_ref = request.args.get('ru_ref', type=str, default='')
     survey_id = request.args.get('survey_id', type=str, default='')
-    datetime_earliest = request.args.get('date_earliest', type=str, default='01/01/2000')
-    datetime_earliest_formatted = datetime_earliest[:10] + " " + datetime_earliest[11:16]
-    datetime_latest = request.args.get('latest', type=str, default='01/01/2000')
-    date_latest_formatted = datetime_latest[:10] + " " + datetime_latest[11:16]
+    datetime_earliest = request.args.get('datetime_earliest', type=str, default='1990-01-01T00:00')
+    datetime_latest = request.args.get('datetime_latest', type=str, default='2020-01-01T00:00')
 
-    store_data = get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest_formatted)
+    store_data = get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
 
     return render_template('store.html', data=store_data)
 
 
+# REMOVE BEFORE MERGE
 @app.route('/storetest', methods=['GET'])
 def storetest():
-    test_data = json.dumps(
-        {
-            "collection": {
-                "exercise_sid": "hfjdskf",
-                "instrument_id": "ce2016",
-                "period": "0616"
-            },
-            "data": {
-                "1": "2",
-                "2": "4",
-                "3": "2",
-                "4": "Y"
-            },
-            "metadata": {
-                "ru_ref": "12345678901a",
-                "user_id": "789473423"
-            },
-            "origin": "uk.gov.ons.edc.eq",
-            "submitted_at": "2017-04-27T14:23:13+00:00",
-            "survey_id": "0",
-            "tx_id": "f088d89d-a367-876e-f29f-ae8f1a26191d",
-            "type": "uk.gov.ons.edc.eq:surveyresponse",
-            "version": "0.0.1"
-        })
 
-    test_data2 = json.dumps(
-        {
-            "collection": {
-                "exercise_sid": "hfjdskf",
-                "instrument_id": "ce2016",
-                "period": "0616"
-            },
-            "data": {
-                "1": "2",
-                "2": "4",
-                "3": "2",
-                "4": "Y"
-            },
-            "metadata": {
-                "ru_ref": "12345678901a",
-                "user_id": "789473423"
-            },
-            "origin": "uk.gov.ons.edc.eq",
-            "submitted_at": "2017-04-27T14:23:13+00:00",
-            "survey_id": "0",
-            "tx_id": "f088d89d-a367-876e-f29f-ae8f1a26191e",
-            "type": "uk.gov.ons.edc.eq:surveyresponse",
-            "version": "0.0.1"
-        })
-
-    send_data(settings.SDX_STORE_URL + "responses", data=test_data, request_type="POST")
-    send_data(settings.SDX_STORE_URL + "responses", data=test_data2, request_type="POST")
+    def create_test_data(number):
+        test_data = json.dumps(
+            {
+                "collection": {
+                    "exercise_sid": "hfjdskf",
+                    "instrument_id": "ce2016",
+                    "period": "0616"
+                },
+                "data": {
+                    "1": "2",
+                    "2": "4",
+                    "3": "2",
+                    "4": "Y"
+                },
+                "metadata": {
+                    "ru_ref": "12345678901a",
+                    "user_id": "789473423"
+                },
+                "origin": "uk.gov.ons.edc.eq",
+                "submitted_at": "2017-04-27T14:23:13+00:00",
+                "survey_id": "0",
+                "tx_id": "f088d89d-a367-876e-f29f-ae8f1a26" + str(number),
+                "type": "uk.gov.ons.edc.eq:surveyresponse",
+                "version": "0.0.1"
+            })
+        return test_data
+    for i in range(2000, 3000):
+        test_data = create_test_data(str(i))
+        send_data(settings.SDX_STORE_URL + "responses", data=test_data, request_type="POST")
 
     return "data sent"

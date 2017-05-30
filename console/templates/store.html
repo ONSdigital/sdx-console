@@ -1,57 +1,56 @@
-<html lang="en">
-  <title>SDX Console - Store</title>
-  <head>
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/css/app.css">
-    <script src="/static/js/bootstrap.min.js"></script>
-  </head>
-  <div class="col-xs-12">
+{% extends "layout.html" %}
+{% set active_page = "store" %}
+{% block body %}
 
-    <form id='store-form' class="form-horizontal">
-      <div class="form-group">
-        <div class="col-md-11">
-          <div class="input-group">
-            <label class="col-md-1 control-label" for="tx_id">tx_id:</label>
-            <input type="text" class="form-control" id="tx_id" name="tx_id">
-            <label class="col-md-1 control-label" for="ru_ref">ru_ref:</label>
-            <input type="text" class="form-control" id="ru_ref" name="ru_ref">
-            <label class="col-md-1 control-label" for="survey_id">survey_id:</label>
-            <input type="number" class="form-control" id="survey_id" name="survey_id">
-            <label class="col-md-1 control-label" for="date_earliest">date_earliest:</label>
-            <input type="datetime-local" class="form-control" id="date_earliest" name="date_earliest">
-            <label class="col-md-1 control-label" for="date_latest">date_latest:</label>
-            <input type="datetime-local" class="form-control" id="date_latest" name="date_latest">
-            <span class="input-group-btn">
-              <button class="btn btn-default" type="submit">Search</button>
-            </span>
-          </div>
+<div class="col-xs-12">
+
+  <form id='store-form' class="form-horizontal">
+    <div class="form-group">
+      <div class="col-md-11">
+        <div class="input-group">
+          <label class="col-md-1 control-label" for="tx_id">tx_id:</label>
+          <input type="text" class="form-control" id="tx_id" name="tx_id">
+          <label class="col-md-1 control-label" for="ru_ref">ru_ref:</label>
+          <input type="text" class="form-control" id="ru_ref" name="ru_ref">
+          <label class="col-md-1 control-label" for="survey_id">survey_id:</label>
+          <input type="number" class="form-control" id="survey_id" name="survey_id">
+          <label class="col-md-1 control-label" for="datetime_earliest">datetime_earliest:</label>
+          <input type="datetime-local" class="form-control" id="datetime_earliest" name="datetime_earliest" value="1990-01-01T01:01">
+          <label class="col-md-1 control-label" for="datetime_latest">datetime_latest:</label>
+          <input type="datetime-local" class="form-control" id="datetime_latest" name="datetime_latest" value="2020-01-01T01:01">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">Search</button>
+          </span>
         </div>
       </div>
-    </form>
-
-    <div class="table-responsive">
-      <table class="table table-hover table-striped table-bordered">
-        <thead>
-          <tr>
-            <th>tx_id</th>
-            <th>survey_id</th>
-            <th>ru_ref</th>
-            <th>user_id</th>
-            <th>submitted_at</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in data %}
-          <tr>
-            <td>{{ item.tx_id }}</td>
-            <td>{{ item.survey_id }}</td>
-            <td>{{ item.metadata.ru_ref }}</td>
-            <td>{{ item.metadata.user_id }}</td>
-            <td>{{ item.submitted_at }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
     </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-hover table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>tx_id</th>
+          <th>survey_id</th>
+          <th>ru_ref</th>
+          <th>user_id</th>
+          <th>submitted_at</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in data %}
+        <tr>
+          <td>{{ item.tx_id }}</td>
+          <td>{{ item.survey_id }}</td>
+          <td>{{ item.metadata.ru_ref }}</td>
+          <td>{{ item.metadata.user_id }}</td>
+          <td>{{ item.submitted_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-</html>
+
+</div>
+
+{% endblock %}
