@@ -6,10 +6,9 @@ import json
 from flask import render_template
 from flask import request
 import flask_security
-from sqlalchemy.dialects.postgresql import JSONB, UUID
 from structlog import wrap_logger
 
-from console.authentication import db
+from console.database import SurveyResponse
 from console import app
 from console import settings
 from console.helpers.exceptions import ClientError, ServiceError
@@ -75,38 +74,13 @@ def decrypt():
         return render_template('decrypt.html')
 
 
-class SurveyResponse(db.Model):
-    __tablename__ = 'responses'
-    tx_id = db.Column("tx_id",
-                      UUID,
-                      primary_key=True)
-
-    ts = db.Column("ts",
-                   db.TIMESTAMP(timezone=True),
-                   server_default=db.func.now(),
-                   onupdate=db.func.now())
-
-    invalid = db.Column("invalid",
-                        db.Boolean,
-                        default=False)
-
-    data = db.Column("data", JSONB)
-
-    def __init__(self, tx_id, invalid, data):
-        self.tx_id = tx_id
-        self.invalid = invalid
-        self.data = data
-
-    def __repr__(self):
-        return '<SurveyResponse {}>'.format(self.tx_id)
-
-    def to_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+def get_all_responses():
+    data = SurveyResponse.query.all()
+    return data
 
 
 def get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
-    responses = SurveyResponse.query.all()
-
+    responses = get_all_responses()
     store_data = []
     for response in responses:
         store_data.append(response.data)
@@ -120,8 +94,6 @@ def get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_la
 
     datetime_earliest_f = datetime.strptime(datetime_earliest, "%Y-%m-%dT%H:%M")
     datetime_latest_f = datetime.strptime(datetime_latest, "%Y-%m-%dT%H:%M")
-    logger.info("testtest1 " + datetime_earliest)
-    logger.info("testtest2 " + datetime_latest)
 
     final_data = []
     for data in filtered_data:
@@ -133,18 +105,23 @@ def get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_la
     return final_data
 
 
-@app.route('/store', methods=['GET'])
+@app.route('/store', methods=['GET', 'POST'])
 @flask_security.roles_required('SDX-Developer')
 def store():
-    tx_id = request.args.get('tx_id', type=str, default='')
-    ru_ref = request.args.get('ru_ref', type=str, default='')
-    survey_id = request.args.get('survey_id', type=str, default='')
-    datetime_earliest = request.args.get('datetime_earliest', type=str, default='1990-01-01T00:00')
-    datetime_latest = request.args.get('datetime_latest', type=str, default='2020-01-01T00:00')
+    if request.method == 'GET':
+        tx_id = request.args.get('tx_id', type=str, default='')
+        ru_ref = request.args.get('ru_ref', type=str, default='')
+        survey_id = request.args.get('survey_id', type=str, default='')
+        datetime_earliest = request.args.get('datetime_earliest', type=str, default='1990-01-01T00:00')
+        datetime_latest = request.args.get('datetime_latest', type=str, default='2020-01-01T00:00')
 
-    store_data = get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
+        store_data = get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
 
-    return render_template('store.html', data=store_data)
+        return render_template('store.html', data=store_data)
+
+    else:
+        data = request.data
+        send_data(settings.SDX_STORE_URL + "responses", data=data, request_type="POST")
 
 
 # REMOVE BEFORE MERGE
