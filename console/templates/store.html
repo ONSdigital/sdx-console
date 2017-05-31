@@ -41,10 +41,10 @@
         {% for item in data %}
         <tr>
           <td>{{ item.tx_id }}</td>
-          <td>{{ item.survey_id }}</td>
-          <td>{{ item.metadata.ru_ref }}</td>
-          <td>{{ item.metadata.user_id }}</td>
-          <td>{{ item.submitted_at }}</td>
+          <td>{{ item.data.survey_id }}</td>
+          <td>{{ item.data.metadata.ru_ref }}</td>
+          <td>{{ item.data.metadata.user_id }}</td>
+          <td>{{ item.data.submitted_at }}</td>
         </tr>
         {% endfor %}
       </tbody>

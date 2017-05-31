@@ -2,6 +2,7 @@ import logging
 
 import flask_security
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from structlog import wrap_logger
 
@@ -76,16 +77,22 @@ class SurveyResponse(db.Model):
 
 
 def create_tables():
-    logger.info("Creaing tables")
-    db.create_all()
+    logger.info("Creating tables")
+    try:
+        db.create_all()
+    except SQLAlchemyError:
+        logger.error('SQLAlchemyError')
 
 
 user_datastore = flask_security.SQLAlchemyUserDatastore(db, User, Role)
 
 
 def create_initial_users():
-    user_datastore.find_or_create_role(name='Admin', description='Edit Roles/Users')
-    user_datastore.find_or_create_role(name='SDX-Developer', description='Usual console functionality')
+    try:
+        user_datastore.find_or_create_role(name='Admin', description='Edit Roles/Users')
+        user_datastore.find_or_create_role(name='SDX-Developer', description='Usual console functionality')
+    except SQLAlchemyError:
+        logger.error('SQLAlchemyError')
 
     encrypted_password = flask_security.utils.encrypt_password('password')
 
