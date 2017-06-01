@@ -5,7 +5,7 @@ from datetime import datetime
 from flask import render_template
 from flask import request
 import flask_security
-from sqlalchemy import cast, DateTime
+from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 from structlog import wrap_logger
 
@@ -75,53 +75,36 @@ def decrypt():
         return render_template('decrypt.html')
 
 
-# def get_all_responses():
-#     try:
-#         data = SurveyResponse.query.all()
-#     except SQLAlchemyError:
-#         logger.error('SQLAlchemyError')
-#     return data
-#
-#
-# def get_store_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
-#     responses = get_all_responses()
-#     store_data = []
-#     for response in responses:
-#         store_data.append(response.data)
-#
-#     filtered_data = []
-#     for data in store_data:
-#         if (tx_id == '') or (data['tx_id'] == tx_id):
-#             if (ru_ref == '') or (data['metadata']['ru_ref'] == ru_ref):
-#                 if (survey_id == '') or (data['survey_id'] == survey_id):
-#                     filtered_data.append(data)
-#
-#     datetime_earliest_f = datetime.strptime(datetime_earliest, "%Y-%m-%dT%H:%M")
-#     datetime_latest_f = datetime.strptime(datetime_latest, "%Y-%m-%dT%H:%M")
-#
-#     final_data = []
-#     for data in filtered_data:
-#         data_datetime_string = data['submitted_at'][:19]
-#         data_datetime = datetime.strptime(data_datetime_string, "%Y-%m-%dT%H:%M:%S")
-#         if (data_datetime > datetime_earliest_f) and (data_datetime < datetime_latest_f):
-#             final_data.append(data)
-#
-#     return final_data
-
 def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
     q = db.session.query(SurveyResponse)
-    if tx_id != None and tx_id != '':
+    if tx_id != '':
         q = q.filter(SurveyResponse.tx_id == tx_id)
-    if ru_ref != None and ru_ref != '':
-        logger.info('hit1')
+    if ru_ref != '':
         q = q.filter(SurveyResponse.data["metadata"]["ru_ref"].astext == ru_ref)
-    if survey_id != None and survey_id != '':
-        logger.info('hit2')
+    if survey_id != '':
         q = q.filter(SurveyResponse.data["survey_id"].astext == survey_id)
-    if datetime_earliest != None and datetime_earliest != '':
-        datetime_earliest_f = datetime.strptime(datetime_earliest, "%Y-%m-%dT%H:%M")
-        q = q.filter(cast(SurveyResponse.data["submitted_at"], DateTime) < datetime_earliest_f)
-    return q.all()
+    dt_column = func.date(SurveyResponse.data["submitted_at"].astext)
+    if datetime_earliest:
+        year = int(datetime_earliest[:4])
+        month = int(datetime_earliest[5:7])
+        day = int(datetime_earliest[8:10])
+        hour = int(datetime_earliest[11:13])
+        minute = int(datetime_earliest[14])
+        q = q.filter(dt_column > datetime(year, month, day, hour, minute))
+    if datetime_latest:
+        year = int(datetime_latest[:4])
+        month = int(datetime_latest[5:7])
+        day = int(datetime_latest[8:10])
+        hour = int(datetime_latest[11:13])
+        minute = int(datetime_latest[14])
+        q = q.filter(dt_column < datetime(year, month, day, hour, minute))
+
+    try:
+        filtered_data = q.all()
+    except SQLAlchemyError:
+        logger.error('SQLAlchemyError')
+
+    return filtered_data
 
 
 @app.route('/store', methods=['GET'])
@@ -134,5 +117,4 @@ def store():
     datetime_latest = request.args.get('datetime_latest', type=str, default=None)
 
     store_data = get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
-    logger.info('testtest1' + str(store_data))
     return render_template('store.html', data=store_data)
