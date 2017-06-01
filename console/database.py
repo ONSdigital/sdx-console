@@ -72,11 +72,6 @@ class SurveyResponse(db.Model):
     def __repr__(self):
         return '<SurveyResponse {}>'.format(self.tx_id)
 
-    # def datetime(self):
-    #     dt_column = self.data["submitted_at"].astext
-    #     dt_column = func.datetime(dt_column)
-    #     return dt_column
-
     def to_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
@@ -85,8 +80,8 @@ def create_tables():
     logger.info("Creating tables")
     try:
         db.create_all()
-    except SQLAlchemyError:
-        logger.error('SQLAlchemyError')
+    except SQLAlchemyError as e:
+        logger.error('Error creating database tables', error=e)
 
 
 user_datastore = flask_security.SQLAlchemyUserDatastore(db, User, Role)
@@ -94,21 +89,20 @@ user_datastore = flask_security.SQLAlchemyUserDatastore(db, User, Role)
 
 def create_initial_users():
     logger.info("Creating initial roles and users")
-    user_datastore.find_or_create_role(name='Admin', description='Edit Roles/Users')
-    user_datastore.find_or_create_role(name='SDX-Developer', description='Usual console functionality')
-    encrypted_password = flask_security.utils.encrypt_password('password')
-    user_datastore.create_user(email='admin', password=encrypted_password)
-    user_datastore.create_user(email='dev', password=encrypted_password)
-    user_datastore.create_user(email='none', password=encrypted_password)
-    user_datastore.add_role_to_user('admin', 'Admin')
-    user_datastore.add_role_to_user('dev', 'SDX-Developer')
-
     try:
+        user_datastore.find_or_create_role(name='Admin', description='Edit Roles/Users')
+        user_datastore.find_or_create_role(name='SDX-Developer', description='Usual console functionality')
+        encrypted_password = flask_security.utils.encrypt_password('password')
+        user_datastore.create_user(email='admin', password=encrypted_password)
+        user_datastore.create_user(email='dev', password=encrypted_password)
+        user_datastore.create_user(email='none', password=encrypted_password)
+        user_datastore.add_role_to_user('admin', 'Admin')
+        user_datastore.add_role_to_user('dev', 'SDX-Developer')
         db.session.commit()
-    except IntegrityError:
-        logger.error('A user/role already exists already exist')
-    except SQLAlchemyError:
-        logger.error('Database error')
+    except IntegrityError as e:
+        logger.error('A user/role already exists', error=e)
+    except SQLAlchemyError as e:
+        logger.error("Error creating initial users and roles", error=e)
 
 
 @app.before_first_request
