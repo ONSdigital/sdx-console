@@ -93,9 +93,12 @@ def create_initial_users():
         user_datastore.find_or_create_role(name='Admin', description='Edit Roles/Users')
         user_datastore.find_or_create_role(name='SDX-Developer', description='Usual console functionality')
         encrypted_password = flask_security.utils.encrypt_password('password')
-        user_datastore.create_user(email='admin', password=encrypted_password)
-        user_datastore.create_user(email='dev', password=encrypted_password)
-        user_datastore.create_user(email='none', password=encrypted_password)
+        if not user_datastore.get_user('admin'):
+            user_datastore.create_user(email='admin', password=encrypted_password)
+        if not user_datastore.get_user('dev'):
+            user_datastore.create_user(email='dev', password=encrypted_password)
+        if not user_datastore.get_user('none'):
+            user_datastore.create_user(email='none', password=encrypted_password)
         user_datastore.add_role_to_user('admin', 'Admin')
         user_datastore.add_role_to_user('dev', 'SDX-Developer')
         db.session.commit()

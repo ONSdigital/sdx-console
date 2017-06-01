@@ -8,7 +8,6 @@ from testfixtures import log_capture
 import testing.postgresql
 
 from console import views
-# from console.database import SurveyResponse
 from console.helpers.exceptions import ClientError, ServiceError
 
 
