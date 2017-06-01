@@ -123,39 +123,3 @@ def store():
 
     store_data = get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
     return render_template('store.html', data=store_data)
-
-
-@app.route('/storetest', methods=['GET'])
-def storetest():
-
-    def create_test_data(number):
-        test_data = json.dumps(
-            {
-                "collection": {
-                    "exercise_sid": "hfjdskf",
-                    "instrument_id": "ce2016",
-                    "period": "0616"
-                },
-                "data": {
-                    "1": "2",
-                    "2": "4",
-                    "3": "2",
-                    "4": "Y"
-                },
-                "metadata": {
-                    "ru_ref": "12345678901a",
-                    "user_id": "789473423"
-                },
-                "origin": "uk.gov.ons.edc.eq",
-                "submitted_at": "2017-04-27T14:23:13+00:00",
-                "survey_id": "0",
-                "tx_id": "f088d89d-a367-876e-f29f-ae8f1a26" + str(number),
-                "type": "uk.gov.ons.edc.eq:surveyresponse",
-                "version": "0.0.1"
-            })
-        return test_data
-    for i in range(2000, 3000):
-        test_data = create_test_data(str(i))
-        send_data(settings.SDX_STORE_URL + "responses", data=test_data, request_type="POST")
-
-    return "data sent"
