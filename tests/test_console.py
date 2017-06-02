@@ -1,11 +1,11 @@
 import json
 import os
-import requests
 import server
 from time import sleep
 import unittest
 from unittest import mock
 
+import requests
 from testfixtures import log_capture
 import testing.postgresql
 

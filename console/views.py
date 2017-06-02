@@ -1,10 +1,10 @@
 import logging
-import requests
 
 from datetime import datetime
 from flask import render_template
 from flask import request
 import flask_security
+import requests
 from sqlalchemy import func
 from sqlalchemy.exc import DataError, SQLAlchemyError
 from structlog import wrap_logger
