@@ -104,8 +104,10 @@ def create_initial_users():
         db.session.commit()
     except IntegrityError as e:
         logger.error('A user/role already exists', error=e)
+        db.session.rollback()
     except SQLAlchemyError as e:
         logger.error("Error creating initial users and roles", error=e)
+        db.session.rollback()
 
 
 @app.before_first_request

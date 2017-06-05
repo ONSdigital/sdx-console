@@ -6,7 +6,6 @@
   - Fix [#37](https://github.com/ONSdigital/sdx-console/issues/37) incorrect "Enable empty FTP" setting - now off by default
   - Add QBS template
   - Add all environment variables to README
-
   - Removed old functionality
   - Added heartbeat
   - Added unittests
