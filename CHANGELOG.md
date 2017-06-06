@@ -12,6 +12,8 @@
   - Added new decrypt functionality with unit tests
   - Added Authentication with flask_security
   - Added Account Management with flask_admin
+  - Added database.py for handling PostgreSQL
+  - Added Search functionality for sdx-store at /store
 
 ### 1.0.0 2016-08-16
   - Initial release

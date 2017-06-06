@@ -38,5 +38,6 @@ Some of important environment variables available for configuration are listed b
 | Environment Variable    | Example                               | Description
 |-------------------------|---------------------------------------|----------------
 | SDX_DECRYPT_URL         | `http://sdx-decrypt:5000/`            | URL of the ``sdx-decrypt`` service
+| SDX_STORE_URL           | `http://sdx-store:5000/`              | URL of the ``sdx-store`` service
 | HB_INTERVAL             | `30`                                  | Interval for console heartbeat        
 | CONSOLE_LOGIN_TIMEOUT   | `10`                                  | Number of minutes to user timeout   

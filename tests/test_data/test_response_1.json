@@ -1,0 +1,23 @@
+{
+  "collection": {
+      "exercise_sid": "hfjdskf",
+      "instrument_id": "ce2016",
+      "period": "0616"
+  },
+  "data": {
+      "1": "2",
+      "2": "4",
+      "3": "2",
+      "4": "Y"
+  },
+  "metadata": {
+      "ru_ref": "12345678901a",
+      "user_id": "789473423"
+  },
+  "origin": "uk.gov.ons.edc.eq",
+  "submitted_at": "2017-04-27T14:23:13+00:00",
+  "survey_id": "0",
+  "tx_id": "f088d89d-a367-876e-f29f-ae8f1a260000",
+  "type": "uk.gov.ons.edc.eq:surveyresponse",
+  "version": "0.0.1"
+}
