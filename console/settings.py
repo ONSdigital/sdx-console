@@ -14,10 +14,8 @@ def get_key(key_name):
     TODO remove these once the encrypted key story is finished
     :return:
     """
-    logger.debug("Opening file %", key_name)
     key = open(key_name, 'r')
     contents = key.read()
-    logger.debug("Key is %s", contents)
     return contents
 
 EQ_JWT_LEEWAY_IN_SECONDS = 120
