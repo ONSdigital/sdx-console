@@ -14,6 +14,8 @@
   - Added Account Management with flask_admin
   - Added database.py for handling PostgreSQL
   - Added Search functionality for sdx-store at /store
+  - Adding sdx-common functionality
+  - Updating logger format using sdx-common
 
 ### 1.0.0 2016-08-16
   - Initial release

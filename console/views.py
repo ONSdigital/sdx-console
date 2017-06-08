@@ -14,7 +14,7 @@ from console import app
 from console import settings
 from console.helpers.exceptions import ClientError, ServiceError
 
-logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
+
 logger = wrap_logger(logging.getLogger(__name__))
 
 
