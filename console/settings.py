@@ -29,3 +29,20 @@ HB_INTERVAL = os.getenv("HB_INTERVAL", 30)
 
 SDX_DECRYPT_URL = os.getenv("SDX_DECRYPT_URL", "http://sdx-decrypt:5000/decrypt")
 SDX_STORE_URL = os.getenv("SDX_STORE_URL", "http://sdx-store:5000/")
+
+RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
+    hostname=os.getenv('RABBITMQ_HOST', 'rabbit'),
+    port=os.getenv('RABBITMQ_PORT', 5672),
+    user=os.getenv('RABBITMQ_DEFAULT_USER', 'rabbit'),
+    password=os.getenv('RABBITMQ_DEFAULT_PASS', 'rabbit'),
+    vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
+)
+RABBIT_URL2 = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
+    hostname=os.getenv('RABBITMQ_HOST2', 'rabbit'),
+    port=os.getenv('RABBITMQ_PORT2', 5672),
+    user=os.getenv('RABBITMQ_DEFAULT_USER', 'rabbit'),
+    password=os.getenv('RABBITMQ_DEFAULT_PASS', 'rabbit'),
+    vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
+)
+RABBIT_URLS = [RABBIT_URL, RABBIT_URL2]
+RABBIT_SURVEY_QUEUE = os.getenv('RABBIT_SURVEY_QUEUE', 'survey')

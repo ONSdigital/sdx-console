@@ -40,11 +40,17 @@
       <tbody>
         {% for item in data %}
         <tr>
-          <td>{{ item.tx_id }}</td>
-          <td>{{ item.data.survey_id }}</td>
-          <td>{{ item.data.metadata.ru_ref }}</td>
-          <td>{{ item.data.metadata.user_id }}</td>
-          <td>{{ item.data.submitted_at }}</td>
+          <form id='reprocess form' class="form-horizontal", method='POST'>
+            <td>{{ item.tx_id }}</td>
+            <td>{{ item.data.survey_id }}</td>
+            <td>{{ item.data.metadata.ru_ref }}</td>
+            <td>{{ item.data.metadata.user_id }}</td>
+            <td>{{ item.data.submitted_at }}</td>
+            <input type="hidden" id="json_data" name="json_data" value="{{ item.data }}">
+            <td align="center">
+                <button class="btn btn-primary btn-reprocess" type="submit">Reprocess</button>
+            </td>
+          </form>
         </tr>
         {% endfor %}
       </tbody>

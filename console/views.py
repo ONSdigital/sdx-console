@@ -1,4 +1,5 @@
 import logging
+import json
 
 from datetime import datetime
 from flask import render_template
@@ -13,6 +14,7 @@ from console.database import db, SurveyResponse
 from console import app
 from console import settings
 from console.helpers.exceptions import ClientError, ServiceError
+from console.queue_publisher import QueuePublisher
 
 
 logger = wrap_logger(logging.getLogger(__name__))
@@ -111,14 +113,72 @@ def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime
     return filtered_data
 
 
-@app.route('/store', methods=['GET'])
+def encrypt(data):
+    encrypter = Encrypter()
+    tx_id = str(uuid.uuid4())
+    unencrypted_json['survey']['tx_id'] = tx_id
+    payload = encrypter.encrypt(unencrypted_json['survey'])
+
+    return encrypted_data
+
+
+@app.route('/store', methods=['GET', 'POST'])
 @flask_security.roles_required('SDX-Developer')
 def store():
-    tx_id = request.args.get('tx_id', type=str, default='')
-    ru_ref = request.args.get('ru_ref', type=str, default='')
-    survey_id = request.args.get('survey_id', type=str, default='')
-    datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
-    datetime_latest = request.args.get('datetime_latest', type=str, default='')
+    if request.method == 'POST':
 
-    store_data = get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
-    return render_template('store.html', data=store_data)
+        urls = settings.RABBIT_URLS
+        queue = settings.RABBIT_SURVEY_QUEUE
+        collect_publisher = QueuePublisher(logger, urls, queue)
+        collect_publisher._connect()
+
+        data = request.form['json_data']
+        logger.info("testtest " + data)
+        # encrypted_data = encrypt(unencrypted_json)
+        return render_template('store.html')
+
+    else:
+        tx_id = request.args.get('tx_id', type=str, default='')
+        ru_ref = request.args.get('ru_ref', type=str, default='')
+        survey_id = request.args.get('survey_id', type=str, default='')
+        datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
+        datetime_latest = request.args.get('datetime_latest', type=str, default='')
+
+        store_data = get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
+        return render_template('store.html', data=store_data)
+
+
+@app.route('/storetest', methods=['GET'])
+def storetest():
+
+    def create_test_data(number):
+        test_data = json.dumps(
+            {
+                "collection": {
+                    "exercise_sid": "hfjdskf",
+                    "instrument_id": "ce2016",
+                    "period": "0616"
+                },
+                "data": {
+                    "1": "2",
+                    "2": "4",
+                    "3": "2",
+                    "4": "Y"
+                },
+                "metadata": {
+                    "ru_ref": "12345678901a",
+                    "user_id": "789473423"
+                },
+                "origin": "uk.gov.ons.edc.eq",
+                "submitted_at": "2017-04-27T14:23:13+00:00",
+                "survey_id": "0",
+                "tx_id": "f088d89d-a367-876e-f29f-ae8f1a26" + str(number),
+                "type": "uk.gov.ons.edc.eq:surveyresponse",
+                "version": "0.0.1"
+            })
+        return test_data
+    for i in range(2000, 3000):
+        test_data = create_test_data(str(i))
+        send_data(settings.SDX_STORE_URL + "responses", data=test_data, request_type="POST")
+
+    return "data sent"
