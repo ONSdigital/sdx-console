@@ -19,6 +19,8 @@ import uuid
 
 from flask_paginate import Pagination
 
+from sdx.common.logger_config import logger_initial_config
+
 
 PATHS = {
     "pck": settings.SDX_FTP_DATA_PATH,
@@ -27,7 +29,8 @@ PATHS = {
     "receipt": settings.SDX_FTP_RECEIPT_PATH
 }
 
-logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
+logger_initial_config(service_name='sdx-console')
+
 logger = wrap_logger(logging.getLogger(__name__))
 
 

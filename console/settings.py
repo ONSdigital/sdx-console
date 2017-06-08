@@ -1,10 +1,12 @@
 import os
 import logging
 
-logger = logging.getLogger(__name__)
+from sdx.common.logger_config import logger_initial_config
 
-LOGGING_FORMAT = "%(asctime)s|%(levelname)s: sdx-console: %(message)s"
-LOGGING_LEVEL = logging.getLevelName(os.getenv('LOGGING_LEVEL', 'DEBUG'))
+
+logger_initial_config(service_name='sdx-console')
+
+logger = logging.getLogger(__name__)
 
 
 def get_key(key_name):
