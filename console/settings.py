@@ -1,10 +1,12 @@
 import os
 import logging
 
-logger = logging.getLogger(__name__)
+from sdx.common.logger_config import logger_initial_config
 
-LOGGING_FORMAT = "%(asctime)s|%(levelname)s: sdx-console: %(message)s"
-LOGGING_LEVEL = logging.getLevelName(os.getenv('LOGGING_LEVEL', 'DEBUG'))
+
+logger_initial_config(service_name='sdx-console')
+
+logger = logging.getLogger(__name__)
 
 
 def get_key(key_name):
@@ -12,10 +14,8 @@ def get_key(key_name):
     TODO remove these once the encrypted key story is finished
     :return:
     """
-    logger.debug("Opening file %", key_name)
     key = open(key_name, 'r')
     contents = key.read()
-    logger.debug("Key is %s", contents)
     return contents
 
 EQ_JWT_LEEWAY_IN_SECONDS = 120
