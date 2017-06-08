@@ -13,7 +13,6 @@ from console import settings
 from console.database import db, user_datastore, User, Role
 
 
-logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
 logger = wrap_logger(logging.getLogger(__name__))
 
 

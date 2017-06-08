@@ -1,10 +1,11 @@
 import logging
 import os
 
-logger = logging.getLogger(__name__)
+from sdx.common.logger_config import logger_initial_config
 
-LOGGING_FORMAT = "%(asctime)s|%(levelname)s: sdx-console: %(message)s"
-LOGGING_LEVEL = logging.getLevelName(os.getenv('LOGGING_LEVEL', 'DEBUG'))
+
+logger_initial_config(service_name='sdx-console')
+logger = logging.getLogger(__name__)
 
 DB_HOST = os.getenv('POSTGRES_HOST', '0.0.0.0')
 DB_PORT = os.getenv('POSTGRES_PORT', '5432')
