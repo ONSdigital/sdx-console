@@ -1,5 +1,6 @@
-import logging
 import json
+import logging
+import uuid
 
 from datetime import datetime
 from flask import render_template
@@ -13,6 +14,7 @@ from structlog import wrap_logger
 from console.database import db, SurveyResponse
 from console import app
 from console import settings
+from console.encrypter import Encrypter
 from console.helpers.exceptions import ClientError, ServiceError
 from console.queue_publisher import QueuePublisher
 
@@ -113,11 +115,9 @@ def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime
     return filtered_data
 
 
-def encrypt(data):
+def encrypt(unencrypted_json):
     encrypter = Encrypter()
-    tx_id = str(uuid.uuid4())
-    unencrypted_json['survey']['tx_id'] = tx_id
-    payload = encrypter.encrypt(unencrypted_json['survey'])
+    encrypted_data = encrypter.encrypt(unencrypted_json)
 
     return encrypted_data
 
@@ -126,15 +126,28 @@ def encrypt(data):
 @flask_security.roles_required('SDX-Developer')
 def store():
     if request.method == 'POST':
-
         urls = settings.RABBIT_URLS
         queue = settings.RABBIT_SURVEY_QUEUE
         collect_publisher = QueuePublisher(logger, urls, queue)
         collect_publisher._connect()
 
-        data = request.form['json_data']
-        logger.info("testtest " + data)
-        # encrypted_data = encrypt(unencrypted_json)
+        if request.form['json_data']:
+            json_array = [request.form['json_data']]
+        elif request.form['multiple_json_data']:
+            json_array = request.form['multiple_json_data']
+
+        for item in json_array:
+            corrected_json_string = item.replace("'", '"')
+            unencrypted_json = json.loads(corrected_json_string)
+            tx_id = str(uuid.uuid4())
+            unencrypted_json['tx_id'] = tx_id
+            unencrypted_json['survey_id'] = str(unencrypted_json['survey_id'])
+            encrypted_data = encrypt(unencrypted_json)
+
+            collect_publisher.publish_message(encrypted_data, headers={'tx_id': tx_id})
+
+        collect_publisher._disconnect()
+
         return render_template('store.html')
 
     else:
@@ -156,7 +169,7 @@ def storetest():
             {
                 "collection": {
                     "exercise_sid": "hfjdskf",
-                    "instrument_id": "ce2016",
+                    "instrument_id": "0203",
                     "period": "0616"
                 },
                 "data": {
@@ -171,7 +184,7 @@ def storetest():
                 },
                 "origin": "uk.gov.ons.edc.eq",
                 "submitted_at": "2017-04-27T14:23:13+00:00",
-                "survey_id": "0",
+                "survey_id": "023",
                 "tx_id": "f088d89d-a367-876e-f29f-ae8f1a26" + str(number),
                 "type": "uk.gov.ons.edc.eq:surveyresponse",
                 "version": "0.0.1"

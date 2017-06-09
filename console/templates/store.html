@@ -26,6 +26,11 @@
     </div>
   </form>
 
+  <form id='reprocess-all' class="form-horizontal", method='POST'>
+    <input type="hidden" id="multiple_json_data" name="multiple_json_data" value="{{ data }}">
+    <button class="btn btn-primary btn-reprocess" type="submit">Reprocess All</button>
+  </form>
+
   <div class="table-responsive">
     <table class="table table-hover table-striped table-bordered">
       <thead>
@@ -40,7 +45,7 @@
       <tbody>
         {% for item in data %}
         <tr>
-          <form id='reprocess form' class="form-horizontal", method='POST'>
+          <form id='reprocess-form' class="form-horizontal", method='POST'>
             <td>{{ item.tx_id }}</td>
             <td>{{ item.data.survey_id }}</td>
             <td>{{ item.data.metadata.ru_ref }}</td>
