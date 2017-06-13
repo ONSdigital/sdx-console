@@ -47,10 +47,15 @@ RABBIT_URL2 = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
 RABBIT_URLS = [RABBIT_URL, RABBIT_URL2]
 RABBIT_SURVEY_QUEUE = os.getenv('RABBIT_SURVEY_QUEUE', 'survey')
 
+
 def get_key(key_name):
-    key = open(key_name, 'r')
-    contents = key.read()
-    return contents
+    try:
+        key = open(key_name, 'r')
+        contents = key.read()
+        return contents
+    except:
+        logger.error('Could not locate key file')
+        return
 
 EQ_PUBLIC_KEY = get_key(os.getenv('EQ_PUBLIC_KEY', "/keys/sdc-submission-signing-sr-public-key.pem"))
 EQ_PRIVATE_KEY = get_key(os.getenv('EQ_PRIVATE_KEY', "/keys/sdc-submission-signing-sr-private-key.pem"))

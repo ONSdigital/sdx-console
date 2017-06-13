@@ -74,13 +74,18 @@ class TestConsole(unittest.TestCase):
 Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=True)
 
 
+def get_test_data():
+    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+    json_url = os.path.join(SITE_ROOT, 'test_data', 'test_response_1.json')
+    responses_json = []
+    with open(json_url) as json_data:
+        responses_json.append(json.load(json_data))
+    return responses_json
+
+
 def submit_test_responses():
+    responses_json = get_test_data()
     with app.app_context():
-        SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-        json_url = os.path.join(SITE_ROOT, 'test_data', 'test_response_1.json')
-        responses_json = []
-        with open(json_url) as json_data:
-            responses_json.append(json.load(json_data))
         for response in responses_json:
             tx_id = response['tx_id']
             invalid = 'f'
@@ -195,3 +200,18 @@ class TestStore(unittest.TestCase):
         response = self.app.get('/store?datetime_earliest=2020-01-01T01%3A01&datetime_latest=2020-01-01T01%3A01',
                                 follow_redirects=True)
         self.assertNotIn(b'f088d89d-a367-876e-f29f-ae8f1a260000', response.data)
+
+class TestReprocess(unittest.TestCase):
+
+    def setUp(self):
+        self.postgres = Postgresql()
+        Postgresql.clear_cache()
+        self.app = server.app.test_client()
+        self.app.testing = True
+        self.render_templates = False
+        TestAuthentication.login(self, 'dev', 'password')
+        submit_test_responses()
+
+    def tearDown(self):
+        Postgresql.clear_cache()
+        self.postgres.stop()

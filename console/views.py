@@ -115,36 +115,46 @@ def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime
     return filtered_data
 
 
-def encrypt(unencrypted_json):
+def encrypt_data(unencrypted_json):
     encrypter = Encrypter()
     encrypted_data = encrypter.encrypt(unencrypted_json)
 
     return encrypted_data
 
 
+def get_publisher():
+    urls = settings.RABBIT_URLS
+    queue = settings.RABBIT_SURVEY_QUEUE
+    collect_publisher = QueuePublisher(logger, urls, queue)
+
+    return collect_publisher
+
+
+def store_result(publisher, json_string):
+    tx_id = str(uuid.uuid4())
+    json_string['tx_id'] = tx_id
+    json_string['survey_id'] = str(json_string['survey_id'])
+    encrypted_data = encrypt_data(json_string)
+
+    publisher.publish_message(encrypted_data, headers={'tx_id': tx_id})
+
+
 @app.route('/store', methods=['GET', 'POST'])
 @flask_security.roles_required('SDX-Developer')
 def store():
     if request.method == 'POST':
-        urls = settings.RABBIT_URLS
-        queue = settings.RABBIT_SURVEY_QUEUE
-        collect_publisher = QueuePublisher(logger, urls, queue)
+        collect_publisher = get_publisher()
         collect_publisher._connect()
 
-        if request.form['json_data']:
-            json_array = [request.form['json_data']]
-        elif request.form['multiple_json_data']:
-            json_array = request.form['multiple_json_data']
+        json_string = request.form['json_data']
+        corrected_json_string = json_string.replace("'", '"')
+        unencrypted_json = json.loads(corrected_json_string)
 
-        for item in json_array:
-            corrected_json_string = item.replace("'", '"')
-            unencrypted_json = json.loads(corrected_json_string)
-            tx_id = str(uuid.uuid4())
-            unencrypted_json['tx_id'] = tx_id
-            unencrypted_json['survey_id'] = str(unencrypted_json['survey_id'])
-            encrypted_data = encrypt(unencrypted_json)
-
-            collect_publisher.publish_message(encrypted_data, headers={'tx_id': tx_id})
+        if isinstance(unencrypted_json, list):
+            for string in unencrypted_json:
+                store_result(collect_publisher, string)
+        else:
+            store_result(collect_publisher, unencrypted_json)
 
         collect_publisher._disconnect()
 
@@ -158,40 +168,10 @@ def store():
         datetime_latest = request.args.get('datetime_latest', type=str, default='')
 
         store_data = get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
-        return render_template('store.html', data=store_data)
 
+        json_array = []
+        for item in store_data:
+            json_data = item.data
+            json_array.append(json_data)
 
-@app.route('/storetest', methods=['GET'])
-def storetest():
-
-    def create_test_data(number):
-        test_data = json.dumps(
-            {
-                "collection": {
-                    "exercise_sid": "hfjdskf",
-                    "instrument_id": "0203",
-                    "period": "0616"
-                },
-                "data": {
-                    "1": "2",
-                    "2": "4",
-                    "3": "2",
-                    "4": "Y"
-                },
-                "metadata": {
-                    "ru_ref": "12345678901a",
-                    "user_id": "789473423"
-                },
-                "origin": "uk.gov.ons.edc.eq",
-                "submitted_at": "2017-04-27T14:23:13+00:00",
-                "survey_id": "023",
-                "tx_id": "f088d89d-a367-876e-f29f-ae8f1a26" + str(number),
-                "type": "uk.gov.ons.edc.eq:surveyresponse",
-                "version": "0.0.1"
-            })
-        return test_data
-    for i in range(2000, 3000):
-        test_data = create_test_data(str(i))
-        send_data(settings.SDX_STORE_URL + "responses", data=test_data, request_type="POST")
-
-    return "data sent"
+        return render_template('store.html', data=json_array)
