@@ -1,4 +1,5 @@
 import json
+# import logging
 import os
 import server
 from time import sleep
@@ -6,10 +7,12 @@ import unittest
 from unittest import mock
 
 import requests
+# from structlog import wrap_logger
 from testfixtures import log_capture
 import testing.postgresql
 
 from console import app
+from console import settings
 from console import views
 from console.database import db, SurveyResponse
 from console.helpers.exceptions import ClientError, ServiceError
@@ -201,6 +204,7 @@ class TestStore(unittest.TestCase):
                                 follow_redirects=True)
         self.assertNotIn(b'f088d89d-a367-876e-f29f-ae8f1a260000', response.data)
 
+
 class TestReprocess(unittest.TestCase):
 
     def setUp(self):
@@ -215,3 +219,11 @@ class TestReprocess(unittest.TestCase):
     def tearDown(self):
         Postgresql.clear_cache()
         self.postgres.stop()
+
+    def test_get_publisher(self):
+        logger = views.logger
+        publisher = views.get_publisher(logger)
+
+        self.assertEqual(publisher._urls, settings.RABBIT_URLS)
+        self.assertEqual(publisher._queue, settings.RABBIT_SURVEY_QUEUE)
+        self.assertEqual(publisher._logger, logger)

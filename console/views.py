@@ -122,7 +122,7 @@ def encrypt_data(unencrypted_json):
     return encrypted_data
 
 
-def get_publisher():
+def get_publisher(logger):
     urls = settings.RABBIT_URLS
     queue = settings.RABBIT_SURVEY_QUEUE
     collect_publisher = QueuePublisher(logger, urls, queue)
@@ -130,7 +130,7 @@ def get_publisher():
     return collect_publisher
 
 
-def store_result(publisher, json_string):
+def publish_result(publisher, json_string):
     tx_id = str(uuid.uuid4())
     json_string['tx_id'] = tx_id
     json_string['survey_id'] = str(json_string['survey_id'])
@@ -143,18 +143,18 @@ def store_result(publisher, json_string):
 @flask_security.roles_required('SDX-Developer')
 def store():
     if request.method == 'POST':
-        collect_publisher = get_publisher()
-        collect_publisher._connect()
-
         json_string = request.form['json_data']
         corrected_json_string = json_string.replace("'", '"')
         unencrypted_json = json.loads(corrected_json_string)
 
+        collect_publisher = get_publisher(logger)
+        collect_publisher._connect()
+
         if isinstance(unencrypted_json, list):
             for string in unencrypted_json:
-                store_result(collect_publisher, string)
+                publish_result(collect_publisher, string)
         else:
-            store_result(collect_publisher, unencrypted_json)
+            publish_result(collect_publisher, unencrypted_json)
 
         collect_publisher._disconnect()
 
