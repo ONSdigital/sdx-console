@@ -38,7 +38,7 @@ class Encrypter (object):
         # now generate a random IV
         self.iv = os.urandom(12)  # 96 bit random IV
 
-    @classmethod
+    @staticmethod
     def _to_bytes(bytes_or_str):
         if isinstance(bytes_or_str, str):
             value = bytes_or_str.encode()
@@ -56,7 +56,7 @@ class Encrypter (object):
     def _encode_iv(self, iv):
         return self._base_64_encode(iv)
 
-    @classmethod
+    @staticmethod
     def _base_64_encode(text):
         # strip the trailing = as they are padding to make the result a multiple of 4
         # the RFC does the same, as do other base64 libraries so this is a safe operation
