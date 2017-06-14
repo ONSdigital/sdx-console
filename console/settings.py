@@ -2,10 +2,11 @@ import logging
 import os
 
 from sdx.common.logger_config import logger_initial_config
+from structlog import wrap_logger
 
 
 logger_initial_config(service_name='sdx-console')
-logger = logging.getLogger(__name__)
+logger = wrap_logger(logging.getLogger(__name__))
 
 DB_HOST = os.getenv('POSTGRES_HOST', '0.0.0.0')
 DB_PORT = os.getenv('POSTGRES_PORT', '5432')
@@ -53,8 +54,8 @@ def get_key(key_name):
         key = open(key_name, 'r')
         contents = key.read()
         return contents
-    except:
-        logger.error('Could not locate key file')
+    except FileNotFoundError as e:
+        logger.error('Could not locate key file', error=e)
         return
 
 EQ_PUBLIC_KEY = get_key(os.getenv('EQ_PUBLIC_KEY', "/keys/sdc-submission-signing-sr-public-key.pem"))
