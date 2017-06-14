@@ -3,7 +3,7 @@ import logging
 import uuid
 
 from datetime import datetime
-from flask import render_template
+from flask import render_template, url_for, redirect
 from flask import request
 import flask_security
 import requests
@@ -81,6 +81,7 @@ def decrypt():
 
 
 def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
+    logger.info('Retrieving responses from store')
     try:
         q = db.session.query(SurveyResponse)
         if tx_id != '':
@@ -116,8 +117,10 @@ def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime
 
 
 def encrypt_data(unencrypted_json):
+    logger.info('Encrypting data')
     encrypter = Encrypter()
     encrypted_data = encrypter.encrypt(unencrypted_json)
+    logger.info('Data successfully encrypted')
 
     return encrypted_data
 
@@ -132,6 +135,7 @@ def get_publisher(logger):
 
 def publish_result(publisher, json_string):
     tx_id = str(uuid.uuid4())
+    logger.info('Created new tx_id ' + tx_id)
     json_string['tx_id'] = tx_id
     json_string['survey_id'] = str(json_string['survey_id'])
     encrypted_data = encrypt_data(json_string)
@@ -144,6 +148,8 @@ def publish_result(publisher, json_string):
 def store():
     if request.method == 'POST':
         json_string = request.form['json_data']
+        if json_string == '':
+            return redirect(url_for('store'))
         corrected_json_string = json_string.replace("'", '"')
         unencrypted_json = json.loads(corrected_json_string)
 
@@ -151,14 +157,16 @@ def store():
         collect_publisher._connect()
 
         if isinstance(unencrypted_json, list):
+            logger.info('Reprocessing all results')
             for string in unencrypted_json:
+                logger.info('Reprocessing transaction', tx_id=unencrypted_json["tx_id"])
                 publish_result(collect_publisher, string)
         else:
             publish_result(collect_publisher, unencrypted_json)
 
         collect_publisher._disconnect()
 
-        return render_template('store.html')
+        return redirect(url_for('store'))
 
     else:
         tx_id = request.args.get('tx_id', type=str, default='')
