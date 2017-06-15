@@ -182,9 +182,4 @@ def store():
 
         json_list = [item.data for item in store_data]
 
-        # json_array = []
-        # for item in store_data:
-        #     json_data = item.data
-        #     json_array.append(json_data)
-
         return render_template('store.html', data=json_list)
