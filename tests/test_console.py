@@ -78,9 +78,9 @@ Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=True)
 def get_test_data():
     site_root = os.path.realpath(os.path.dirname(__file__))
     json_url = os.path.join(site_root, 'test_data', 'test_response_1.json')
-    responses_json = []
     with open(json_url) as json_data:
-        responses_json.append(json.load(json_data))
+        responses_json = [json.load(json_data)]
+
     return responses_json
 
 
