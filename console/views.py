@@ -57,7 +57,7 @@ def send_data(url, data=None, request_type="POST"):
 def decrypt():
     logger.bind(user=flask_security.core.current_user.email)
     if request.method == "POST":
-        data = request.form['EncryptedData']
+        data = request.form.get('EncryptedData')
         url = settings.SDX_DECRYPT_URL
         decrypted_data = ""
 
@@ -118,7 +118,11 @@ def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime
 
 def encrypt_data(unencrypted_json):
     logger.info('Encrypting data')
-    encrypter = Encrypter()
+    eq_private_key = settings.EQ_PRIVATE_KEY
+    eq_private_key_password = settings.EQ_PRIVATE_KEY_PASSWORD
+    private_key = settings.PRIVATE_KEY
+    private_key_password = settings.PRIVATE_KEY_PASSWORD
+    encrypter = Encrypter(eq_private_key, eq_private_key_password, private_key, private_key_password)
     encrypted_data = encrypter.encrypt(unencrypted_json)
     logger.info('Data successfully encrypted')
 
@@ -147,11 +151,10 @@ def publish_result(publisher, json_string):
 @flask_security.roles_required('SDX-Developer')
 def store():
     if request.method == 'POST':
-        json_string = request.form['json_data']
+        json_string = request.form.get('json_data')
         if json_string == '':
             return redirect(url_for('store'))
-        corrected_json_string = json_string.replace("'", '"')
-        unencrypted_json = json.loads(corrected_json_string)
+        unencrypted_json = json.loads(json_string.replace("'", '"'))
 
         collect_publisher = get_publisher(logger)
         collect_publisher._connect()
@@ -159,7 +162,7 @@ def store():
         if isinstance(unencrypted_json, list):
             logger.info('Reprocessing all results')
             for string in unencrypted_json:
-                logger.info('Reprocessing transaction', tx_id=unencrypted_json["tx_id"])
+                logger.info('Reprocessing transaction', tx_id=string["tx_id"])
                 publish_result(collect_publisher, string)
         else:
             publish_result(collect_publisher, unencrypted_json)
@@ -177,9 +180,11 @@ def store():
 
         store_data = get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
 
-        json_array = []
-        for item in store_data:
-            json_data = item.data
-            json_array.append(json_data)
+        json_list = [item.data for item in store_data]
 
-        return render_template('store.html', data=json_array)
+        # json_array = []
+        # for item in store_data:
+        #     json_data = item.data
+        #     json_array.append(json_data)
+
+        return render_template('store.html', data=json_list)

@@ -1,27 +1,29 @@
+import base64
+import logging
+import os
+
 from cryptography.hazmat.backends.openssl.backend import backend
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
-
-import base64
-import os
-from console import settings
 import jwt
+from structlog import wrap_logger
 
-KID = 'SDE'
+
+logger = wrap_logger(logging.getLogger(__name__))
 
 
-class Encrypter (object):
-    def __init__(self):
-        private_key_bytes = self._to_bytes(settings.EQ_PRIVATE_KEY)
+class Encrypter(object):
+    def __init__(self, eq_private_key, eq_private_key_password, private_key, private_key_password):
+        private_key_bytes = self._to_bytes(eq_private_key)
         self.private_key = serialization.load_pem_private_key(private_key_bytes,
-                                                              password=self._to_bytes(settings.EQ_PRIVATE_KEY_PASSWORD),
+                                                              password=self._to_bytes(eq_private_key_password),
                                                               backend=backend)
 
         private_decryption_key = serialization.load_pem_private_key(
-            settings.PRIVATE_KEY.encode(),
-            password=self._to_bytes(settings.PRIVATE_KEY_PASSWORD),
+            private_key.encode(),
+            password=self._to_bytes(private_key_password),
             backend=backend
         )
 
@@ -40,9 +42,10 @@ class Encrypter (object):
 
     @staticmethod
     def _to_bytes(bytes_or_str):
-        if isinstance(bytes_or_str, str):
+        try:
             value = bytes_or_str.encode()
-        else:
+        except AttributeError as e:
+            logger.error('Unable to convert to bytes', error=e)
             value = bytes_or_str
         return value
 
@@ -50,7 +53,10 @@ class Encrypter (object):
         return self._base_64_encode(b'{"alg":"RSA-OAEP","enc":"A256GCM"}')
 
     def _encrypted_key(self, cek):
-        ciphertext = self.public_key.encrypt(cek, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA1()), algorithm=hashes.SHA1(), label=None))
+        ciphertext = self.public_key.encrypt(cek,
+                                             padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                                                          algorithm=hashes.SHA1(),
+                                                          label=None))
         return self._base_64_encode(ciphertext)
 
     def _encode_iv(self, iv):
@@ -63,7 +69,7 @@ class Encrypter (object):
         return base64.urlsafe_b64encode(text).decode().strip("=").encode()
 
     def _encode_and_signed(self, payload):
-        return jwt.encode(payload, self.private_key, algorithm="RS256", headers={'kid': KID, 'typ': 'jwt'})
+        return jwt.encode(payload, self.private_key, algorithm="RS256", headers={'kid': 'SDE', 'typ': 'jwt'})
 
     def encrypt(self, json):
         payload = self._encode_and_signed(json)
@@ -83,6 +89,7 @@ class Encrypter (object):
         encoded_tag = self._base_64_encode(tag)
 
         # assemble result
-        jwe = jwe_protected_header + b"." + encrypted_key + b"." + self._encode_iv(self.iv) + b"." + encoded_ciphertext + b"." + encoded_tag
+        jwe = jwe_protected_header + b"." + encrypted_key + b"." + \
+            self._encode_iv(self.iv) + b"." + encoded_ciphertext + b"." + encoded_tag
 
         return jwe

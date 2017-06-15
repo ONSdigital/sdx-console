@@ -1,5 +1,4 @@
 import json
-# import logging
 import os
 import server
 from time import sleep
@@ -7,7 +6,6 @@ import unittest
 from unittest import mock
 
 import requests
-# from structlog import wrap_logger
 from testfixtures import log_capture
 import testing.postgresql
 
@@ -78,8 +76,8 @@ Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=True)
 
 
 def get_test_data():
-    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    json_url = os.path.join(SITE_ROOT, 'test_data', 'test_response_1.json')
+    site_root = os.path.realpath(os.path.dirname(__file__))
+    json_url = os.path.join(site_root, 'test_data', 'test_response_1.json')
     responses_json = []
     with open(json_url) as json_data:
         responses_json.append(json.load(json_data))
