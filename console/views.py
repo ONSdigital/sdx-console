@@ -1,7 +1,9 @@
+import json
 import logging
+import uuid
 
 from datetime import datetime
-from flask import render_template
+from flask import render_template, url_for, redirect
 from flask import request
 import flask_security
 import requests
@@ -12,7 +14,9 @@ from structlog import wrap_logger
 from console.database import db, SurveyResponse
 from console import app
 from console import settings
+from console.encrypter import Encrypter
 from console.helpers.exceptions import ClientError, ServiceError
+from console.queue_publisher import QueuePublisher
 
 
 logger = wrap_logger(logging.getLogger(__name__))
@@ -53,7 +57,7 @@ def send_data(url, data=None, request_type="POST"):
 def decrypt():
     logger.bind(user=flask_security.core.current_user.email)
     if request.method == "POST":
-        data = request.form['EncryptedData']
+        data = request.form.get('EncryptedData')
         url = settings.SDX_DECRYPT_URL
         decrypted_data = ""
 
@@ -77,6 +81,7 @@ def decrypt():
 
 
 def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
+    logger.info('Retrieving responses from store')
     try:
         q = db.session.query(SurveyResponse)
         if tx_id != '':
@@ -111,14 +116,70 @@ def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime
     return filtered_data
 
 
-@app.route('/store', methods=['GET'])
+def encrypt_data(unencrypted_json):
+    logger.info('Encrypting data')
+    eq_private_key = settings.EQ_PRIVATE_KEY
+    eq_private_key_password = settings.EQ_PRIVATE_KEY_PASSWORD
+    private_key = settings.PRIVATE_KEY
+    private_key_password = settings.PRIVATE_KEY_PASSWORD
+    encrypter = Encrypter(eq_private_key, eq_private_key_password, private_key, private_key_password)
+    encrypted_data = encrypter.encrypt(unencrypted_json)
+    logger.info('Data successfully encrypted')
+
+    return encrypted_data
+
+
+def get_publisher(logger):
+    urls = settings.RABBIT_URLS
+    queue = settings.RABBIT_SURVEY_QUEUE
+    collect_publisher = QueuePublisher(logger, urls, queue)
+
+    return collect_publisher
+
+
+def publish_result(publisher, json_string):
+    tx_id = str(uuid.uuid4())
+    logger.info('Created new tx_id ' + tx_id)
+    json_string['tx_id'] = tx_id
+    json_string['survey_id'] = str(json_string['survey_id'])
+    encrypted_data = encrypt_data(json_string)
+
+    publisher.publish_message(encrypted_data, headers={'tx_id': tx_id})
+
+
+@app.route('/store', methods=['GET', 'POST'])
 @flask_security.roles_required('SDX-Developer')
 def store():
-    tx_id = request.args.get('tx_id', type=str, default='')
-    ru_ref = request.args.get('ru_ref', type=str, default='')
-    survey_id = request.args.get('survey_id', type=str, default='')
-    datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
-    datetime_latest = request.args.get('datetime_latest', type=str, default='')
+    if request.method == 'POST':
+        json_string = request.form.get('json_data')
+        if json_string == '':
+            return redirect(url_for('store'))
+        unencrypted_json = json.loads(json_string.replace("'", '"'))
 
-    store_data = get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
-    return render_template('store.html', data=store_data)
+        collect_publisher = get_publisher(logger)
+        collect_publisher._connect()
+
+        if isinstance(unencrypted_json, list):
+            logger.info('Reprocessing all results')
+            for string in unencrypted_json:
+                logger.info('Reprocessing transaction', tx_id=string["tx_id"])
+                publish_result(collect_publisher, string)
+        else:
+            publish_result(collect_publisher, unencrypted_json)
+
+        collect_publisher._disconnect()
+
+        return redirect(url_for('store'))
+
+    else:
+        tx_id = request.args.get('tx_id', type=str, default='')
+        ru_ref = request.args.get('ru_ref', type=str, default='')
+        survey_id = request.args.get('survey_id', type=str, default='')
+        datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
+        datetime_latest = request.args.get('datetime_latest', type=str, default='')
+
+        store_data = get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
+
+        json_list = [item.data for item in store_data]
+
+        return render_template('store.html', data=json_list)

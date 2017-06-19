@@ -26,6 +26,11 @@
     </div>
   </form>
 
+  <form id='reprocess-all' name='reprocess-all' class="form-horizontal", method='POST'>
+    <input type="hidden" name="json_data" value="{{ data }}">
+    <button class="btn btn-primary btn-reprocess" form="reprocess-all" type="submit">Reprocess All</button>
+  </form>
+
   <div class="table-responsive">
     <table class="table table-hover table-striped table-bordered">
       <thead>
@@ -40,11 +45,17 @@
       <tbody>
         {% for item in data %}
         <tr>
-          <td>{{ item.tx_id }}</td>
-          <td>{{ item.data.survey_id }}</td>
-          <td>{{ item.data.metadata.ru_ref }}</td>
-          <td>{{ item.data.metadata.user_id }}</td>
-          <td>{{ item.data.submitted_at }}</td>
+          <form id="reprocess-form" name='reprocess-form' class="form-horizontal", method='POST'>
+            <td>{{ item.tx_id }}</td>
+            <td>{{ item.survey_id }}</td>
+            <td>{{ item.metadata.ru_ref }}</td>
+            <td>{{ item.metadata.user_id }}</td>
+            <td>{{ item.submitted_at }}</td>
+            <input type="hidden" name="json_data" value="{{ item }}">
+            <td align="center">
+              <button class="btn btn-primary btn-reprocess" form="reprocess-form" type="submit">Reprocess</button>
+            </td>
+          </form>
         </tr>
         {% endfor %}
       </tbody>

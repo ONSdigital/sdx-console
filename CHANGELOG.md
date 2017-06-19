@@ -16,6 +16,7 @@
   - Added Search functionality for sdx-store at /store
   - Adding sdx-common functionality
   - Updating logger format using sdx-common
+  - Adding reprocessing functionality
 
 ### 1.0.0 2016-08-16
   - Initial release
