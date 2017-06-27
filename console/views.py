@@ -1,10 +1,12 @@
 import json
 import logging
-import uuid
 
 from datetime import datetime
-from flask import render_template, url_for, redirect
+from flask import jsonify
+from flask import redirect
+from flask import render_template
 from flask import request
+from flask import url_for
 import flask_security
 import requests
 from sqlalchemy import func
@@ -14,9 +16,7 @@ from structlog import wrap_logger
 from console.database import db, SurveyResponse
 from console import app
 from console import settings
-from console.encrypter import Encrypter
 from console.helpers.exceptions import ClientError, ServiceError
-from console.queue_publisher import QueuePublisher
 
 
 logger = wrap_logger(logging.getLogger(__name__))
@@ -39,7 +39,7 @@ def send_data(url, data=None, request_type="POST"):
     except requests.exceptions.ConnectionError as e:
         logger.error('Could not connect to ' + url, response="Connection error")
         raise e
-
+    logger.info("testtest " + str(r.text))
     if 199 < r.status_code < 300:
         logger.info('Returned from ' + url, response=r.reason, status_code=r.status_code)
     elif 399 < r.status_code < 500:
@@ -116,35 +116,35 @@ def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime
     return filtered_data
 
 
-def encrypt_data(unencrypted_json):
-    logger.info('Encrypting data')
-    eq_private_key = settings.EQ_PRIVATE_KEY
-    eq_private_key_password = settings.EQ_PRIVATE_KEY_PASSWORD
-    private_key = settings.PRIVATE_KEY
-    private_key_password = settings.PRIVATE_KEY_PASSWORD
-    encrypter = Encrypter(eq_private_key, eq_private_key_password, private_key, private_key_password)
-    encrypted_data = encrypter.encrypt(unencrypted_json)
-    logger.info('Data successfully encrypted')
-
-    return encrypted_data
-
-
-def get_publisher(logger):
-    urls = settings.RABBIT_URLS
-    queue = settings.RABBIT_SURVEY_QUEUE
-    collect_publisher = QueuePublisher(logger, urls, queue)
-
-    return collect_publisher
-
-
-def publish_result(publisher, json_string):
-    tx_id = str(uuid.uuid4())
-    logger.info('Created new tx_id ' + tx_id)
-    json_string['tx_id'] = tx_id
-    json_string['survey_id'] = str(json_string['survey_id'])
-    encrypted_data = encrypt_data(json_string)
-
-    publisher.publish_message(encrypted_data, headers={'tx_id': tx_id})
+# def encrypt_data(unencrypted_json):
+#     logger.info('Encrypting data')
+#     eq_private_key = settings.EQ_PRIVATE_KEY
+#     eq_private_key_password = settings.EQ_PRIVATE_KEY_PASSWORD
+#     private_key = settings.PRIVATE_KEY
+#     private_key_password = settings.PRIVATE_KEY_PASSWORD
+#     encrypter = Encrypter(eq_private_key, eq_private_key_password, private_key, private_key_password)
+#     encrypted_data = encrypter.encrypt(unencrypted_json)
+#     logger.info('Data successfully encrypted')
+#
+#     return encrypted_data
+#
+#
+# def get_publisher(logger):
+#     urls = settings.RABBIT_URLS
+#     queue = settings.RABBIT_SURVEY_QUEUE
+#     collect_publisher = QueuePublisher(logger, urls, queue)
+#
+#     return collect_publisher
+#
+#
+# def publish_result(publisher, json_string):
+#     tx_id = str(uuid.uuid4())
+#     logger.info('Created new tx_id ' + tx_id)
+#     json_string['tx_id'] = tx_id
+#     json_string['survey_id'] = str(json_string['survey_id'])
+#     encrypted_data = encrypt_data(json_string)
+#
+#     publisher.publish_message(encrypted_data, headers={'tx_id': tx_id})
 
 
 @app.route('/store', methods=['GET', 'POST'])
@@ -152,24 +152,25 @@ def publish_result(publisher, json_string):
 def store():
     if request.method == 'POST':
         json_string = request.form.get('json_data')
-        if json_string == '':
+        if json_string == "":
             return redirect(url_for('store'))
         unencrypted_json = json.loads(json_string.replace("'", '"'))
+        url = settings.SDX_VALIDATE_URL
+        valid = send_data(url=url, data=unencrypted_json, request_type="POST")
+        # collect_publisher = get_publisher(logger)
+        # collect_publisher._connect()
+        #
+        # if isinstance(unencrypted_json, list):
+        #     logger.info('Reprocessing all results')
+        #     for string in unencrypted_json:
+        #         logger.info('Reprocessing transaction', tx_id=string["tx_id"])
+        #         publish_result(collect_publisher, string)
+        # else:
+        #     publish_result(collect_publisher, unencrypted_json)
+        #
+        # collect_publisher._disconnect()
 
-        collect_publisher = get_publisher(logger)
-        collect_publisher._connect()
-
-        if isinstance(unencrypted_json, list):
-            logger.info('Reprocessing all results')
-            for string in unencrypted_json:
-                logger.info('Reprocessing transaction', tx_id=string["tx_id"])
-                publish_result(collect_publisher, string)
-        else:
-            publish_result(collect_publisher, unencrypted_json)
-
-        collect_publisher._disconnect()
-
-        return redirect(url_for('store'))
+        return jsonify(valid)
 
     else:
         tx_id = request.args.get('tx_id', type=str, default='')
