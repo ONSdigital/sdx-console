@@ -2,7 +2,6 @@ import json
 import logging
 
 from datetime import datetime
-from flask import jsonify
 from flask import redirect
 from flask import render_template
 from flask import request
@@ -25,21 +24,24 @@ logger = wrap_logger(logging.getLogger(__name__))
 @app.route('/', methods=['GET'])
 @flask_security.login_required
 def home():
-    return "stuff"
+    return redirect(url_for('store'))
 
 
-def send_data(url, data=None, request_type="POST"):
+def send_data(url, data=None, json=None, request_type=None):
     try:
         if request_type == "POST":
             logger.info("Posting data to " + url)
-            r = requests.post(url, data)
+            if data:
+                r = requests.post(url, data=data)
+            elif json:
+                r = requests.post(url, json=json)
         else:
             logger.info("Sending GET request to " + url)
             r = requests.get(url)
     except requests.exceptions.ConnectionError as e:
         logger.error('Could not connect to ' + url, response="Connection error")
         raise e
-    logger.info("testtest " + str(r.text))
+
     if 199 < r.status_code < 300:
         logger.info('Returned from ' + url, response=r.reason, status_code=r.status_code)
     elif 399 < r.status_code < 500:
@@ -116,61 +118,36 @@ def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime
     return filtered_data
 
 
-# def encrypt_data(unencrypted_json):
-#     logger.info('Encrypting data')
-#     eq_private_key = settings.EQ_PRIVATE_KEY
-#     eq_private_key_password = settings.EQ_PRIVATE_KEY_PASSWORD
-#     private_key = settings.PRIVATE_KEY
-#     private_key_password = settings.PRIVATE_KEY_PASSWORD
-#     encrypter = Encrypter(eq_private_key, eq_private_key_password, private_key, private_key_password)
-#     encrypted_data = encrypter.encrypt(unencrypted_json)
-#     logger.info('Data successfully encrypted')
-#
-#     return encrypted_data
-#
-#
-# def get_publisher(logger):
-#     urls = settings.RABBIT_URLS
-#     queue = settings.RABBIT_SURVEY_QUEUE
-#     collect_publisher = QueuePublisher(logger, urls, queue)
-#
-#     return collect_publisher
-#
-#
-# def publish_result(publisher, json_string):
-#     tx_id = str(uuid.uuid4())
-#     logger.info('Created new tx_id ' + tx_id)
-#     json_string['tx_id'] = tx_id
-#     json_string['survey_id'] = str(json_string['survey_id'])
-#     encrypted_data = encrypt_data(json_string)
-#
-#     publisher.publish_message(encrypted_data, headers={'tx_id': tx_id})
+def reprocess_transaction(json_data):
+    logger.info('Reprocessing transaction', tx_id=json_data["tx_id"])
+    if json_data.get("invalid"):
+        del json_data["invalid"]
+    validate_response = send_data(url=settings.SDX_VALIDATE_URL, json=json_data, request_type="POST")
+    if validate_response.status_code == 200:
+        store_response = send_data(url=settings.SDX_STORE_URL, json=json_data, request_type="POST")
+    if store_response.status_code == 200:
+        return "OK"
 
 
 @app.route('/store', methods=['GET', 'POST'])
 @flask_security.roles_required('SDX-Developer')
 def store():
     if request.method == 'POST':
-        json_string = request.form.get('json_data')
-        if json_string == "":
-            return redirect(url_for('store'))
-        unencrypted_json = json.loads(json_string.replace("'", '"'))
-        url = settings.SDX_VALIDATE_URL
-        valid = send_data(url=url, data=unencrypted_json, request_type="POST")
-        # collect_publisher = get_publisher(logger)
-        # collect_publisher._connect()
-        #
-        # if isinstance(unencrypted_json, list):
-        #     logger.info('Reprocessing all results')
-        #     for string in unencrypted_json:
-        #         logger.info('Reprocessing transaction', tx_id=string["tx_id"])
-        #         publish_result(collect_publisher, string)
-        # else:
-        #     publish_result(collect_publisher, unencrypted_json)
-        #
-        # collect_publisher._disconnect()
+        json_survey_data = request.form.get('json_data')
+        if not json_survey_data:
+            json_survey_data = request.form.get('json_data_list')
+            if not json_survey_data:
+                return url_for('store')
+            json_survey_data = eval(json_survey_data)
 
-        return jsonify(valid)
+        if isinstance(json_survey_data, list):
+            logger.info('Reprocessing all results')
+            for json_data in json_survey_data:
+                reprocess_transaction(json_data)
+        else:
+            json_data = json.loads(json_survey_data.replace("'", '"'))
+            reprocess_transaction(json_data)
+        return redirect(url_for('store'))
 
     else:
         tx_id = request.args.get('tx_id', type=str, default='')

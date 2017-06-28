@@ -3,6 +3,7 @@
 #         self.message = message
 #         self.status_code = status_code
 
+
 class ClientError(Exception):
     pass
 
