@@ -2,6 +2,7 @@ import json
 import logging
 
 from datetime import datetime
+from flask import jsonify
 from flask import redirect
 from flask import render_template
 from flask import request
@@ -15,10 +16,16 @@ from structlog import wrap_logger
 from console.database import db, SurveyResponse
 from console import app
 from console import settings
-from console.helpers.exceptions import ClientError, ServiceError
+from console.helpers.exceptions import ClientError, ExceptionReturn, ServiceError
 
 
 logger = wrap_logger(logging.getLogger(__name__))
+
+
+@app.errorhandler(ExceptionReturn)
+def handle_invalid_usage(error):
+    json_error = {"message": error.message, "status_code": error.status_code}
+    return jsonify(json_error)
 
 
 @app.route('/', methods=['GET'])
@@ -46,10 +53,10 @@ def send_data(url, data=None, json=None, request_type=None):
         logger.info('Returned from ' + url, response=r.reason, status_code=r.status_code)
     elif 399 < r.status_code < 500:
         logger.error('Returned from ' + url, response=r.reason, status_code=r.status_code)
-        raise ClientError
+        raise ClientError(message=r.reason, status_code=r.status_code)
     elif r.status_code > 499:
         logger.error('Returned from ' + url, response=r.reason, status_code=r.status_code)
-        raise ServiceError
+        raise ServiceError(message=r.reason, status_code=status_code)
 
     return r
 
@@ -123,10 +130,8 @@ def reprocess_transaction(json_data):
     if json_data.get("invalid"):
         del json_data["invalid"]
     validate_response = send_data(url=settings.SDX_VALIDATE_URL, json=json_data, request_type="POST")
-    if validate_response.status_code == 200:
-        store_response = send_data(url=settings.SDX_STORE_URL, json=json_data, request_type="POST")
-    if store_response.status_code == 200:
-        return "OK"
+    store_response = send_data(url=settings.SDX_STORE_URL, json=json_data, request_type="POST")
+
 
 
 @app.route('/store', methods=['GET', 'POST'])

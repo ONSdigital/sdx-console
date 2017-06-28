@@ -1,12 +1,12 @@
-# class ExceptionReturn(Exception):
-#     def __init__(self, message, status_code):
-#         self.message = message
-#         self.status_code = status_code
+class ExceptionReturn(Exception):
+    def __init__(self, message, status_code):
+        self.message = message
+        self.status_code = status_code
 
 
-class ClientError(Exception):
+class ClientError(ExceptionReturn):
     pass
 
 
-class ServiceError(Exception):
+class ServiceError(ExceptionReturn):
     pass
