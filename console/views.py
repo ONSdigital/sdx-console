@@ -132,11 +132,10 @@ def reprocess_transaction(json_data):
     validate_response = send_data(url=settings.SDX_VALIDATE_URL, json=json_data, request_type="POST")
     store_response = send_data(url=settings.SDX_STORE_URL, json=json_data, request_type="POST")
 
-
-
-@app.route('/store', methods=['GET', 'POST'])
+@app.route('/store/', methods=['GET', 'POST'])
+@app.route('/store/<page>', methods=['GET', 'POST'])
 @flask_security.roles_required('SDX-Developer')
-def store():
+def store(page=0):
     if request.method == 'POST':
         json_survey_data = request.form.get('json_data')
         if not json_survey_data:
@@ -164,5 +163,6 @@ def store():
         store_data = get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
 
         json_list = [item.data for item in store_data]
+        # no_pages = len(json_list)
 
-        return render_template('store.html', data=json_list)
+        return render_template('store.html', data=json_list, no_pages=10, page=int(page))
