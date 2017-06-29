@@ -1,5 +1,6 @@
 import json
 import logging
+import math
 
 from datetime import datetime
 from flask import jsonify
@@ -16,47 +17,47 @@ from structlog import wrap_logger
 from console.database import db, SurveyResponse
 from console import app
 from console import settings
-from console.helpers.exceptions import ClientError, ExceptionReturn, ServiceError
+from console.helpers.exceptions import ClientError, ResponseError, ServiceError
 
 
 logger = wrap_logger(logging.getLogger(__name__))
 
 
-@app.errorhandler(ExceptionReturn)
+@app.errorhandler(ResponseError)
 def handle_invalid_usage(error):
     json_error = {"message": error.message, "status_code": error.status_code}
     return jsonify(json_error)
 
 
 @app.route('/', methods=['GET'])
-@flask_security.login_required
 def home():
-    return redirect(url_for('store'))
+    return "home"
 
 
-def send_data(url, data=None, json=None, request_type=None):
+def send_data(logger, url, data=None, json=None, request_type="POST"):
+    response_logger = logger.bind(url=url)
     try:
         if request_type == "POST":
-            logger.info("Posting data to " + url)
+            response_logger.info("Sending POST request")
             if data:
                 r = requests.post(url, data=data)
             elif json:
                 r = requests.post(url, json=json)
-        else:
-            logger.info("Sending GET request to " + url)
+        elif request_type == "GET":
+            response_logger.info("Sending GET request")
             r = requests.get(url)
     except requests.exceptions.ConnectionError as e:
-        logger.error('Could not connect to ' + url, response="Connection error")
+        response_logger.error("Failed to connect to service", response="Connection error")
         raise e
 
     if 199 < r.status_code < 300:
-        logger.info('Returned from ' + url, response=r.reason, status_code=r.status_code)
+        logger.info('Returned from service', response=r.reason, status_code=r.status_code)
     elif 399 < r.status_code < 500:
-        logger.error('Returned from ' + url, response=r.reason, status_code=r.status_code)
-        raise ClientError(message=r.reason, status_code=r.status_code)
+        logger.error('Returned from service', response=r.reason, status_code=r.status_code)
+        raise ClientError(url=url, message=r.reason, status_code=r.status_code)
     elif r.status_code > 499:
-        logger.error('Returned from ' + url, response=r.reason, status_code=r.status_code)
-        raise ServiceError(message=r.reason, status_code=status_code)
+        logger.error('Returned from service', response=r.reason, status_code=r.status_code)
+        raise ServiceError(url=url, message=r.reason, status_code=r.status_code)
 
     return r
 
@@ -64,15 +65,15 @@ def send_data(url, data=None, json=None, request_type=None):
 @app.route('/decrypt', methods=['POST', 'GET'])
 @flask_security.roles_required('SDX-Developer')
 def decrypt():
-    logger.bind(user=flask_security.core.current_user.email)
+    audited_logger = logger.bind(user=flask_security.core.current_user.email)
     if request.method == "POST":
         data = request.form.get('EncryptedData')
         url = settings.SDX_DECRYPT_URL
         decrypted_data = ""
 
         try:
-            logger.info("Posting data to sdx-decrypt", user=flask_security.core.current_user.email)
-            decrypt_response = send_data(url, data, "POST")
+            audited_logger.info("Posting data to sdx-decrypt")
+            decrypt_response = send_data(logger=audited_logger, url=url, data=data, request_type="POST")
         except ClientError:
             error = 'Client error'
         except ServiceError:
@@ -89,10 +90,14 @@ def decrypt():
         return render_template('decrypt.html')
 
 
-def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
-    logger.info('Retrieving responses from store')
+def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
+    logger.info('Retrieving responses from sdx-store')
     try:
         q = db.session.query(SurveyResponse)
+        if valid == "invalid":
+            q = q.filter(SurveyResponse.invalid)
+        elif valid == "valid":
+            q = q.filter(not SurveyResponse.invalid)
         if tx_id != '':
             q = q.filter(SurveyResponse.tx_id == tx_id)
         if ru_ref != '':
@@ -125,17 +130,21 @@ def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime
     return filtered_data
 
 
-def reprocess_transaction(json_data):
-    logger.info('Reprocessing transaction', tx_id=json_data["tx_id"])
+def reprocess_transaction(logger, json_data):
+    logger.info("Reprocessing transaction", tx_id=json_data["tx_id"])
     if json_data.get("invalid"):
         del json_data["invalid"]
-    validate_response = send_data(url=settings.SDX_VALIDATE_URL, json=json_data, request_type="POST")
-    store_response = send_data(url=settings.SDX_STORE_URL, json=json_data, request_type="POST")
+    validate_response = send_data(logger=logger, url=settings.SDX_VALIDATE_URL, json=json_data, request_type="POST")
+    if validate_response != 200:
+        json_data['invalid'] = True
+    send_data(logger=logger, url=settings.SDX_STORE_URL, json=json_data, request_type="POST")
 
-@app.route('/store/', methods=['GET', 'POST'])
+
+@app.route('/store/', defaults={'page': 0}, methods=['GET', 'POST'])
 @app.route('/store/<page>', methods=['GET', 'POST'])
 @flask_security.roles_required('SDX-Developer')
-def store(page=0):
+def store(page):
+    audited_logger = logger.bind(user=flask_security.core.current_user.email)
     if request.method == 'POST':
         json_survey_data = request.form.get('json_data')
         if not json_survey_data:
@@ -145,24 +154,24 @@ def store(page=0):
             json_survey_data = eval(json_survey_data)
 
         if isinstance(json_survey_data, list):
-            logger.info('Reprocessing all results')
+            audited_logger.info("Reprocessing multiple transactions")
             for json_data in json_survey_data:
-                reprocess_transaction(json_data)
+                reprocess_transaction(audited_logger, json_data)
         else:
             json_data = json.loads(json_survey_data.replace("'", '"'))
-            reprocess_transaction(json_data)
+            reprocess_transaction(audited_logger, json_data)
         return redirect(url_for('store'))
 
     else:
+        valid = request.args.get('valid', type=str, default='')
         tx_id = request.args.get('tx_id', type=str, default='')
         ru_ref = request.args.get('ru_ref', type=str, default='')
         survey_id = request.args.get('survey_id', type=str, default='')
         datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
         datetime_latest = request.args.get('datetime_latest', type=str, default='')
-
-        store_data = get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
-
+        store_data = get_filtered_responses(audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
+        audited_logger.info("Successfully retireved responses")
         json_list = [item.data for item in store_data]
-        # no_pages = len(json_list)
+        no_pages = math.ceil(round(float(len(json_list) / 20)))
 
-        return render_template('store.html', data=json_list, no_pages=10, page=int(page))
+        return render_template('store.html', data=json_list, no_pages=no_pages, page=int(page))

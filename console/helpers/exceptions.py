@@ -1,12 +1,13 @@
-class ExceptionReturn(Exception):
-    def __init__(self, message, status_code):
+class ResponseError(Exception):
+    def __init__(self, url, message, status_code):
+        self.url = url
         self.message = message
         self.status_code = status_code
 
 
-class ClientError(ExceptionReturn):
+class ClientError(ResponseError):
     pass
 
 
-class ServiceError(ExceptionReturn):
+class ServiceError(ResponseError):
     pass

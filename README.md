@@ -31,6 +31,8 @@ If you the administrator role you can access the user management AI (Flask-Admin
 
  * `/decrypt` - provides a textbox to input encrypted data which can be POSTed to the sdx-decrypt service
 
+ * `/store` -  allows searching of the PostgreSQL and reprocessing of transactions
+
 ## Configuration
 
 Some of important environment variables available for configuration are listed below:

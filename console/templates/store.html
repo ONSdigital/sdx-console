@@ -7,6 +7,10 @@
     <div class="form-group">
       <div class="col-md-11">
         <div class="input-group">
+          <label class="col-md-1 control-label" for="valid">Valid:</label>
+          <input type="radio" name="valid" value="" checked> Both <br>
+          <input type="radio" name="valid" value="valid"> Valid <br>
+          <input type="radio" name="valid" value="invalid"> Invalid
           <label class="col-md-1 control-label" for="tx_id">tx_id:</label>
           <input type="text" class="form-control" id="tx_id" name="tx_id">
           <label class="col-md-1 control-label" for="ru_ref">ru_ref:</label>
@@ -18,7 +22,7 @@
           <label class="col-md-1 control-label" for="datetime_latest">datetime_latest:</label>
           <input type="datetime-local" class="form-control" id="datetime_latest" name="datetime_latest">
           <span class="input-group-btn">
-            <button class="btn btn-default" type="submit">Search</button>
+            <button class="btn btn-default" action='/store' type="submit">Search</button>
           </span>
         </div>
       </div>
@@ -39,6 +43,7 @@
           <th>ru_ref</th>
           <th>user_id</th>
           <th>submitted_at</th>
+          <th>invalid</th>
         </tr>
       </thead>
       <tbody>
@@ -50,6 +55,7 @@
             <td>{{ item.metadata.ru_ref }}</td>
             <td>{{ item.metadata.user_id }}</td>
             <td>{{ item.submitted_at }}</td>
+            <td>{{ item.invalid }}</td>
             <input type="hidden" name="json_data" value="{{ item }}">
             <td align="center">
               <button class="btn btn-primary btn-reprocess" form="reprocess-form" type="submit">Reprocess</button>
@@ -61,16 +67,11 @@
     </table>
     <div class="container">
       <ul id="paglist" class="pagination">
-        <!-- <li><a id="page0">1</a></li>
-        <li><a id="page1" href="/store/1?tx_id=&amp;ru_ref=&amp;survey_id=1&amp;datetime_earliest=&amp;datetime_latest=">2</a></li>
-        <li><a id="page0" href="/store/2?tx_id=&amp;ru_ref=&amp;survey_id=1&amp;datetime_earliest=&amp;datetime_latest=">3</a></li>
-        <li><a id="page0" href="/store/3?tx_id=&amp;ru_ref=&amp;survey_id=1&amp;datetime_earliest=&amp;datetime_latest=">4</a></li>
-        <li><a id="page0" href="/store/4?tx_id=&amp;ru_ref=&amp;survey_id=1&amp;datetime_earliest=&amp;datetime_latest=">5</a></li> -->
       </ul>
     </div>
   </div>
-  {% for i in range(0, no_pages) %}
-    <script>genList({{i}});</script>
+  {% for i in range(page - 4, page + 5) %}
+    <script>genList({{i}}, {{no_pages}});</script>
     <script>getLinks({{i}});</script>
   {% endfor %}
 </div>

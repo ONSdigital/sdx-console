@@ -18,6 +18,9 @@
   - Updating logger format using sdx-common
   - Adding reprocessing functionality
   - Updating reprocessing functionality, removing queuepublisher and encrypter
+  - Added Pagination
+  - Added auditable logging
+  - Added searching by valid/invalid
 
 ### 1.0.0 2016-08-16
   - Initial release
