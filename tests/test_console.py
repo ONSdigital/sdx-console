@@ -28,7 +28,7 @@ class TestConsole(unittest.TestCase):
         self.hb.stop()
 
     @log_capture()
-    def test_heartbeat(self, l):
+    def test_heartbeat(l):
         sleep(10.0)
         l.check(('server', 'INFO', "event='Heartbeat'"))
 
