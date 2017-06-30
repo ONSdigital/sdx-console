@@ -1,8 +1,8 @@
-function genList(i, no_pages) {
-    if (i > 0 && i < no_pages) {
-        var list = document.getElementById('paglist');
-        var entry = document.createElement('li');
-        var a = document.createElement('a');
+function genList(i, pages) {
+    if (i > 0 && i < pages) {
+        var list = document.getElementById("paglist");
+        var entry = document.createElement("li");
+        var a = document.createElement("a");
         var page = i.toString();
         var id = ("page" + page);
         a.setAttribute("id", id);
