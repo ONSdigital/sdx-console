@@ -1,3 +1,4 @@
+import ast
 import json
 import logging
 import math
@@ -136,7 +137,7 @@ def reprocess_transaction(logger, json_data):
         del json_data["invalid"]
     validate_response = send_data(logger=logger, url=settings.SDX_VALIDATE_URL, json=json_data, request_type="POST")
     if validate_response != 200:
-        json_data['invalid'] = True
+        json_data['invalid'] = "True"
     send_data(logger=logger, url=settings.SDX_STORE_URL, json=json_data, request_type="POST")
 
 
@@ -151,15 +152,15 @@ def store(page):
             json_survey_data = request.form.get('json_data_list')
             if not json_survey_data:
                 return url_for('store')
-            json_survey_data = eval(json_survey_data)
+            json_survey_data = ast.literal_eval(json_survey_data)
 
         if isinstance(json_survey_data, list):
             audited_logger.info("Reprocessing multiple transactions")
             for json_data in json_survey_data:
                 reprocess_transaction(audited_logger, json_data)
         else:
-            json_data = json.loads(json_survey_data.replace("'", '"'))
-            reprocess_transaction(audited_logger, json_data)
+            json_single_data = json.loads(json_survey_data.replace("'", '"'))
+            reprocess_transaction(audited_logger, json_single_data)
         return redirect(url_for('store'))
 
     else:
@@ -175,3 +176,39 @@ def store(page):
         no_pages = math.ceil(round(float(len(json_list) / 20)))
 
         return render_template('store.html', data=json_list, no_pages=no_pages, page=int(page))
+
+
+@app.route('/storetest', methods=['GET'])
+def storetest():
+
+    def create_test_data(number):
+        test_data = json.dumps(
+            {
+                "collection": {
+                    "exercise_sid": "hfjdskf",
+                    "instrument_id": "ce2016",
+                    "period": "0616"
+                },
+                "data": {
+                    "1": "2",
+                    "2": "4",
+                    "3": "2",
+                    "4": "Y"
+                },
+                "metadata": {
+                    "ru_ref": "12345678901a",
+                    "user_id": "789473423"
+                },
+                "origin": "uk.gov.ons.edc.eq",
+                "submitted_at": "2017-04-27T14:23:13+00:00",
+                "survey_id": "1",
+                "tx_id": "f088d89d-a367-876e-f29f-ae8f1a26" + str(number),
+                "type": "uk.gov.ons.edc.eq:surveyresponse",
+                "version": "0.0.1"
+            })
+        return test_data
+    for i in range(1000, 1250):
+        test_data = create_test_data(str(i))
+        send_data(logger=logger, url=settings.SDX_STORE_URL, data=test_data, request_type="POST")
+
+    return "data sent"

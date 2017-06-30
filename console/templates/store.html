@@ -3,7 +3,7 @@
 {% block body %}
 <script text="text/javascript" src="/static/js/get_links.js"></script>
 <div class="col-xs-12">
-  <form id='store-form' class="form-horizontal">
+  <form id='store-form' class="form-horizontal" action='/store/0'>
     <div class="form-group">
       <div class="col-md-11">
         <div class="input-group">
@@ -22,7 +22,7 @@
           <label class="col-md-1 control-label" for="datetime_latest">datetime_latest:</label>
           <input type="datetime-local" class="form-control" id="datetime_latest" name="datetime_latest">
           <span class="input-group-btn">
-            <button class="btn btn-default" action='/store' type="submit">Search</button>
+            <button class="btn btn-default" type="submit">Search</button>
           </span>
         </div>
       </div>

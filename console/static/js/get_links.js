@@ -1,10 +1,10 @@
-function genList(i, pages) {
-    if (i > 0 && i < pages) {
+function genList(page, noPages) {
+    if (page > 0 && page < noPages) {
         var list = document.getElementById("paglist");
         var entry = document.createElement("li");
         var a = document.createElement("a");
-        var page = i.toString();
-        var id = ("page" + page);
+        var linkpage = page.toString();
+        var id = ("page" + linkpage);
         a.setAttribute("id", id);
         a.appendChild(document.createTextNode(page));
         entry.appendChild(a);
@@ -19,6 +19,6 @@ function getLinks(page) {
         var pageString = page.toString();
         var id = ("page" + pageString);
         var a = document.getElementById(id);
-        a.href = ("/store/" + pageString + "?" + paramsString);
+        a.setAttribute("href", "/store/" + pageString + "?" + paramsString);
     }
 }
