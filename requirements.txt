@@ -9,6 +9,4 @@ requests==2.13.0
 sdx-common>=0.5.1
 SQLAlchemy==1.1.9
 structlog==16.1.0
-testfixtures==4.13.5
-pika==0.10.0
 psycopg2==2.7.1

@@ -10,10 +10,10 @@ from testfixtures import log_capture
 import testing.postgresql
 
 from console import app
-from console import settings
 from console import views
 from console.database import db, SurveyResponse
 from console.helpers.exceptions import ClientError, ServiceError
+from console.views import logger
 
 
 class TestConsole(unittest.TestCase):
@@ -28,20 +28,17 @@ class TestConsole(unittest.TestCase):
         self.hb.stop()
 
     @log_capture()
-    def test_heartbeat(self, l):
+    def test_heartbeat(l):
         sleep(10.0)
         l.check(('server', 'INFO', "event='Heartbeat'"))
 
-    @log_capture()
-    def test_send_data_200(self, l):
+    def test_send_data_200(self):
         r = requests.Response()
-        rt = requests.Response()
-        rt.status_code = 200
         with mock.patch('requests.post') as mock_post:
             mock_post.return_value = r
             r.status_code = 200
-            response = views.send_data("", "")
-            self.assertEqual(response.status_code, rt.status_code)
+            response = views.send_data(logger, "", data=123)
+            self.assertEqual(response.status_code, 200)
 
     def test_send_data_400(self):
         r = requests.Response()
@@ -49,7 +46,7 @@ class TestConsole(unittest.TestCase):
             mock_post.return_value = r
             r.status_code = 400
             with self.assertRaises(ClientError):
-                views.send_data("", "")
+                views.send_data(logger, "", data=123)
 
     def test_send_data_404(self):
         r = requests.Response()
@@ -57,7 +54,7 @@ class TestConsole(unittest.TestCase):
             mock_post.return_value = r
             r.status_code = 404
             with self.assertRaises(ClientError):
-                views.send_data("", "")
+                views.send_data(logger, "", data=123)
 
     def test_send_data_500(self):
         r = requests.Response()
@@ -65,11 +62,7 @@ class TestConsole(unittest.TestCase):
             mock_post.return_value = r
             r.status_code = 500
             with self.assertRaises(ServiceError):
-                views.send_data("", "")
-
-    def test_send_data_no_endpoint(self):
-        with self.assertRaises(requests.exceptions.ConnectionError):
-            views.send_data("http://sdx-decrypt/", "")
+                views.send_data(logger, "", data=123)
 
 
 Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=True)
@@ -130,7 +123,7 @@ class TestAuthentication(unittest.TestCase):
     def test_logout(self):
         self.login('dev', 'password')
         response = self.app.get('/logout', follow_redirects=True)
-        self.assertIn(b'Please log in', response.data)
+        self.assertIn(b'home', response.data)
 
     def test_decrypt_access(self):
         self.login('dev', 'password')
@@ -138,9 +131,8 @@ class TestAuthentication(unittest.TestCase):
         self.assertIn(b'Data to be decrypyted', response.data)
 
     def test_decrypt_access_reject(self):
-        self.login('none', 'password')
         response = self.app.get('/decrypt', follow_redirects=True)
-        self.assertIn(b'stuff', response.data)
+        self.assertIn(b'home', response.data)
 
     def test_admin_access(self):
         self.login('admin', 'password')
@@ -148,7 +140,6 @@ class TestAuthentication(unittest.TestCase):
         self.assertIn(b'User - Admin', response.data)
 
     def test_admin_access_reject(self):
-        self.login('none', 'password')
         response = self.app.get('/admin/user', follow_redirects=True)
         self.assertEqual(403, response.status_code)
 
@@ -201,27 +192,3 @@ class TestStore(unittest.TestCase):
         response = self.app.get('/store?datetime_earliest=2020-01-01T01%3A01&datetime_latest=2020-01-01T01%3A01',
                                 follow_redirects=True)
         self.assertNotIn(b'f088d89d-a367-876e-f29f-ae8f1a260000', response.data)
-
-
-class TestReprocess(unittest.TestCase):
-
-    def setUp(self):
-        self.postgres = Postgresql()
-        Postgresql.clear_cache()
-        self.app = server.app.test_client()
-        self.app.testing = True
-        self.render_templates = False
-        TestAuthentication.login(self, 'dev', 'password')
-        submit_test_responses()
-
-    def tearDown(self):
-        Postgresql.clear_cache()
-        self.postgres.stop()
-
-    def test_get_publisher(self):
-        logger = views.logger
-        publisher = views.get_publisher(logger)
-
-        self.assertEqual(publisher._urls, settings.RABBIT_URLS)
-        self.assertEqual(publisher._queue, settings.RABBIT_SURVEY_QUEUE)
-        self.assertEqual(publisher._logger, logger)

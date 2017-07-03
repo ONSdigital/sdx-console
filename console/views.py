@@ -1,10 +1,14 @@
+import ast
 import json
 import logging
-import uuid
+import math
 
 from datetime import datetime
-from flask import render_template, url_for, redirect
+from flask import jsonify
+from flask import redirect
+from flask import render_template
 from flask import request
+from flask import url_for
 import flask_security
 import requests
 from sqlalchemy import func
@@ -14,40 +18,47 @@ from structlog import wrap_logger
 from console.database import db, SurveyResponse
 from console import app
 from console import settings
-from console.encrypter import Encrypter
-from console.helpers.exceptions import ClientError, ServiceError
-from console.queue_publisher import QueuePublisher
+from console.helpers.exceptions import ClientError, ResponseError, ServiceError
 
 
 logger = wrap_logger(logging.getLogger(__name__))
 
 
+@app.errorhandler(ResponseError)
+def handle_invalid_usage(error):
+    json_error = {"message": error.message, "status_code": error.status_code}
+    return jsonify(json_error)
+
+
 @app.route('/', methods=['GET'])
-@flask_security.login_required
 def home():
-    return "stuff"
+    return "home"
 
 
-def send_data(url, data=None, request_type="POST"):
+def send_data(logger, url, data=None, json=None, request_type="POST"):
+    response_logger = logger.bind(url=url)
     try:
         if request_type == "POST":
-            logger.info("Posting data to " + url)
-            r = requests.post(url, data)
-        else:
-            logger.info("Sending GET request to " + url)
+            response_logger.info("Sending POST request")
+            if data:
+                r = requests.post(url, data=data)
+            elif json:
+                r = requests.post(url, json=json)
+        elif request_type == "GET":
+            response_logger.info("Sending GET request")
             r = requests.get(url)
     except requests.exceptions.ConnectionError as e:
-        logger.error('Could not connect to ' + url, response="Connection error")
+        response_logger.error("Failed to connect to service", response="Connection error")
         raise e
 
     if 199 < r.status_code < 300:
-        logger.info('Returned from ' + url, response=r.reason, status_code=r.status_code)
+        logger.info('Returned from service', response=r.reason, status_code=r.status_code)
     elif 399 < r.status_code < 500:
-        logger.error('Returned from ' + url, response=r.reason, status_code=r.status_code)
-        raise ClientError
+        logger.error('Returned from service', response=r.reason, status_code=r.status_code)
+        raise ClientError(url=url, message=r.reason, status_code=r.status_code)
     elif r.status_code > 499:
-        logger.error('Returned from ' + url, response=r.reason, status_code=r.status_code)
-        raise ServiceError
+        logger.error('Returned from service', response=r.reason, status_code=r.status_code)
+        raise ServiceError(url=url, message=r.reason, status_code=r.status_code)
 
     return r
 
@@ -55,15 +66,15 @@ def send_data(url, data=None, request_type="POST"):
 @app.route('/decrypt', methods=['POST', 'GET'])
 @flask_security.roles_required('SDX-Developer')
 def decrypt():
-    logger.bind(user=flask_security.core.current_user.email)
+    audited_logger = logger.bind(user=flask_security.core.current_user.email)
     if request.method == "POST":
         data = request.form.get('EncryptedData')
         url = settings.SDX_DECRYPT_URL
         decrypted_data = ""
 
         try:
-            logger.info("Posting data to sdx-decrypt", user=flask_security.core.current_user.email)
-            decrypt_response = send_data(url, data, "POST")
+            audited_logger.info("Posting data to sdx-decrypt")
+            decrypt_response = send_data(logger=audited_logger, url=url, data=data, request_type="POST")
         except ClientError:
             error = 'Client error'
         except ServiceError:
@@ -80,10 +91,14 @@ def decrypt():
         return render_template('decrypt.html')
 
 
-def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
-    logger.info('Retrieving responses from store')
+def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
+    logger.info('Retrieving responses from sdx-store')
     try:
         q = db.session.query(SurveyResponse)
+        if valid == "invalid":
+            q = q.filter(SurveyResponse.invalid)
+        elif valid == "valid":
+            q = q.filter(not SurveyResponse.invalid)
         if tx_id != '':
             q = q.filter(SurveyResponse.tx_id == tx_id)
         if ru_ref != '':
@@ -116,70 +131,84 @@ def get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime
     return filtered_data
 
 
-def encrypt_data(unencrypted_json):
-    logger.info('Encrypting data')
-    eq_private_key = settings.EQ_PRIVATE_KEY
-    eq_private_key_password = settings.EQ_PRIVATE_KEY_PASSWORD
-    private_key = settings.PRIVATE_KEY
-    private_key_password = settings.PRIVATE_KEY_PASSWORD
-    encrypter = Encrypter(eq_private_key, eq_private_key_password, private_key, private_key_password)
-    encrypted_data = encrypter.encrypt(unencrypted_json)
-    logger.info('Data successfully encrypted')
-
-    return encrypted_data
+def reprocess_transaction(logger, json_data):
+    logger.info("Reprocessing transaction", tx_id=json_data["tx_id"])
+    if json_data.get("invalid"):
+        del json_data["invalid"]
+    validate_response = send_data(logger=logger, url=settings.SDX_VALIDATE_URL, json=json_data, request_type="POST")
+    if validate_response != 200:
+        json_data['invalid'] = "True"
+    send_data(logger=logger, url=settings.SDX_STORE_URL, json=json_data, request_type="POST")
 
 
-def get_publisher(logger):
-    urls = settings.RABBIT_URLS
-    queue = settings.RABBIT_SURVEY_QUEUE
-    collect_publisher = QueuePublisher(logger, urls, queue)
-
-    return collect_publisher
-
-
-def publish_result(publisher, json_string):
-    tx_id = str(uuid.uuid4())
-    logger.info('Created new tx_id ' + tx_id)
-    json_string['tx_id'] = tx_id
-    json_string['survey_id'] = str(json_string['survey_id'])
-    encrypted_data = encrypt_data(json_string)
-
-    publisher.publish_message(encrypted_data, headers={'tx_id': tx_id})
-
-
-@app.route('/store', methods=['GET', 'POST'])
+@app.route('/store/', defaults={'page': 0}, methods=['GET', 'POST'])
+@app.route('/store/<page>', methods=['GET', 'POST'])
 @flask_security.roles_required('SDX-Developer')
-def store():
+def store(page):
+    audited_logger = logger.bind(user=flask_security.core.current_user.email)
     if request.method == 'POST':
-        json_string = request.form.get('json_data')
-        if json_string == '':
-            return redirect(url_for('store'))
-        unencrypted_json = json.loads(json_string.replace("'", '"'))
+        json_survey_data = request.form.get('json_data')
+        if not json_survey_data:
+            json_survey_data = request.form.get('json_data_list')
+            if not json_survey_data:
+                return url_for('store')
+            json_survey_data = ast.literal_eval(json_survey_data)
 
-        collect_publisher = get_publisher(logger)
-        collect_publisher._connect()
-
-        if isinstance(unencrypted_json, list):
-            logger.info('Reprocessing all results')
-            for string in unencrypted_json:
-                logger.info('Reprocessing transaction', tx_id=string["tx_id"])
-                publish_result(collect_publisher, string)
+        if isinstance(json_survey_data, list):
+            audited_logger.info("Reprocessing multiple transactions")
+            for json_data in json_survey_data:
+                reprocess_transaction(audited_logger, json_data)
         else:
-            publish_result(collect_publisher, unencrypted_json)
-
-        collect_publisher._disconnect()
-
+            json_single_data = json.loads(json_survey_data.replace("'", '"'))
+            reprocess_transaction(audited_logger, json_single_data)
         return redirect(url_for('store'))
 
     else:
+        valid = request.args.get('valid', type=str, default='')
         tx_id = request.args.get('tx_id', type=str, default='')
         ru_ref = request.args.get('ru_ref', type=str, default='')
         survey_id = request.args.get('survey_id', type=str, default='')
         datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
         datetime_latest = request.args.get('datetime_latest', type=str, default='')
-
-        store_data = get_filtered_responses(tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
-
+        store_data = get_filtered_responses(audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
+        audited_logger.info("Successfully retireved responses")
         json_list = [item.data for item in store_data]
+        no_pages = math.ceil(round(float(len(json_list) / 20)))
 
-        return render_template('store.html', data=json_list)
+        return render_template('store.html', data=json_list, no_pages=no_pages, page=int(page))
+
+
+@app.route('/storetest', methods=['GET'])
+def storetest():
+
+    def create_test_data(number):
+        test_data = json.dumps(
+            {
+                "collection": {
+                    "exercise_sid": "hfjdskf",
+                    "instrument_id": "ce2016",
+                    "period": "0616"
+                },
+                "data": {
+                    "1": "2",
+                    "2": "4",
+                    "3": "2",
+                    "4": "Y"
+                },
+                "metadata": {
+                    "ru_ref": "12345678901a",
+                    "user_id": "789473423"
+                },
+                "origin": "uk.gov.ons.edc.eq",
+                "submitted_at": "2017-04-27T14:23:13+00:00",
+                "survey_id": "1",
+                "tx_id": "f088d89d-a367-876e-f29f-ae8f1a26" + str(number),
+                "type": "uk.gov.ons.edc.eq:surveyresponse",
+                "version": "0.0.1"
+            })
+        return test_data
+    for i in range(1000, 1250):
+        test_data = create_test_data(str(i))
+        send_data(logger=logger, url=settings.SDX_STORE_URL, data=test_data, request_type="POST")
+
+    return "data sent"
