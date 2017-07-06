@@ -11,6 +11,7 @@
   - Add license
   - Adding sdx-common functionality
   - Updating logger format using sdx-common
+  - Update and pin version of sdx-common to 0.7.0
 
 ### 1.0.0 2016-08-16
   - Initial release
