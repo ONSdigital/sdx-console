@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 1.1.0 2017-07-10
   - Adding tx_id to the message headers
   - Log version number on startup, at info level
   - Add configurable log level
