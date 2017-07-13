@@ -1,4 +1,5 @@
 ### Unreleased
+  - Change all instances of ADD to COPY in Dockerfile
 
 ### 1.2.0 2017-07-10
   - Adding tx_id to the message headers
@@ -14,7 +15,6 @@
   - Adding sdx-common functionality
   - Updating logger format using sdx-common
   - Update and pin version of sdx-common to 0.7.0
-  - Change all instances of ADD to COPY in Dockerfile
 
 ### 1.0.0 2016-08-16
   - Initial release
