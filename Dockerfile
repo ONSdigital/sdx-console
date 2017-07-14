@@ -1,9 +1,9 @@
 FROM onsdigital/flask-crypto-queue
 
-ADD console /app/console
-ADD server.py /app/server.py
-ADD requirements.txt /app/requirements.txt
-ADD startup.sh /app/startup.sh
+COPY console /app/console
+COPY server.py /app/server.py
+COPY requirements.txt /app/requirements.txt
+COPY startup.sh /app/startup.sh
 
 # set working directory to /app/
 WORKDIR /app/
