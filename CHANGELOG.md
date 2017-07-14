@@ -1,4 +1,5 @@
 ### Unreleased
+  - Change all instances of ADD to COPY in Dockerfile
 
 ### 1.2.0 2017-07-10
   - Adding tx_id to the message headers
