@@ -8,6 +8,7 @@
     "instrument_id": "0215",
     "period": "1604"
   },
+  "submitted_at": "2016-03-12T10:39:40Z",
   "metadata": {
     "user_id": "789473423",
     "ru_ref": "12345678901A"
@@ -15,6 +16,15 @@
   "data": {
     "11": "1/4/2016",
     "12": "31/10/2016",
+    "146": "Change comments included",
+    "146a": "Yes",
+    "146b": "In-store / online promotions",
+    "146c": "Special events (e.g. sporting events)",
+    "146d": "Calendar events (e.g. Christmas, Easter, Bank Holiday)",
+    "146e": "Weather",
+    "146f": "Store closures",
+    "146g": "Store openings",
+    "146h": "Other",
     "20": "1800000",
     "51": "84",
     "52": "10",
@@ -27,7 +37,6 @@
     "25": "50",
     "26": "100",
     "21": "60000",
-    "27": "7400",
-    "146": "some comment"
+    "27": "7400"
   }
 }
