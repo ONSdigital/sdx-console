@@ -1,4 +1,4 @@
-### Unreleased
+### 1.3.0 2017-07-25
   - Update example json for EQ Survey refresh
   - Change all instances of ADD to COPY in Dockerfile
 
