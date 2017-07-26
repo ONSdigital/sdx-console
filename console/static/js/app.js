@@ -40,7 +40,7 @@ $(function () {
         return new Promise(function (resolve, reject) {
             // Do the usual XHR stuff
             var req = new XMLHttpRequest();
-            req.open('POST', url, true);
+            req.open("POST", url, true);
 
             req.onload = function () {
                 // This is called even on 404 etc
@@ -72,9 +72,9 @@ $(function () {
         if (!utc_dt) {
             return '';
         }
-        utc_datetime = moment.utc(utc_dt);
-        datetime = utc_datetime.local();
-        return datetime.format('Y-m-d H:mm:ss');
+        utcDateTime = moment.utc(utc_dt);
+        localDateTime = utcDateTime.local();
+        return localDateTime.format('Y-m-d H:mm:ss');
     }
 
     function guid() {
@@ -87,7 +87,7 @@ $(function () {
     }
 
     function get_survey_data() {
-        var data = $('#post-data').val();
+        var data = $("#post-data").val();
         var obj = JSON.parse(data);
 
         // if no tx_id
@@ -108,27 +108,27 @@ $(function () {
         obj.innerHTML = convert_utc_to_local(obj.innerHTML);
     });
 
-    $('#submitter-form').on('submit', function (event) {
+    $("#submitter-form").on("submit", function (event) {
         event.preventDefault();
         var postData = get_survey_data();
-        var quantity = $('#survey-quantity').val();
+        var quantity = $("#survey-quantity").val();
         $(".alert").hide();
         asyncPostJSON('/', {
             "survey": postData,
             "quantity": quantity
         }).then(function (data) {
-            $(".alert").removeClass('alert-success alert-danger hidden');
-            $(".alert").addClass('alert-success').text("Posted: " + data);
+            $(".alert").removeClass("alert-success alert-danger hidden");
+            $(".alert").addClass("alert-success").text("Posted: " + data);
             $(".alert").show();
         }, function (error) {
-            $(".alert").removeClass('alert-success alert-danger hidden');
-            $(".alert").addClass('alert-danger').text("Error during submission");
+            $(".alert").removeClass("alert-success alert-danger hidden");
+            $(".alert").addClass("alert-danger").text("Error during submission");
             $(".alert").show();
             console.error("Failed!", error);
         });
     });
 
-    $('#decrypt-form').on('submit', function (event) {
+    $("#decrypt-form").on("submit", function (event) {
         event.preventDefault();
         var postData = get_survey_data();
         $(".alert").hide();
@@ -144,7 +144,7 @@ $(function () {
         });
     });
 
-    $('#validate').on('click', function (event) {
+    $("#validate").on("click", function (event) {
         event.preventDefault();
         var postData = get_survey_data();
         $(".alert").hide();
@@ -153,7 +153,7 @@ $(function () {
             if (data.valid === true) {
                 $(".alert").addClass('alert-success').text("Validation result: " + JSON.stringify(data));
             } else {
-                $(".alert").addClass('alert-danger').text("Validation Error. Result: " + JSON.stringify(data))
+                $(".alert").addClass('alert-danger').text("Validation Error. Result: " + JSON.stringify(data));
             }
         }, function (error) {
             $(".alert").removeClass('alert-success alert-danger hidden');
@@ -191,7 +191,7 @@ $(function () {
     $(".btn-reprocess").on("click", function (event) {
         $(".alert").hide();
         var id = $(this).data("id");
-        $.post('/store', id)
+        $.post("/store", id)
             .done(function (data) {
                 $(".alert").removeClass('alert-success alert-danger hidden');
                 $(".alert").addClass('alert-success').text("Survey " + data + " queued for processing");
