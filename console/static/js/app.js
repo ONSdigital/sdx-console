@@ -99,7 +99,7 @@ $(function () {
         // if no submitted_at
         if (!("submitted_at" in obj)) {
             // set as current date and time
-            obj["submitted_at"] = moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')
+            obj["submitted_at"] = moment.utc().format("YYYY-MM-DDTHH:mm:ssZ");
         }
         return obj;
     }
@@ -132,13 +132,13 @@ $(function () {
         event.preventDefault();
         var postData = get_survey_data();
         $(".alert").hide();
-        asyncPostJSON('/decrypt', postData).then(function (data) {
-            $(".alert").removeClass('alert-success alert-danger hidden');
-            $(".alert").addClass('alert-success').text("Posted encrypted data: " + data.substr(1, 100) + "...");
+        asyncPostJSON("/decrypt", postData).then(function (data) {
+            $(".alert").removeClass("alert-success alert-danger hidden");
+            $(".alert").addClass("alert-success").text("Posted encrypted data: " + data.substr(1, 100) + "...");
             $(".alert").show();
         }, function (error) {
-            $(".alert").removeClass('alert-success alert-danger hidden');
-            $(".alert").addClass('alert-danger').text("Error during submission");
+            $(".alert").removeClass("alert-success alert-danger hidden");
+            $(".alert").addClass("alert-danger").text("Error during submission");
             $(".alert").show();
             console.error("Failed!", error);
         });
@@ -148,8 +148,8 @@ $(function () {
         event.preventDefault();
         var postData = get_survey_data();
         $(".alert").hide();
-        asyncPostJSON('/validate', postData).then(function (data) {
-            $(".alert").removeClass('alert-success alert-danger hidden');
+        asyncPostJSON("/validate", postData).then(function (data) {
+            $(".alert").removeClass("alert-success alert-danger hidden");
             if (data.valid === true) {
                 $(".alert").addClass('alert-success').text("Validation result: " + JSON.stringify(data));
             } else {
@@ -178,12 +178,12 @@ $(function () {
                 var dataType = dataTypes[i];
                 $("#" + dataType + "-data tbody").empty();
             }
-            $(".alert").removeClass('alert-success alert-danger hidden');
-            $(".alert").addClass('alert-success').text("Cleared " + data.removed + " files from FTP");
+            $(".alert").removeClass("alert-success alert-danger hidden");
+            $(".alert").addClass("alert-success").text("Cleared " + data.removed + " files from FTP");
             $(".alert").show();
         }, function (error) {
-            $(".alert").removeClass('alert-success alert-danger hidden');
-            $(".alert").addClass('alert-danger').text("Error on emptying ftp");
+            $(".alert").removeClass("alert-success alert-danger hidden");
+            $(".alert").addClass("alert-danger").text("Error on emptying ftp");
             $(".alert").show();
         });
     });
@@ -193,13 +193,13 @@ $(function () {
         var id = $(this).data("id");
         $.post("/store", id)
             .done(function (data) {
-                $(".alert").removeClass('alert-success alert-danger hidden');
-                $(".alert").addClass('alert-success').text("Survey " + data + " queued for processing");
+                $(".alert").removeClass("alert-success alert-danger hidden");
+                $(".alert").addClass("alert-success").text("Survey " + data + " queued for processing");
                 $(".alert").show();
             })
             .fail(function () {
-                $(".alert").removeClass('alert-success alert-danger hidden');
-                $(".alert").addClass('alert-danger').text("Error queuing survey");
+                $(".alert").removeClass("alert-success alert-danger hidden");
+                $(".alert").addClass("alert-danger").text("Error queuing survey");
                 $(".alert").show();
             });
     });
@@ -207,8 +207,8 @@ $(function () {
     var dataTypes = ['pck', 'image', 'index', 'receipt'];
 
     function refreshFTP() {
-        $('#ftp-loading-sign').show();
-        asyncGetJSON('/ftp.json').then(function (ftpData) {
+        $("#ftp-loading-sign").show();
+        asyncGetJSON("/ftp.json").then(function (ftpData) {
 
             for (var i in dataTypes) {
                 var dataType = dataTypes[i];
@@ -223,10 +223,10 @@ $(function () {
 
                     $tableRow.on("click", function (event) {
                         var filename = $(event.target).closest("tr").attr("id");
-                        $('#contentModal .modal-title').text(filename);
-                        asyncGet('/view/' + onClickType + '/' + filename).then(function (data) {
-                            $('#contentModal .modal-body').html(data);
-                            $('#contentModal').modal('show');
+                        $("#contentModal .modal-title").text(filename);
+                        asyncGet("/view/" + onClickType + "/" + filename).then(function (data) {
+                            $("#contentModal .modal-body").html(data);
+                            $("#contentModal").modal("show");
                         }, function (error) {
                             console.error("FTP failed!", error);
                         });
@@ -235,13 +235,13 @@ $(function () {
                     $("#" + dataType + "-data tbody").append($tableRow);
                 });
             }
-            $('#ftp-loading-sign').hide();
+            $("#ftp-loading-sign").hide();
 
             // recurse:
             setTimeout(refreshFTP, 2000);
 
         }, function (error) {
-            $('#ftp-loading-sign').hide();
+            $("#ftp-loading-sign").hide();
             console.error("FTP failed!", error);
         });
     }
@@ -254,10 +254,10 @@ $(function () {
         console.error("Failed!", error);
     });
 
-    asyncGetJSON('/surveys').then(function (surveys) {
+    asyncGetJSON("/surveys").then(function (surveys) {
         for (var i = 0; i < surveys.length; i++) {
-            $('#survey-selector')
-                .append($('<option>', {value: surveys[i]})
+            $("#survey-selector")
+                .append($("<option>", {value: surveys[i]})
                     .text(surveys[i]));
         }
     }, function (error) {
