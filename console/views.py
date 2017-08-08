@@ -30,6 +30,11 @@ def handle_invalid_usage(error):
     return jsonify(json_error)
 
 
+@app.route('/healthcheck', methods=['GET'])
+def healthcheck():
+    return jsonify({'status': 'OK'})
+
+
 @app.route('/', methods=['GET'])
 def home():
     return "home"
