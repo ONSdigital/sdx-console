@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% set active_page = "store" %}
 {% block body %}
+
 <script text="text/javascript" src="/static/js/get_links.js"></script>
 <div class="col-xs-12">
   <form id='store-form' class="form-horizontal" action='/store/0'>
@@ -21,15 +22,16 @@
           <input type="datetime-local" class="form-control" id="datetime_earliest" name="datetime_earliest">
           <label class="col-md-1 control-label" for="datetime_latest">datetime_latest:</label>
           <input type="datetime-local" class="form-control" id="datetime_latest" name="datetime_latest">
-          <span class="input-group-btn">
-            <button class="btn btn-default" type="submit">Search</button>
-          </span>
+
         </div>
+        <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">Search</button>
+        </span>
       </div>
     </div>
   </form>
 
-  <form id='reprocess-all' name='reprocess-all' class="form-horizontal", method='POST'>
+  <form onsubmit="return confirm('Do you really want to submit the form?');" id='reprocess-all' name='reprocess-all' class="form-horizontal", method='POST'>
     <input type="hidden" name="json_data_list" value="{{ data }}">
     <button class="btn btn-primary btn-reprocess" form="reprocess-all" type="submit">Reprocess All</button>
   </form>

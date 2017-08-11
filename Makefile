@@ -9,4 +9,3 @@ test:
 	flake8 --exclude lib
 	python3 -m unittest tests/*.py
 
-
