@@ -15,7 +15,8 @@ from sqlalchemy import func
 from sqlalchemy.exc import DataError, SQLAlchemyError
 from structlog import wrap_logger
 
-from console.database import db, SurveyResponse
+from console.database import db, SurveyResponse, create_dev_user
+from console.forms import NewUserForm
 from console import app
 from console import settings
 from console.helpers.exceptions import ClientError, ResponseError, ServiceError
@@ -69,7 +70,7 @@ def send_data(logger, url, data=None, json=None, request_type="POST"):
 
 
 @app.route('/decrypt', methods=['POST', 'GET'])
-@flask_security.roles_required('SDX-Developer')
+@flask_security.login_required
 def decrypt():
     audited_logger = logger.bind(user=flask_security.core.current_user.email)
     if request.method == "POST":
@@ -148,7 +149,7 @@ def reprocess_transaction(logger, json_data):
 
 @app.route('/store/', defaults={'page': 0}, methods=['GET', 'POST'])
 @app.route('/store/<page>', methods=['GET', 'POST'])
-@flask_security.roles_required('SDX-Developer')
+@flask_security.login_required
 def store(page):
     audited_logger = logger.bind(user=flask_security.core.current_user.email)
     if request.method == 'POST':
@@ -217,3 +218,14 @@ def storetest():
         send_data(logger=logger, url=settings.SDX_STORE_URL, data=test_data, request_type="POST")
 
     return "data sent"
+
+
+@app.route('/adduser', methods=['GET', 'POST'])
+@flask_security.roles_required('Admin')
+def add_user():
+    form = NewUserForm()
+    if request.method == 'POST':
+        create_dev_user(form.email.data, form.password.data)
+        return redirect(url_for('decrypt'))
+    else:
+        return render_template('adduser.html', form=form)

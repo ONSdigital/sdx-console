@@ -32,6 +32,9 @@
                 <a href="{{ href|e }}">{{ caption|e }}</a>
               </li>
               {% endfor %}
+              {% if user=="Admin" %}
+                 <li><a href="{{ url_for(add_user) }}">Add New User</a> </li>
+              {% endif %}
             </ul>
           </div>
         </div>
