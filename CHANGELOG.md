@@ -22,6 +22,7 @@
   - Added auditable logging
   - Added searching by valid/invalid
   - Added protection on "reprocess all" button
+  - Add ability to add multiple user accounts dynamically
 
 ### 1.0.0 2016-08-16
   - Initial release
