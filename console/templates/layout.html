@@ -31,8 +31,10 @@
                 <a href="{{ href|e }}">{{ caption|e }}</a>
               </li>
               {% endfor %}
-              {% if current_user.email=="Admin" %}
-                 <li><a href="{{ url_for(add_user) }}">Add New User</a> </li>
+              {% if current_user.email=="admin" %}
+                 <li{% if active_page=="AddUser" %} class="active" {% endif %}>
+                     <a href="{{ url_for('add_user') }}">Add New User</a>
+                 </li>
               {% endif %}
               {% if current_user.is_authenticated%}
                 <li><a href="{{ url_for('security.logout') }}">Logout</a> </li>
