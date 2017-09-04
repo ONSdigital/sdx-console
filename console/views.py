@@ -234,7 +234,9 @@ def storetest():
 def add_user():
     form = NewUserForm()
     if request.method == 'POST':
-        create_dev_user(form.email.data, form.password.data)
-        return redirect(url_for('decrypt'))
+        email = request.form.get('email')
+        password = request.form.get('password')
+        create_dev_user(email, password)
+        return render_template('adduser.html', success=True, user=email)
     else:
-        return render_template('adduser.html', form=form)
+        return render_template('adduser.html')
