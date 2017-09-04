@@ -15,10 +15,10 @@ from sqlalchemy import func
 from sqlalchemy.exc import DataError, SQLAlchemyError
 from structlog import wrap_logger
 
-from console.database import db, SurveyResponse, create_dev_user
-from console.forms import NewUserForm
 from console import app
 from console import settings
+from console.database import db, SurveyResponse, create_dev_user
+from console.forms import NewUserForm
 from console.helpers.exceptions import ClientError, ResponseError, ServiceError
 
 
@@ -233,10 +233,8 @@ def storetest():
 @flask_security.roles_required('Admin')
 def add_user():
     form = NewUserForm()
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        create_dev_user(email, password)
-        return render_template('adduser.html', success=True, user=email)
+    if request.method == 'POST' and form.validate():
+        create_dev_user(form.email.data, form.password.data)
+        return render_template('adduser.html', form=form, success=True, user=form.email.data)
     else:
-        return render_template('adduser.html')
+        return render_template('adduser.html', form=form)
