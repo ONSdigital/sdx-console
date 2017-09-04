@@ -19,7 +19,7 @@ from console import app
 from console import settings
 from console.database import db, SurveyResponse, create_dev_user
 from console.forms import NewUserForm
-from console.helpers.exceptions import ClientError, ResponseError, ServiceError
+from console.helpers.exceptions import ClientError, ResponseError, ServiceError, UserCreationError, UserExistsError
 
 
 logger = wrap_logger(logging.getLogger(__name__))
@@ -234,7 +234,16 @@ def storetest():
 def add_user():
     form = NewUserForm()
     if request.method == 'POST' and form.validate():
-        create_dev_user(form.email.data, form.password.data)
-        return render_template('adduser.html', form=form, success=True, user=form.email.data)
+        success = False
+        try:
+            create_dev_user(form.email.data, form.password.data)
+            success = True
+        except UserCreationError:
+            form.errors['Database'] = ["Error creating user"]
+        except UserExistsError:
+            form.errors['User'] = ["This user already exists"]
+        finally:
+            return render_template('adduser.html', form=form, success=success, user=form.email.data)
+
     else:
         return render_template('adduser.html', form=form)

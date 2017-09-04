@@ -19,7 +19,7 @@
         {% if form.errors %}
             <ul class=errors>
             {% for error in form.errors %}
-              <li>{{ error }}</li>
+              <li>{{error}} : {{ form.errors[error][0] }}</li>
             {% endfor %}
             </ul>
         {% endif %}

@@ -8,6 +8,7 @@ from structlog import wrap_logger
 
 from console import app
 from console import settings
+from console.helpers.exceptions import UserCreationError, UserExistsError
 
 
 logger = wrap_logger(logging.getLogger(__name__))
@@ -110,14 +111,18 @@ def create_dev_user(email, password):
         encrypted_password = flask_security.utils.encrypt_password(password)
         if not user_datastore.get_user(email):
             user_datastore.create_user(email=email, password=encrypted_password)
+        else:
+            raise UserExistsError
         user_datastore.add_role_to_user(email, 'SDX-Developer')
         db.session.commit()
     except IntegrityError as e:
         logger.error('This user already exists', error=e)
         db.session.rollback()
+        raise UserExistsError
     except SQLAlchemyError as e:
         logger.error("Error creating user", error=e)
         db.session.rollback()
+        raise UserCreationError
 
 
 @app.before_first_request
