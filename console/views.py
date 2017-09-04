@@ -38,7 +38,9 @@ def healthcheck():
 
 @app.route('/', methods=['GET'])
 def home():
-    return "home"
+    return render_template('home.html',
+                           current_user=flask_security.core.current_user,
+                           request=request)
 
 
 def send_data(logger, url, data=None, json=None, request_type="POST"):
@@ -91,10 +93,13 @@ def decrypt():
             decrypted_data = decrypt_response.text
             error = ""
 
-        return render_template('decrypt.html', decrypted_data=decrypted_data, error=error, user=flask_security.core.current_user.email)
+        return render_template('decrypt.html',
+                               decrypted_data=decrypted_data,
+                               error=error,
+                               current_user=flask_security.core.current_user)
 
     else:
-        return render_template('decrypt.html', user=flask_security.core.current_user.email)
+        return render_template('decrypt.html', current_user=flask_security.core.current_user)
 
 
 def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
@@ -181,7 +186,11 @@ def store(page):
         json_list = [item.data for item in store_data]
         no_pages = math.ceil(round(float(len(json_list) / 20)))
 
-        return render_template('store.html', data=json_list, no_pages=no_pages, page=int(page), user=flask_security.core.current_user.email)
+        return render_template('store.html',
+                               data=json_list,
+                               no_pages=no_pages,
+                               page=int(page),
+                               current_user=flask_security.core.current_user)
 
 
 @app.route('/storetest', methods=['GET'])
