@@ -1,8 +1,7 @@
 {% set navigation_bar = [
     ('/decrypt', 'decrypt', 'Decrypt'),
-    ('/store', 'store', 'Store')
+    ('/store', 'store', 'Store'),
 ] -%}
-{% set active_page = active_page|default('decrypt') -%}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -32,6 +31,9 @@
                 <a href="{{ href|e }}">{{ caption|e }}</a>
               </li>
               {% endfor %}
+              {% if current_user.is_authenticated%}
+                <li><a href="{{ url_for('security.logout') }}">Logout</a> </li>
+              {% endif %}
             </ul>
           </div>
         </div>
