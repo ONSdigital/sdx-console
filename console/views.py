@@ -242,8 +242,8 @@ def add_user():
             form.errors['Database'] = ["Error creating user"]
         except UserExistsError:
             form.errors['User'] = ["This user already exists"]
-        finally:
-            return render_template('adduser.html', form=form, success=success, user=form.email.data)
+
+        return render_template('adduser.html', form=form, success=success, user=form.email.data)
 
     else:
         return render_template('adduser.html', form=form)
