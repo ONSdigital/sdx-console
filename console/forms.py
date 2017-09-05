@@ -24,5 +24,3 @@ class NewUserForm(Form):
         if not re.findall('.*[0-9].*', data):
             msg = '{} should have atleast one number'.format(field.name)
             raise ValidationError(msg)
-
-
