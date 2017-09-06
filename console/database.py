@@ -7,6 +7,8 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from structlog import wrap_logger
 
 from console import app
+from console import settings
+from console.helpers.exceptions import UserCreationError, UserExistsError
 
 
 logger = wrap_logger(logging.getLogger(__name__))
@@ -90,15 +92,10 @@ def create_initial_users():
     try:
         user_datastore.find_or_create_role(name='Admin', description='Edit Roles/Users')
         user_datastore.find_or_create_role(name='SDX-Developer', description='Usual console functionality')
-        encrypted_password = flask_security.utils.encrypt_password('password')
+        encrypted_password = flask_security.utils.encrypt_password(settings.CONSOLE_INITIAL_ADMIN_PASSWORD)
         if not user_datastore.get_user('admin'):
             user_datastore.create_user(email='admin', password=encrypted_password)
-        if not user_datastore.get_user('dev'):
-            user_datastore.create_user(email='dev', password=encrypted_password)
-        if not user_datastore.get_user('none'):
-            user_datastore.create_user(email='none', password=encrypted_password)
         user_datastore.add_role_to_user('admin', 'Admin')
-        user_datastore.add_role_to_user('dev', 'SDX-Developer')
         db.session.commit()
     except IntegrityError as e:
         logger.error('A user/role already exists', error=e)
@@ -106,6 +103,26 @@ def create_initial_users():
     except SQLAlchemyError as e:
         logger.error("Error creating initial users and roles", error=e)
         db.session.rollback()
+
+
+def create_dev_user(email, password):
+    logger.info("Creating SDX-Developer %s" % email)
+    try:
+        encrypted_password = flask_security.utils.encrypt_password(password)
+        if not user_datastore.get_user(email):
+            user_datastore.create_user(email=email, password=encrypted_password)
+        else:
+            raise UserExistsError
+        user_datastore.add_role_to_user(email, 'SDX-Developer')
+        db.session.commit()
+    except IntegrityError as e:
+        logger.error('This user already exists', error=e)
+        db.session.rollback()
+        raise UserExistsError
+    except SQLAlchemyError as e:
+        logger.error("Error creating user", error=e)
+        db.session.rollback()
+        raise UserCreationError
 
 
 @app.before_first_request

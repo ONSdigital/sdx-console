@@ -11,3 +11,11 @@ class ClientError(ResponseError):
 
 class ServiceError(ResponseError):
     pass
+
+
+class UserExistsError(Exception):
+    pass
+
+
+class UserCreationError(Exception):
+    pass
