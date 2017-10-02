@@ -10,7 +10,7 @@ from wtforms.fields import HiddenField, PasswordField
 
 from console import app
 from console import settings
-from console.database import db, user_datastore, User, Role
+from console.database import db, user_datastore, FlaskUser, Role
 
 
 logger = wrap_logger(logging.getLogger(__name__))
@@ -68,5 +68,5 @@ class LoginFormExtended(flask_security.forms.LoginForm):
 security = flask_security.Security(app, user_datastore, login_form=LoginFormExtended)
 
 admin = Admin(app, template_mode='bootstrap3')
-admin.add_view(UserAdmin(User, db.session))
+admin.add_view(UserAdmin(FlaskUser, db.session))
 admin.add_view(RoleAdmin(Role, db.session))

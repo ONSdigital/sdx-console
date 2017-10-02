@@ -1,18 +1,19 @@
 FROM onsdigital/flask-crypto-queue
 
-ADD console /app/console
-ADD requirements.txt /app/requirements.txt
-ADD server.py /app/server.py
-ADD startup.sh /app/startup.sh
+COPY console /app/console
+COPY requirements.txt /app/requirements.txt
+COPY server.py /app/server.py
+COPY startup.sh /app/startup.sh
+COPY Makefile /app/Makefile
 
 # set working directory to /app/
 WORKDIR /app/
 
-EXPOSE 5000
+EXPOSE 4200
 
 RUN apt-get update -y
 RUN apt-get upgrade -y
 RUN apt-get install -yq git gcc make build-essential python3-dev python3-reportlab
-RUN pip3 install --no-cache-dir -U -r /app/requirements.txt
+RUN make build
 
 ENTRYPOINT ./startup.sh

@@ -16,7 +16,7 @@ logger = wrap_logger(logging.getLogger(__name__))
 db = SQLAlchemy(app)
 
 role_users = db.Table('roles_users',
-                      db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+                      db.Column('user_id', db.Integer(), db.ForeignKey('flaskuser.id')),
                       db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
 
 
@@ -32,13 +32,15 @@ class Role(db.Model, flask_security.RoleMixin):
         return hash(self.name)
 
 
-class User(db.Model, flask_security.UserMixin):
+class FlaskUser(db.Model, flask_security.UserMixin):
+    __tablename__ = 'flaskuser'
+
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
     active = db.Column(db.Boolean())
     confirmed_at = db.Column(db.DateTime())
-    roles = db.relationship('Role', secondary=role_users, backref=db.backref('users', lazy='dynamic'))
+    roles = db.relationship('Role', secondary=role_users, backref=db.backref('flaskuser', lazy='dynamic'))
 
     def __str__(self):
         return self.email
@@ -84,7 +86,7 @@ def create_tables():
         logger.error('Error creating database tables', error=e)
 
 
-user_datastore = flask_security.SQLAlchemyUserDatastore(db, User, Role)
+user_datastore = flask_security.SQLAlchemyUserDatastore(db, FlaskUser, Role)
 
 
 def create_initial_users():
