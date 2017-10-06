@@ -1,18 +1,17 @@
 import json
 import os
 import server
-from time import sleep
 import unittest
 from unittest import mock
 
 import requests
-from testfixtures import log_capture
 import testing.postgresql
 
 from console import app
 from console import views
-from console.database import db, SurveyResponse
+from console.database import db_session
 from console.helpers.exceptions import ClientError, ServiceError
+from console.models import SurveyResponse
 from console.views import logger
 
 
@@ -22,15 +21,6 @@ class TestConsole(unittest.TestCase):
         self.app = server.app.test_client()
         self.app.testing = True
         self.render_templates = False
-        self.hb = server.HeartbeatTimer(5, server.heartbeat, server.logger)
-
-    def tearDown(self):
-        self.hb.stop()
-
-    @log_capture()
-    def test_heartbeat(l):
-        sleep(10.0)
-        l.check(('server', 'INFO', "event='Heartbeat'"))
 
     def test_send_data_200(self):
         r = requests.Response()
@@ -65,7 +55,7 @@ class TestConsole(unittest.TestCase):
                 views.send_data(logger, "", data=123)
 
 
-Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=True)
+Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=False)
 
 
 def get_test_data():
@@ -87,8 +77,8 @@ def submit_test_responses():
             response_data = SurveyResponse(tx_id=tx_id,
                                            invalid=invalid,
                                            data=data)
-            db.session.merge(response_data)
-            db.session.commit()
+            db_session.merge(response_data)
+            db_session.commit()
 
 
 class TestAuthentication(unittest.TestCase):

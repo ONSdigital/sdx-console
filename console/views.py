@@ -15,12 +15,11 @@ from sqlalchemy import func
 from sqlalchemy.exc import DataError, SQLAlchemyError
 from structlog import wrap_logger
 
-from console import app
-from console import settings
-from console.database import db, SurveyResponse, create_dev_user
-from console.forms import NewUserForm
-from console.helpers.exceptions import ClientError, ResponseError, ServiceError, UserCreationError, UserExistsError
-
+from . import app, create_dev_user, settings
+from .database import db_session
+from .forms import NewUserForm
+from .helpers.exceptions import ClientError, ResponseError, ServiceError, UserCreationError, UserExistsError
+from .models import SurveyResponse
 
 logger = wrap_logger(logging.getLogger(__name__))
 
@@ -82,7 +81,8 @@ def decrypt():
 
         try:
             audited_logger.info("Posting data to sdx-decrypt")
-            decrypt_response = send_data(logger=audited_logger, url=url, data=data, request_type="POST")
+            decrypt_response = send_data(logger=audited_logger, url=url,
+                                         data=data, request_type="POST")
         except ClientError:
             error = 'Client error'
         except ServiceError:
@@ -105,7 +105,7 @@ def decrypt():
 def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
     logger.info('Retrieving responses from sdx-store')
     try:
-        q = db.session.query(SurveyResponse)
+        q = db_session.query(SurveyResponse)
         if valid == "invalid":
             q = q.filter(SurveyResponse.invalid)
         elif valid == "valid":
@@ -146,7 +146,8 @@ def reprocess_transaction(logger, json_data):
     logger.info("Reprocessing transaction", tx_id=json_data["tx_id"])
     if json_data.get("invalid"):
         del json_data["invalid"]
-    validate_response = send_data(logger=logger, url=settings.SDX_VALIDATE_URL, json=json_data, request_type="POST")
+    validate_response = send_data(
+        logger=logger, url=settings.SDX_VALIDATE_URL, json=json_data, request_type="POST")
     if validate_response != 200:
         json_data['invalid'] = "True"
     send_data(logger=logger, url=settings.SDX_STORE_URL, json=json_data, request_type="POST")
@@ -181,7 +182,8 @@ def store(page):
         survey_id = request.args.get('survey_id', type=str, default='')
         datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
         datetime_latest = request.args.get('datetime_latest', type=str, default='')
-        store_data = get_filtered_responses(audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
+        store_data = get_filtered_responses(
+            audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
         audited_logger.info("Successfully retireved responses")
         json_list = [item.data for item in store_data]
         no_pages = math.ceil(round(float(len(json_list) / 20)))
