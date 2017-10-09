@@ -1,68 +1,81 @@
 {% extends "layout.html" %}
 {% set active_page = "store" %}
 {% block body %}
+
+<script text="text/javascript" src="/static/js/get_links.js"></script>
 <div class="col-xs-12">
-    <div>
-        <!-- Nav tabs -->
-        <ul class="nav nav-tabs static-tabs">
-            <li{% if invalid %}{% else %} class="active"{% endif %}><a href="/store">Valid Responses</a></li>
-            <li{% if invalid %} class="active"{% endif %}><a href="/store/invalid">Invalid Responses</a></li>
-        </ul>
+  <form id='store-form' class="form-horizontal" action='/store/0'>
+    <div class="form-group">
+      <div class="col-md-11">
+        <div class="input-group">
+          <label class="col-md-1 control-label" for="valid">Valid:</label>
+          <input type="radio" name="valid" value="" checked> Both <br>
+          <input type="radio" name="valid" value="valid"> Valid <br>
+          <input type="radio" name="valid" value="invalid"> Invalid
+          <label class="col-md-1 control-label" for="tx_id">tx_id:</label>
+          <input type="text" class="form-control" id="tx_id" name="tx_id">
+          <label class="col-md-1 control-label" for="ru_ref">ru_ref:</label>
+          <input type="text" class="form-control" id="ru_ref" name="ru_ref">
+          <label class="col-md-1 control-label" for="survey_id">survey_id:</label>
+          <input type="number" class="form-control" id="survey_id" name="survey_id">
+          <label class="col-md-1 control-label" for="datetime_earliest">datetime_earliest:</label>
+          <input type="datetime-local" class="form-control" id="datetime_earliest" name="datetime_earliest">
+          <label class="col-md-1 control-label" for="datetime_latest">datetime_latest:</label>
+          <input type="datetime-local" class="form-control" id="datetime_latest" name="datetime_latest">
 
-        <div class="col-xs-12">
-            <form id='store-form' class="form-horizontal">
-                <div class="form-group">
-                    <label class="col-md-1 control-label" for="ru_ref">RU Ref:</label>
-                    <div class="col-md-11">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="ru_ref" name="ru_ref">
-                            <span class="input-group-btn">
-                        <button class="btn btn-default" type="submit">Search</button>
-                    </span>
-                        </div>
-                    </div>
-                </div>
-            </form>
-
-            {% if data.results|length > 0 %}
-            {{ pagination.info }}
-            {{ pagination.links }}
-            <div class="table-responsive">
-                <table class="table table-hover table-striped table-bordered">
-                    <thead>
-                    <tr>
-                        <th>Transaction ID</th>
-                        <th>Survey ID</th>
-                        <th>RU Ref</th>
-                        <th>User ID</th>
-                        <th>Added Date</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for item in data.results %}
-                    <tr>
-                        <td>{{ item.survey_response.tx_id }}</td>
-                        <td>{{ item.survey_response.survey_id }}</td>
-                        <td>{{ item.survey_response.metadata.ru_ref }}</td>
-                        <td>{{ item.survey_response.metadata.user_id }}</td>
-                        <td class="utc_datetime">{{ item.added_date }}</td>
-                        <td align="center">
-                            <button class="btn btn-primary btn-reprocess" data-id="{{item._id}}">Reprocess
-                            </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {{ pagination.links }}
-            {% else %}
-            <h5>No documents</h5>
-            {% endif %}
         </div>
-    </div
-</div>
+        <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">Search</button>
+        </span>
+      </div>
+    </div>
+  </form>
 
+  <form onsubmit="return confirm('Do you really want to submit the form?');" id='reprocess-all' name='reprocess-all' class="form-horizontal", method='POST'>
+    <input type="hidden" name="json_data_list" value="{{ data }}">
+    <button class="btn btn-primary btn-reprocess" form="reprocess-all" type="submit">Reprocess All</button>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-hover table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>tx_id</th>
+          <th>survey_id</th>
+          <th>ru_ref</th>
+          <th>user_id</th>
+          <th>submitted_at</th>
+          <th>invalid</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in data[(page*20):((page+1)*20)] %}
+        <tr>
+          <form id="reprocess-form" name='reprocess-form' class="form-horizontal", method='POST'>
+            <td>{{ item.tx_id }}</td>
+            <td>{{ item.survey_id }}</td>
+            <td>{{ item.metadata.ru_ref }}</td>
+            <td>{{ item.metadata.user_id }}</td>
+            <td>{{ item.submitted_at }}</td>
+            <td>{{ item.invalid }}</td>
+            <input type="hidden" name="json_data" value="{{ item }}">
+            <td align="center">
+              <button class="btn btn-primary btn-reprocess" form="reprocess-form" type="submit">Reprocess</button>
+            </td>
+          </form>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="container">
+      <ul id="paglist" class="pagination">
+      </ul>
+    </div>
+  </div>
+  {% for i in range(page - 4, page + 5) %}
+    <script>genList({{i}}, {{no_pages}});</script>
+    <script>getLinks({{i}});</script>
+  {% endfor %}
+</div>
 
 {% endblock %}
