@@ -99,7 +99,7 @@ class TestAuthentication(unittest.TestCase):
                              data=dict(email=email, password=password))
 
     def test_login_success(self):
-        response = self.login('admin', 'password')
+        response = self.login('admin', 'admin')
         self.assertIn(b'<a href="/">/</a>', response.data)
 
     def test_login_invalid_password(self):
@@ -107,31 +107,31 @@ class TestAuthentication(unittest.TestCase):
         self.assertIn(b'Invalid password', response.data)
 
     def test_login_invalid_user(self):
-        response = self.login('admi', 'password')
+        response = self.login('admi', 'admin')
         self.assertIn(b'Specified user does not exist', response.data)
 
     def test_logout(self):
-        self.login('dev', 'password')
+        self.login('admin', 'admin')
         response = self.app.get('/logout', follow_redirects=True)
-        self.assertIn(b'home', response.data)
+        self.assertIn(b'log in', response.data)
 
     def test_decrypt_access(self):
-        self.login('dev', 'password')
+        self.login('admin', 'admin')
         response = self.app.get('/decrypt', follow_redirects=True)
         self.assertIn(b'Data to be decrypyted', response.data)
 
     def test_decrypt_access_reject(self):
         response = self.app.get('/decrypt', follow_redirects=True)
-        self.assertIn(b'home', response.data)
+        self.assertIn(b'log in to access this page', response.data)
 
-    def test_admin_access(self):
-        self.login('admin', 'password')
-        response = self.app.get('/admin/user', follow_redirects=True)
-        self.assertIn(b'User - Admin', response.data)
+    def test_admin_access_to_add_new_user(self):
+        self.login('admin', 'admin')
+        response = self.app.get('/adduser', follow_redirects=True)
+        self.assertIn(b'Add a new SDX developer user', response.data)
 
-    def test_admin_access_reject(self):
-        response = self.app.get('/admin/user', follow_redirects=True)
-        self.assertEqual(403, response.status_code)
+    def test_admin_access_reject_to_add_new_user(self):
+        response = self.app.get('/adduser', follow_redirects=True)
+        self.assertIn(b'login', response.data)
 
 
 class TestStore(unittest.TestCase):
@@ -142,7 +142,7 @@ class TestStore(unittest.TestCase):
         self.app = server.app.test_client()
         self.app.testing = True
         self.render_templates = False
-        TestAuthentication.login(self, 'dev', 'password')
+        TestAuthentication.login(self, 'admin', 'admin')
         submit_test_responses()
 
     def tearDown(self):
