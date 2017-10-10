@@ -44,3 +44,4 @@ Some of important environment variables available for configuration are listed b
 | HB_INTERVAL             | `30`                                  | Interval for console heartbeat
 | CONSOLE_LOGIN_TIMEOUT   | `10`                                  | Number of minutes to user timeout
 | CONSOLE_INITIAL_ADMIN_PASSWORD| `PA$$W0RD` | Initial password used for user with admin rights
+
