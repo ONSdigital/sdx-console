@@ -48,7 +48,7 @@ def create_initial_users():
 
         user_datastore.find_or_create_role(name='SDX-Developer',
                                            description='Usual console functionality')
-        encrypted_password = flask_security.utils.encrypt_password(
+        encrypted_password = flask_security.utils.hash_password(
             settings.CONSOLE_INITIAL_ADMIN_PASSWORD)
         db_session.commit()
 
@@ -69,9 +69,10 @@ def create_initial_users():
 def create_dev_user(email, password):
     logger.info("Creating SDX-Developer %s" % email)
     try:
-        encrypted_password = flask_security.utils.encrypt_password(password)
+        encrypted_password = flask_security.utils.hash_password(password)
         if not user_datastore.get_user(email):
             user_datastore.create_user(email=email, password=encrypted_password)
+            db_session.commit()
         else:
             raise UserExistsError
         user_datastore.add_role_to_user(email, 'SDX-Developer')
