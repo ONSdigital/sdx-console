@@ -1,18 +1,17 @@
 import json
 import os
 import server
-from time import sleep
 import unittest
 from unittest import mock
 
 import requests
-from testfixtures import log_capture
 import testing.postgresql
 
 from console import app
 from console import views
-from console.database import db, SurveyResponse
+from console.database import db_session
 from console.helpers.exceptions import ClientError, ServiceError
+from console.models import SurveyResponse
 from console.views import logger
 
 
@@ -22,15 +21,6 @@ class TestConsole(unittest.TestCase):
         self.app = server.app.test_client()
         self.app.testing = True
         self.render_templates = False
-        self.hb = server.HeartbeatTimer(5, server.heartbeat, server.logger)
-
-    def tearDown(self):
-        self.hb.stop()
-
-    @log_capture()
-    def test_heartbeat(l):
-        sleep(10.0)
-        l.check(('server', 'INFO', "event='Heartbeat'"))
 
     def test_send_data_200(self):
         r = requests.Response()
@@ -65,7 +55,7 @@ class TestConsole(unittest.TestCase):
                 views.send_data(logger, "", data=123)
 
 
-Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=True)
+Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=False)
 
 
 def get_test_data():
@@ -87,8 +77,8 @@ def submit_test_responses():
             response_data = SurveyResponse(tx_id=tx_id,
                                            invalid=invalid,
                                            data=data)
-            db.session.merge(response_data)
-            db.session.commit()
+            db_session.merge(response_data)
+            db_session.commit()
 
 
 class TestAuthentication(unittest.TestCase):
@@ -109,7 +99,7 @@ class TestAuthentication(unittest.TestCase):
                              data=dict(email=email, password=password))
 
     def test_login_success(self):
-        response = self.login('admin', 'password')
+        response = self.login('admin', 'admin')
         self.assertIn(b'<a href="/">/</a>', response.data)
 
     def test_login_invalid_password(self):
@@ -117,31 +107,31 @@ class TestAuthentication(unittest.TestCase):
         self.assertIn(b'Invalid password', response.data)
 
     def test_login_invalid_user(self):
-        response = self.login('admi', 'password')
+        response = self.login('admi', 'admin')
         self.assertIn(b'Specified user does not exist', response.data)
 
     def test_logout(self):
-        self.login('dev', 'password')
+        self.login('admin', 'admin')
         response = self.app.get('/logout', follow_redirects=True)
-        self.assertIn(b'home', response.data)
+        self.assertIn(b'log in', response.data)
 
     def test_decrypt_access(self):
-        self.login('dev', 'password')
+        self.login('admin', 'admin')
         response = self.app.get('/decrypt', follow_redirects=True)
         self.assertIn(b'Data to be decrypyted', response.data)
 
     def test_decrypt_access_reject(self):
         response = self.app.get('/decrypt', follow_redirects=True)
-        self.assertIn(b'home', response.data)
+        self.assertIn(b'log in to access this page', response.data)
 
-    def test_admin_access(self):
-        self.login('admin', 'password')
-        response = self.app.get('/admin/user', follow_redirects=True)
-        self.assertIn(b'User - Admin', response.data)
+    def test_admin_access_to_add_new_user(self):
+        self.login('admin', 'admin')
+        response = self.app.get('/adduser', follow_redirects=True)
+        self.assertIn(b'Add a new SDX developer user', response.data)
 
-    def test_admin_access_reject(self):
-        response = self.app.get('/admin/user', follow_redirects=True)
-        self.assertEqual(403, response.status_code)
+    def test_admin_access_reject_to_add_new_user(self):
+        response = self.app.get('/adduser', follow_redirects=True)
+        self.assertIn(b'login', response.data)
 
 
 class TestStore(unittest.TestCase):
@@ -152,7 +142,7 @@ class TestStore(unittest.TestCase):
         self.app = server.app.test_client()
         self.app.testing = True
         self.render_templates = False
-        TestAuthentication.login(self, 'dev', 'password')
+        TestAuthentication.login(self, 'admin', 'admin')
         submit_test_responses()
 
     def tearDown(self):

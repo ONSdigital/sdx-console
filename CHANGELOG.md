@@ -24,6 +24,7 @@
   - Added protection on "reprocess all" button
   - Add ability to add multiple user accounts dynamically
   - Improved login/out navigation
+  - Fix login functionality with compose
 
 ### 1.3.0 2017-07-25
   - Update example json for EQ Survey refresh

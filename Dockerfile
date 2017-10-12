@@ -9,7 +9,7 @@ COPY Makefile /app/Makefile
 # set working directory to /app/
 WORKDIR /app/
 
-EXPOSE 5000
+EXPOSE 4200
 
 RUN apt-get update -y
 RUN apt-get upgrade -y
