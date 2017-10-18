@@ -1,7 +1,14 @@
+### Unreleased
+
+### 1.5.0 2017-09-14
+  - Remove sdx-common git clone in Dockerfile
+
+### 1.4.0 2017-08-04
+  - Add MakeFile
+
 ### 1.3.0 2017-07-25
   - Update example json for EQ Survey refresh
   - Change all instances of ADD to COPY in Dockerfile
-  - Remove sdx-common git clone in Dockerfile
 
 ### 1.2.0 2017-07-10
   - Adding tx_id to the message headers
