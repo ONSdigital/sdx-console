@@ -23,11 +23,9 @@ EQ_JWT_LEEWAY_IN_SECONDS = 120
 # EQ's keys
 EQ_PUBLIC_KEY = get_key(os.getenv('EQ_PUBLIC_KEY', "/keys/sdc-submission-signing-sr-public-key.pem"))
 EQ_PRIVATE_KEY = get_key(os.getenv('EQ_PRIVATE_KEY', "/keys/sdc-submission-signing-sr-private-key.pem"))
-EQ_PRIVATE_KEY_PASSWORD = os.getenv("EQ_PRIVATE_KEY_PASSWORD", "digitaleq")
 
 # Posies keys
 PRIVATE_KEY = get_key(os.getenv('PRIVATE_KEY', "/keys/sdc-submission-encryption-sdx-private-key.pem"))
-PRIVATE_KEY_PASSWORD = os.getenv("PRIVATE_KEY_PASSWORD", "digitaleq")
 
 SDX_VALIDATE_URL = os.getenv('SDX_VALIDATE_URL', 'http://sdx-validate:5000/validate')
 SDX_STORE_URL = os.getenv('SDX_STORE_URL', 'http://sdx-store:5000/')

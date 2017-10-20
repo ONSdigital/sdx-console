@@ -8,20 +8,30 @@ import base64
 import os
 from console import settings
 import jwt
+import hashlib
+import logging
 
-KID = 'SDE'
+
+logger = logging.getLogger(__name__)
 
 
 class Encrypter (object):
     def __init__(self):
         private_key_bytes = self._to_bytes(settings.EQ_PRIVATE_KEY)
         self.private_key = serialization.load_pem_private_key(private_key_bytes,
-                                                              password=self._to_bytes(settings.EQ_PRIVATE_KEY_PASSWORD),
+                                                              password=None,
                                                               backend=backend)
+        eq_public_key_bytes = self.private_key.public_key().public_bytes(
+            encoding=Encoding.PEM,
+            format=PublicFormat.SubjectPublicKeyInfo
+        )
+
+        self.signing_kid = Encrypter._generate_kid_from_key(eq_public_key_bytes)
+        logger.error("Signing KID is {}".format(self.signing_kid))
 
         private_decryption_key = serialization.load_pem_private_key(
             settings.PRIVATE_KEY.encode(),
-            password=self._to_bytes(settings.PRIVATE_KEY_PASSWORD),
+            password=None,
             backend=backend
         )
 
@@ -29,6 +39,9 @@ class Encrypter (object):
             encoding=Encoding.PEM,
             format=PublicFormat.SubjectPublicKeyInfo
         )
+
+        self.encryption_kid = Encrypter._generate_kid_from_key(public_key_bytes)
+        logger.error("Encryption KID is {}".format(self.encryption_kid))
 
         self.public_key = serialization.load_pem_public_key(public_key_bytes, backend=backend)
 
@@ -38,6 +51,12 @@ class Encrypter (object):
         # now generate a random IV
         self.iv = os.urandom(12)  # 96 bit random IV
 
+    @staticmethod
+    def _generate_kid_from_key(public_key):
+        hash_object = hashlib.sha1(public_key)
+        kid = hash_object.hexdigest()
+        return kid
+
     def _to_bytes(self, bytes_or_str):
         if isinstance(bytes_or_str, str):
             value = bytes_or_str.encode()
@@ -46,7 +65,7 @@ class Encrypter (object):
         return value
 
     def _jwe_protected_header(self):
-        return self._base_64_encode(b'{"alg":"RSA-OAEP","enc":"A256GCM"}')
+        return self._base_64_encode(bytes('{"alg":"RSA-OAEP","enc":"A256GCM","kid":"' + self.encryption_kid + '"}', 'utf-8'))
 
     def _encrypted_key(self, cek):
         ciphertext = self.public_key.encrypt(cek, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA1()), algorithm=hashes.SHA1(), label=None))
@@ -61,7 +80,7 @@ class Encrypter (object):
         return base64.urlsafe_b64encode(text).decode().strip("=").encode()
 
     def _encode_and_signed(self, payload):
-        return jwt.encode(payload, self.private_key, algorithm="RS256", headers={'kid': KID, 'typ': 'jwt'})
+        return jwt.encode(payload, self.private_key, algorithm="RS256", headers={'kid': self.signing_kid, 'typ': 'jwt'})
 
     def encrypt(self, json):
         payload = self._encode_and_signed(json)
