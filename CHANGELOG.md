@@ -1,4 +1,5 @@
 ### Unreleased
+  - Add KID hash to the encrypter
 
 ### 1.5.0 2017-09-14
   - Remove sdx-common git clone in Dockerfile
