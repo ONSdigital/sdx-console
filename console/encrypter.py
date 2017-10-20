@@ -27,7 +27,7 @@ class Encrypter (object):
         )
 
         self.signing_kid = Encrypter._generate_kid_from_key(eq_public_key_bytes)
-        logger.error("Signing KID is {}".format(self.signing_kid))
+        logger.info("Signing KID is {}".format(self.signing_kid))
 
         private_decryption_key = serialization.load_pem_private_key(
             settings.PRIVATE_KEY.encode(),
@@ -41,7 +41,7 @@ class Encrypter (object):
         )
 
         self.encryption_kid = Encrypter._generate_kid_from_key(public_key_bytes)
-        logger.error("Encryption KID is {}".format(self.encryption_kid))
+        logger.info("Encryption KID is {}".format(self.encryption_kid))
 
         self.public_key = serialization.load_pem_public_key(public_key_bytes, backend=backend)
 
