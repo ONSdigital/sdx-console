@@ -25,7 +25,6 @@ __version__ = "2.0.0"
 
 logger = wrap_logger(logging.getLogger(__name__))
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = settings.DB_URI
 app.config['SECURITY_PASSWORD_HASH'] = settings.SECURITY_PASSWORD_HASH
