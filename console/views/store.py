@@ -4,102 +4,25 @@ import logging
 import math
 
 from datetime import datetime
-from flask import jsonify
-from flask import redirect
+from flask import Blueprint
 from flask import render_template
 from flask import request
 from flask import url_for
 import flask_security
-import requests
 from sqlalchemy import func
-from sqlalchemy.exc import DataError, SQLAlchemyError
+from sqlalchemy.exc import DataError
+from sqlalchemy.exc import SQLAlchemyError
 from structlog import wrap_logger
+from werkzeug.utils import redirect
 
-from . import app, create_dev_user, settings
-from .database import db_session
-from .forms import NewUserForm
-from .helpers.exceptions import ClientError, ResponseError, ServiceError, UserCreationError, UserExistsError
-from .models import SurveyResponse
+from console import settings
+from console.database import db_session
+from console.models import SurveyResponse
+from console.views.home import send_data
 
 logger = wrap_logger(logging.getLogger(__name__))
 
-
-@app.errorhandler(ResponseError)
-def handle_invalid_usage(error):
-    json_error = {"message": error.message, "status_code": error.status_code}
-    return jsonify(json_error)
-
-
-@app.route('/healthcheck', methods=['GET'])
-def healthcheck():
-    return jsonify({'status': 'OK'})
-
-
-@app.route('/', methods=['GET'])
-def home():
-    return render_template('home.html',
-                           current_user=flask_security.core.current_user,
-                           request=request)
-
-
-def send_data(logger, url, data=None, json=None, request_type="POST"):
-    response_logger = logger.bind(url=url)
-    try:
-        if request_type == "POST":
-            response_logger.info("Sending POST request")
-            if data:
-                r = requests.post(url, data=data)
-            elif json:
-                r = requests.post(url, json=json)
-        elif request_type == "GET":
-            response_logger.info("Sending GET request")
-            r = requests.get(url)
-    except requests.exceptions.ConnectionError as e:
-        response_logger.error("Failed to connect to service", response="Connection error")
-        raise e
-
-    if 199 < r.status_code < 300:
-        logger.info('Returned from service', response=r.reason, status_code=r.status_code)
-    elif 399 < r.status_code < 500:
-        logger.error('Returned from service', response=r.reason, status_code=r.status_code)
-        raise ClientError(url=url, message=r.reason, status_code=r.status_code)
-    elif r.status_code > 499:
-        logger.error('Returned from service', response=r.reason, status_code=r.status_code)
-        raise ServiceError(url=url, message=r.reason, status_code=r.status_code)
-
-    return r
-
-
-@app.route('/decrypt', methods=['POST', 'GET'])
-@flask_security.login_required
-def decrypt():
-    audited_logger = logger.bind(user=flask_security.core.current_user.email)
-    if request.method == "POST":
-        data = request.form.get('EncryptedData')
-        url = settings.SDX_DECRYPT_URL
-        decrypted_data = ""
-
-        try:
-            audited_logger.info("Posting data to sdx-decrypt")
-            decrypt_response = send_data(logger=audited_logger, url=url,
-                                         data=data, request_type="POST")
-        except ClientError:
-            error = 'Client error'
-        except ServiceError:
-            error = 'Service error'
-        except requests.exceptions.ConnectionError:
-            error = 'Connection error'
-        else:
-            decrypted_data = decrypt_response.text
-            error = ""
-
-        return render_template('decrypt.html',
-                               decrypted_data=decrypted_data,
-                               error=error,
-                               current_user=flask_security.core.current_user)
-
-    else:
-        return render_template('decrypt.html', current_user=flask_security.core.current_user)
+store_bp = Blueprint('store_bp', __name__, static_folder='static', template_folder='templates')
 
 
 def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
@@ -153,8 +76,8 @@ def reprocess_transaction(logger, json_data):
     send_data(logger=logger, url=settings.SDX_STORE_URL, json=json_data, request_type="POST")
 
 
-@app.route('/store/', defaults={'page': 0}, methods=['GET', 'POST'])
-@app.route('/store/<page>', methods=['GET', 'POST'])
+@store_bp.route('/store', strict_slashes=False, defaults={'page': 0}, methods=['GET', 'POST'])
+@store_bp.route('/store/<page>', strict_slashes=False, methods=['GET', 'POST'])
 @flask_security.login_required
 def store(page):
     audited_logger = logger.bind(user=flask_security.core.current_user.email)
@@ -173,7 +96,7 @@ def store(page):
         else:
             json_single_data = json.loads(json_survey_data.replace("'", '"'))
             reprocess_transaction(audited_logger, json_single_data)
-        return redirect(url_for('store'))
+        return redirect(url_for('store_bp.store'))
 
     else:
         valid = request.args.get('valid', type=str, default='')
@@ -195,7 +118,7 @@ def store(page):
                                current_user=flask_security.core.current_user)
 
 
-@app.route('/storetest', methods=['GET'])
+@store_bp.route('/storetest', strict_slashes=False, methods=['GET'])
 def storetest():
 
     def create_test_data(number):
@@ -229,23 +152,3 @@ def storetest():
         send_data(logger=logger, url=settings.SDX_STORE_URL, data=test_data, request_type="POST")
 
     return "data sent"
-
-
-@app.route('/adduser', methods=['GET', 'POST'])
-@flask_security.roles_required('Admin')
-def add_user():
-    form = NewUserForm()
-    if request.method == 'POST' and form.validate():
-        success = False
-        try:
-            create_dev_user(form.email.data, form.password.data)
-            success = True
-        except UserCreationError:
-            form.errors['Database'] = ["Error creating user"]
-        except UserExistsError:
-            form.errors['User'] = ["This user already exists"]
-
-        return render_template('adduser.html', form=form, success=success, user=form.email.data)
-
-    else:
-        return render_template('adduser.html', form=form)

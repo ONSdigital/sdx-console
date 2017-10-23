@@ -1,26 +1,26 @@
-{% extends "layout.html" %}
-{% set active_page = "decrypt" %}
-{% block body %}
+{% import 'partials/section.html' as section %}
+{% extends "layouts/_twocol.html" %}
+
+{% block page_title %} Decrypt {% endblock %}
+
+
+{% block content %}
+
+{% include 'partials/navigation_tabs.html' %}
+
 
 <div class='container'>
-  <div class="row">
-    
-    <div class="col-sm-6">
-      <form class="form-group" action="/decrypt" method="POST">
-        <h3>Data to be decrypyted</h3><br>
-        <div>
-          <textarea class="form-control" name="EncryptedData" cols='40' rows='15'></textarea>
-        </div>
-        <input id="decrypt_form_submit" class="btn btn-default" type="submit">
-      </form>
+  <form class="form-group" action="/decrypt" method="POST">
+    <h2>Data to be decrypyted</h2>
+    <div>
+      <textarea class="form-control" name="EncryptedData" cols='40' rows='15'></textarea>
     </div>
+    <br>
+    <input id="decrypt_form_submit" class="btn btn-default" type="submit">
+  </form>
 
-    <div class="col-sm-6">
-      <h3>sdx-decrypt Response</h3><br>
-      <textarea id="decrypted_data_text" class="form-control" name="EncryptedData" cols='40' rows='15'>{{decrypted_data}}{{error}}</textarea>
-    </div>
-
-  </div>
+  <h2>sdx-decrypt Response</h2>
+  <textarea id="decrypted_data_text" class="form-control" name="EncryptedData" cols='40' rows='15'>{{decrypted_data}}{{error}}</textarea>
 </div>
 
-{% endblock %}
+{% endblock content %}
