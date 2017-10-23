@@ -1,16 +1,22 @@
-{% extends "layout.html" %}
-{% set active_page = "AddUser" %}
-{% block body %}
+{% import 'partials/section.html' as section %}
+{% extends "layouts/_twocol.html" %}
+
+{% block page_title %} Add User {% endblock %}
+
+
+{% block content %}
+
+{% include 'partials/navigation_tabs.html' %}
 
 <div class='container'>
   <div class="row">
 
     <div class="col-sm-6">
-      <form class="form-group" action="/adduser" method="POST">
-        <h3>Add a new SDX developer user</h3><br>
+      <form class="form-group" action="/add_user" method="POST">
+        <h2>Add a new SDX developer user</h2>
         <p>
           Please enter an email for the user:<br>
-          {{ form.email(size=100) }}<br>
+          {{ form.email }}<br>
         </p>
         <p>
           Please enter a password for the user:<br>
@@ -36,4 +42,4 @@
   </div>
 </div>
 
-{% endblock %}
+{% endblock content %}

@@ -8,11 +8,11 @@ import requests
 import testing.postgresql
 
 from console import app
+from console import logger
 from console import views
 from console.database import db_session
 from console.helpers.exceptions import ClientError, ServiceError
 from console.models import SurveyResponse
-from console.views import logger
 
 
 class TestConsole(unittest.TestCase):
@@ -27,7 +27,7 @@ class TestConsole(unittest.TestCase):
         with mock.patch('requests.post') as mock_post:
             mock_post.return_value = r
             r.status_code = 200
-            response = views.send_data(logger, "", data=123)
+            response = views.home.send_data(logger, "", data=123)
             self.assertEqual(response.status_code, 200)
 
     def test_send_data_400(self):
@@ -36,7 +36,7 @@ class TestConsole(unittest.TestCase):
             mock_post.return_value = r
             r.status_code = 400
             with self.assertRaises(ClientError):
-                views.send_data(logger, "", data=123)
+                views.home.send_data(logger, "", data=123)
 
     def test_send_data_404(self):
         r = requests.Response()
@@ -44,7 +44,7 @@ class TestConsole(unittest.TestCase):
             mock_post.return_value = r
             r.status_code = 404
             with self.assertRaises(ClientError):
-                views.send_data(logger, "", data=123)
+                views.home.send_data(logger, "", data=123)
 
     def test_send_data_500(self):
         r = requests.Response()
@@ -52,7 +52,7 @@ class TestConsole(unittest.TestCase):
             mock_post.return_value = r
             r.status_code = 500
             with self.assertRaises(ServiceError):
-                views.send_data(logger, "", data=123)
+                views.home.send_data(logger, "", data=123)
 
 
 Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=False)

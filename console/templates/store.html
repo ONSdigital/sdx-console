@@ -1,6 +1,12 @@
-{% extends "layout.html" %}
-{% set active_page = "store" %}
-{% block body %}
+{% import 'partials/section.html' as section %}
+{% extends "layouts/_twocol.html" %}
+
+{% block page_title %} Store {% endblock %}
+
+
+{% block content %}
+
+{% include 'partials/navigation_tabs.html' %}
 
 <script text="text/javascript" src="/static/js/get_links.js"></script>
 <div class="col-xs-12">
@@ -9,19 +15,24 @@
       <div class="col-md-11">
         <div class="input-group">
           <label class="col-md-1 control-label" for="valid">Valid:</label>
-          <input type="radio" name="valid" value="" checked> Both <br>
-          <input type="radio" name="valid" value="valid"> Valid <br>
-          <input type="radio" name="valid" value="invalid"> Invalid
-          <label class="col-md-1 control-label" for="tx_id">tx_id:</label>
-          <input type="text" class="form-control" id="tx_id" name="tx_id">
-          <label class="col-md-1 control-label" for="ru_ref">ru_ref:</label>
-          <input type="text" class="form-control" id="ru_ref" name="ru_ref">
-          <label class="col-md-1 control-label" for="survey_id">survey_id:</label>
-          <input type="number" class="form-control" id="survey_id" name="survey_id">
-          <label class="col-md-1 control-label" for="datetime_earliest">datetime_earliest:</label>
-          <input type="datetime-local" class="form-control" id="datetime_earliest" name="datetime_earliest">
-          <label class="col-md-1 control-label" for="datetime_latest">datetime_latest:</label>
-          <input type="datetime-local" class="form-control" id="datetime_latest" name="datetime_latest">
+          <input type="radio" name="valid" value="" checked> Both
+          <input type="radio" name="valid" value="valid"> Valid
+          <input type="radio" name="valid" value="invalid"> Invalid <br> <br>
+
+          <label class="col-md-1 control-label" for="tx_id">tx_id:</label> <br>
+          <input type="text" class="form-control" id="tx_id" name="tx_id"> <br>
+
+          <label class="col-md-1 control-label" for="ru_ref">ru_ref:</label> <br>
+          <input type="text" class="form-control" id="ru_ref" name="ru_ref"> <br>
+
+          <label class="col-md-1 control-label" for="survey_id">survey_id:</label> <br>
+          <input type="number" class="form-control" id="survey_id" name="survey_id"> <br> <br>
+
+          <label class="col-md-1 control-label" for="datetime_earliest">datetime_earliest: </label>
+          <input type="datetime-local" class="form-control" id="datetime_earliest" name="datetime_earliest"> <br>
+
+          <label class="col-md-1 control-label" for="datetime_latest">datetime_latest: </label>
+          <input type="datetime-local" class="form-control" id="datetime_latest" name="datetime_latest"> <br> <br>
 
         </div>
         <span class="input-group-btn">
@@ -36,28 +47,28 @@
     <button class="btn btn-primary btn-reprocess" form="reprocess-all" type="submit">Reprocess All</button>
   </form>
 
-  <div class="table-responsive">
-    <table class="table table-hover table-striped table-bordered">
-      <thead>
+  <div class="table">
+    <table class="table" width="100%">
+      <thead class="table__head table__header-cell--align">
         <tr>
-          <th>tx_id</th>
-          <th>survey_id</th>
-          <th>ru_ref</th>
-          <th>user_id</th>
-          <th>submitted_at</th>
-          <th>invalid</th>
+          <th class="table__header-cell table__header-cell--align"> tx_id </th>
+          <th class="table__header-cell"> survey_id </th>
+          <th class="table__header-cell"> ru_ref </th>
+          <th class="table__header-cell"> user_id </th>
+          <th class="table__header-cell"> submitted_at </th>
+          <th class="table__header-cell"> invalid </th>
         </tr>
       </thead>
       <tbody>
         {% for item in data[(page*20):((page+1)*20)] %}
-        <tr>
+        <tr class="table__row">
           <form id="reprocess-form" name='reprocess-form' class="form-horizontal", method='POST'>
-            <td>{{ item.tx_id }}</td>
-            <td>{{ item.survey_id }}</td>
-            <td>{{ item.metadata.ru_ref }}</td>
-            <td>{{ item.metadata.user_id }}</td>
-            <td>{{ item.submitted_at }}</td>
-            <td>{{ item.invalid }}</td>
+            <td class="table__cell">{{ item.tx_id }}</td>
+            <td class="table__cell">{{ item.survey_id }}</td>
+            <td class="table__cell">{{ item.metadata.ru_ref }}</td>
+            <td class="table__cell">{{ item.metadata.user_id }}</td>
+            <td class="table__cell">{{ item.submitted_at }}</td>
+            <td class="table__cell">{{ item.invalid }}</td>
             <input type="hidden" name="json_data" value="{{ item }}">
             <td align="center">
               <button class="btn btn-primary btn-reprocess" form="reprocess-form" type="submit">Reprocess</button>
@@ -78,4 +89,4 @@
   {% endfor %}
 </div>
 
-{% endblock %}
+{% endblock content %}
