@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 1.5.1 2017-10-25
   - Add KID hash to the encrypter
 
 ### 1.5.0 2017-09-14
