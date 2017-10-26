@@ -1,0 +1,21 @@
+{
+  "type": "uk.gov.ons.edc.eq:surveyresponse",
+  "version": "0.0.1",
+  "origin": "uk.gov.ons.edc.eq",
+  "survey_id": "0",
+  "collection": {
+    "exercise_sid": "hfjdskf",
+    "instrument_id": "ce2016",
+    "period": "0616"
+  },
+  "metadata": {
+    "user_id": "789473423",
+    "ru_ref": "12345678901A"
+  },
+  "data": {
+    "1": "2",
+    "2": "4",
+    "3": "2",
+    "4": "Y"
+  }
+}

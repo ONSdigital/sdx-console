@@ -1,0 +1,131 @@
+{% import 'partials/section.html' as section %}
+{% extends "layouts/_twocol.html" %}
+
+{% block page_title %} Submit {% endblock %}
+
+
+{% block content %}
+
+{% include 'partials/navigation_tabs.html' %}
+
+    <div class='col-md-6'>
+        <form id='submitter-form'>
+            <h3>Submitter</h3>
+            <div class="form-group">
+                <label for='post-data'>Data to send:</label>
+                <textarea id="post-data" class="form-control" name='post-data' cols='40' rows='10'></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for='survey-selector'>Load survey:</label>
+              <select id="survey-selector">
+                {% for survey in surveys %}
+                  <option value='{{survey}}'>{{survey}}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for='survey-quantity'>Number of submissions:</label>
+              <input id="survey-quantity" value="1" />
+            </div>
+
+            <input class="btn btn-default" type="submit" />
+            <button class="btn btn-default" id="validate">Validate</button>
+        </form>
+    </div>
+
+    <div id='response-data-wrapper' class='col-md-6'>
+        <h3>Receiver <img src="static/images/ajax-loader.gif" id="ftp-loading-sign" style="position: relative; display: none;"></h3>
+        <p>Lists of the <strong>most recent 10 files</strong> to hit the FTP server:</p>
+
+        <ul class='nav nav-tabs' role='tablist'>
+          <li role="presentation" class="active"><a href="#pcks" aria-controls="pcks" role="tab" data-toggle="tab">PCKs:</a></li>
+          <li role="presentation"><a href="#images" aria-controls="images" role="tab" data-toggle="tab">Images:</a></li>
+          <li role="presentation"><a href="#indices" aria-controls="indices" role="tab" data-toggle="tab">Image Indices:</a></li>
+          <li role="presentation"><a href="#receipts" aria-controls="receipts" role="tab" data-toggle="tab">Receipts:</a></li>
+        </ul>
+
+{#      <div id="ftp-loading" style="text-align: center; padding: 20px; display: none;"><img src="static/images/reload.gif"></div>#}
+          <div class="tab-content" id="ftp-tab-content">
+
+            <div role="tabpanel" class="tab-pane active" id="pcks">
+              <table id="pck-data" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Size</th>
+                        <th>Modified</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+
+          <div role="tabpanel" class="tab-pane" id="images">
+            <table id="image-data" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Size</th>
+                        <th>Modified</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+          </div>
+
+          <div role="tabpanel" class="tab-pane" id="indices">
+            <table id="index-data" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Size</th>
+                        <th>Modified</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+          </div>
+
+          <div role="tabpanel" class="tab-pane" id="receipts">
+            <table id="receipt-data" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Size</th>
+                        <th>Modified</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+          </div>
+        </div>
+
+      {# <button id="refresh-ftp" class="btn btn-primary" data-loading-text="Refreshing">Refresh FTP</button> #}
+        {% if enable_empty_ftp %}
+          <button id="empty-ftp" class="btn btn-default">Empty FTP</button>
+        {% endif %}
+    </div>
+
+    <div class="modal fade" id="contentModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Modal title</h4>
+          </div>
+          <div class="modal-body">
+            <pre></pre>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+{% endblock content %}

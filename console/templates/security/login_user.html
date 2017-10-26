@@ -4,6 +4,9 @@
 {% block page_title %} Login {% endblock %}
 
 {% block content %}
+
+{% include 'partials/navigation_tabs.html' %}
+
 {% from "security/_macros.html" import render_field_with_errors, render_field %}
 {% include "security/_messages.html" %}
 
