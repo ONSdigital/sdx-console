@@ -1,8 +1,8 @@
 # sdx-console
 
-[![Build Status](https://travis-ci.org/ONSdigital/sdx-console.svg?branch=master)](https://travis-ci.org/ONSdigital/sdx-console) [![codecov](https://codecov.io/gh/ONSdigital/sdx-console/branch/master/graph/badge.svg)](https://codecov.io/gh/ONSdigital/sdx-console)
+[![Build Status](https://travis-ci.org/ONSdigital/sdx-console.svg?branch=master)](https://travis-ci.org/ONSdigital/sdx-console)
 
-The Survey Data Exchange (SDX) Console is a component of the Office of National Statistics (ONS) SDX project, which takes an encrypted json payload and transforms it into a number of formats for use within the ONS. This console allows for insertion of input and checking of transformed output files, using the sdx-decrypt, sdx-validate, sdx-downstream and sdx-transform-* services.
+The Survey Data Exchange (SDX) Console is a component of the Office of National Statistics (ONS) SDX project. It will be used to test different microservices in SDX individually and to Reprocess Transactions for Operational Support.
 
 Should only be deployed on-demand as required in an environment.
 
@@ -12,39 +12,36 @@ Checkout the sdx-compose repo and refer to the README
 
 ## Usage
 
-To use the console you will need to start all services.
+To use the console you will need to start all services
+Console requires a PostgreSQL database to the appropriate sdx-compose branch should be used
 
-## API
+## Authentication
 
-There are two endpoints. The default takes JSON as input, encrypts it and places it upon the app queue for SDE to decrypt and transform, whilst 'decrypt' takes an encrypted payload as input and decrypts to json and transforms to final formats.
+This application uses Flask-Security for login and Flask-Admin for user management
 
- * `POST /`
- * `POST /decrypt`
+You will need to have an SDX-Console account set up by an administrator to access sdx-console while deployed
+
+Locally three accounts will be created on launch: 'admin', 'dev', and 'none'. With differing levels of permissions. All three have the password 'password'
+
+The login page is located at '/Login'. You can log out at '/Logout'
+
+If you the administrator role you can access the user management AI (Flask-Admin) at '/admin'
+
+## UI
+
+ * `/decrypt` - provides a textbox to input encrypted data which can be POSTed to the sdx-decrypt service
+
+ * `/store` -  allows searching of the PostgreSQL and reprocessing of transactions
 
 ## Configuration
 
 Some of important environment variables available for configuration are listed below:
 
-| Environment Variable    | Default                               | Description
+| Environment Variable    | Example                               | Description
 |-------------------------|---------------------------------------|----------------
-| FTP_HOST                | `pure-ftpd`                           | FTP to monitor
-| FTP_USER                | _none_                                | User for FTP account if required
-| FTP_PASS                | _none_                                | Password for FTP account if required
-| ENABLE_EMPTY_FTP        | `0`                                   | `1=on,0=off` Enables the ability to auto-empty the target FTP - **SHOULD NOT BE SWITCHED ON IN A PRODUCTION ENVIRONMENT!**
-| EQ_PUBLIC_KEY           | _xxx/xxxx.pem_                        | EQ public key
-| EQ_PRIVATE_KEY          | _xxx/xxxx.pem_                        | EQ private key
-| EQ_PRIVATE_KEY_PASSWORD | _xxxx_                                | Password for EQ private key
-| PRIVATE_KEY             | _xxx/xxxx.pem_                        | Private key
-| PRIVATE_KEY_PASSWORD    | _xxxx_                                | Password for private key
-| SDX_VALIDATE_URL        | `http://sdx-validate:5000/validate`   | URL of the ``sdx-validate`` service
+| SDX_DECRYPT_URL         | `http://sdx-decrypt:5000/`            | URL of the ``sdx-decrypt`` service
 | SDX_STORE_URL           | `http://sdx-store:5000/`              | URL of the ``sdx-store`` service
-| RABBIT_QUEUE            | `survey`                              | Rabbit survey queue
-| SDX_FTP_IMAGE_PATH      | `EDC_QImages`                         | FTP Image path
-| SDX_FTP_DATA_PATH       | `EDC_QData`                           | FTP Data path
-| SDX_FTP_RECEIPT_PATH    | `EDC_QReceipts`                       | FTP Receipt path
+| HB_INTERVAL             | `30`                                  | Interval for console heartbeat
+| CONSOLE_LOGIN_TIMEOUT   | `10`                                  | Number of minutes to user timeout
+| CONSOLE_INITIAL_ADMIN_PASSWORD| `PA$$W0RD` | Initial password used for user with admin rights
 
-### License
-
-Copyright © 2016, Office for National Statistics (https://www.ons.gov.uk)
-
-Released under MIT license, see [LICENSE](LICENSE) for details.

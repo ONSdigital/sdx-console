@@ -1,15 +1,12 @@
-from console import app
 import logging
-import os
-
+from structlog import wrap_logger
 from console import __version__
+from console import app
+from console import settings
 
-from sdx.common.logger_config import logger_initial_config
-
-logger_initial_config(service_name='sdx-console')
-logger = logging.getLogger(__name__)
+logger = wrap_logger(logging.getLogger(__name__))
 
 if __name__ == '__main__':
     logger.info("Starting server: version='{}'".format(__version__))
-    port = int(os.getenv("PORT"))
+    port = int(settings.PORT)
     app.run(debug=True, host='0.0.0.0', port=port)
