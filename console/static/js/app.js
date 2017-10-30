@@ -164,7 +164,7 @@ $(function () {
     });
 
     $("#survey-selector").on("change", function (event) {
-        asyncGet('/surveys/' + $(event.target).val()).then(function (data) {
+        asyncGet('/static/surveys/' + $(event.target).val()).then(function (data) {
             $("#post-data").text(data);
         }, function (error) {
             console.error("Failed!", error);
@@ -248,10 +248,10 @@ $(function () {
 
     // on page load stuff:
 
-    asyncGet('/surveys/0.ce2016.json').then(function (response) {
+    asyncGet("static/surveys/0.ce2016.json").then(function (response) {
         $("#post-data").text(response);
     }, function (error) {
-        console.error("Failed!", error);
+        console.error("Failed loading survey 0.ce2016!", error);
     });
 
     asyncGetJSON("/surveys").then(function (surveys) {
@@ -261,7 +261,7 @@ $(function () {
                     .text(surveys[i]));
         }
     }, function (error) {
-        console.error("Failed!", error);
+        console.error("Failed loading surveys!", error);
     });
 
     // kick off the ftp polling:

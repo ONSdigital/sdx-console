@@ -1,5 +1,3 @@
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
-
     <div class='col-md-6'>
       <form id='submitter-form'>
         <h3>Submitter</h3>
@@ -10,24 +8,25 @@
               {% for survey in surveys %}
                 <option value='{{survey}}'>{{survey}}</option>
               {% endfor %}
+
             </select>
           </div>
           <br>
 
         <div class="form-group">
           <label for='post-data'>Data to send:</label>
-          <textarea id="post-data" class="form-control" name='post-data' cols='40' rows='10'></textarea>
+          <textarea id="post-data" class="input input--text" name='post-data' rows='10'></textarea>
         </div>
         <br>
 
         <div class="form-group">
           <label for='survey-quantity'>Number of submissions:</label>
-          <input id="survey-quantity" value="1" />
+          <input id="survey-quantity" class="input input--text" value="1" />
         </div>
         <br>
 
-        <input class="btn btn-default" type="submit" />
-        <button class="btn btn-default" id="validate">Validate</button>
+        <input type="submit" class="btn btn-default" />
+        <button id="validate" class="btn btn-default">Validate</button>
       </form>
     </div>
     <br>

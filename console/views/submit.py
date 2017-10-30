@@ -185,3 +185,8 @@ def clear():
                         removed += 1
 
         return json.dumps({"removed": removed})
+
+
+@app.route('/surveys')
+def surveys():
+    return json.dumps(list_surveys(), indent=4)
