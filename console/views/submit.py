@@ -1,33 +1,25 @@
 from datetime import datetime
-from ftplib import FTP
 import json
 import logging.handlers
-import operator
 import os
 import uuid
 
 import requests
-from console.queue_publisher import QueuePublisher
 from flask import Blueprint
-from flask import request, render_template, jsonify
+from flask import jsonify
+from flask import render_template
+from flask import request
 from structlog import wrap_logger
 
 import console.settings as settings
 from console import app
+from console.console_ftp import ConsoleFtp, PATHS
 from console.encrypter import Encrypter
-from console.views.views import ConsoleFtp
+from console.queue_publisher import QueuePublisher
 
 logger = wrap_logger(logging.getLogger(__name__))
 
 submit_bp = Blueprint('submit_bp', __name__, static_folder='static', template_folder='templates')
-
-
-PATHS = {
-    "pck": settings.SDX_FTP_DATA_PATH,
-    "image": settings.SDX_FTP_IMAGE_PATH + "/Images",
-    "index": settings.SDX_FTP_IMAGE_PATH + "/Index",
-    "receipt": settings.SDX_FTP_RECEIPT_PATH
-}
 
 
 def get_ftp_contents():

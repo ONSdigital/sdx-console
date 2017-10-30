@@ -207,7 +207,7 @@ $(function () {
     var dataTypes = ['pck', 'image', 'index', 'receipt'];
 
     function refreshFTP() {
-        $("#ftp-loading-sign").show();
+        $("#refresh-ftp").show();
         asyncGetJSON("/ftp.json").then(function (ftpData) {
 
             for (var i in dataTypes) {
@@ -235,13 +235,13 @@ $(function () {
                     $("#" + dataType + "-data tbody").append($tableRow);
                 });
             }
-            $("#ftp-loading-sign").hide();
+            $("#refresh-ftp").hide();
 
             // recurse:
             setTimeout(refreshFTP, 2000);
 
         }, function (error) {
-            $("#ftp-loading-sign").hide();
+            $("#refresh-ftp").hide();
             console.error("FTP failed!", error);
         });
     }
