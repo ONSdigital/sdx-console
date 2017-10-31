@@ -25,3 +25,4 @@
   - Add ability to add multiple user accounts dynamically
   - Improved login/out navigation
   - Fix login functionality with compose
+  - Remove Decrypt Tab
