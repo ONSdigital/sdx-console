@@ -128,22 +128,6 @@ $(function () {
         });
     });
 
-    $("#decrypt-form").on("submit", function (event) {
-        event.preventDefault();
-        var postData = get_survey_data();
-        $(".alert").hide();
-        asyncPostJSON("/decrypt", postData).then(function (data) {
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-success").text("Posted encrypted data: " + data.substr(1, 100) + "...");
-            $(".alert").show();
-        }, function (error) {
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-danger").text("Error during submission");
-            $(".alert").show();
-            console.error("Failed!", error);
-        });
-    });
-
     $("#validate").on("click", function (event) {
         event.preventDefault();
         var postData = get_survey_data();
