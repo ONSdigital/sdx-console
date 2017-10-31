@@ -37,7 +37,6 @@ class BaseConfig(object):
 
     # Rabbit Heartbeat
     HB_INTERVAL = os.getenv("HB_INTERVAL", 30)
-
     SDX_STORE_URL = os.getenv("SDX_STORE_URL", "http://sdx-store:5000/responses")
     SDX_VALIDATE_URL = os.getenv("SDX_VALIDATE_URL", "http://sdx-validate:5000/validate")
 

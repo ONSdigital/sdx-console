@@ -21,7 +21,7 @@ This application uses Flask-Security for login and Flask-Admin for user manageme
 
 You will need to have an SDX-Console account set up by an administrator to access sdx-console while deployed
 
-Locally one account will be created on launch: 'admin'. This user password is default 'password'. This user can create developer users.
+Locally one account will be created on launch: 'admin'. This user password is default 'admin'. This user can create developer users.
 
 The login page is located at '/Login'. You can log out at '/Logout'
 
