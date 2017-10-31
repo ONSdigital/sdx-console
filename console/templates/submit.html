@@ -8,6 +8,20 @@
 
 {% include 'partials/navigation_tabs.html' %}
 
+    <div class="alert hidden alert-dismissible" role="alert">
+      {# <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button> #}
+    </div>
+
+    <div class="alert hidden alert-dismissable" role="alert">
+      <div class="panel panel--simple panel--info">
+        <div class="panel__body">
+          <h2 class="venus">Simple info panel - separate</h2>
+        </div>
+      </div>
+    </div>
+
+    <br>
+
     {% include 'partials/submitter.html' %}
 
     {% include 'partials/receiver.html' %}
@@ -18,21 +32,21 @@
         <!--<button id="empty-ftp" class="btn btn-default">Empty FTP</button>-->
       <!--{% endif %}-->
     <!--</div>-->
-
-    <div class="modal fade" id="contentModal" tabindex="-1" role="dialog">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">Modal title</h4>
-          </div>
-          <div class="modal-body">
-            <pre></pre>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
 {% endblock content %}
+    <!--<div class="modal fade" id="contentModal" tabindex="-1" role="dialog">-->
+      <!--<div class="modal-dialog modal-lg">-->
+        <!--<div class="modal-content">-->
+          <!--<div class="modal-header">-->
+            <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>-->
+            <!--<h4 class="modal-title">Modal title</h4>-->
+          <!--</div>-->
+          <!--<div class="modal-body">-->
+            <!--<pre></pre>-->
+          <!--</div>-->
+          <!--<div class="modal-footer">-->
+            <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+          <!--</div>-->
+        <!--</div>&lt;!&ndash; /.modal-content &ndash;&gt;-->
+      <!--</div>&lt;!&ndash; /.modal-dialog &ndash;&gt;-->
+    <!--</div>&lt;!&ndash; /.modal &ndash;&gt;-->
+

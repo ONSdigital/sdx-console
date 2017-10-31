@@ -108,7 +108,7 @@ $(function () {
         obj.innerHTML = convert_utc_to_local(obj.innerHTML);
     });
 
-    $("#submitter-form").on("submit", function (event) {
+    $("#submitter-form").on("submit-data", function (event) {
         event.preventDefault();
         var postData = get_survey_data();
         var quantity = $("#survey-quantity").val();
