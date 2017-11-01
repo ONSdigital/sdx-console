@@ -115,15 +115,6 @@ class TestAuthentication(unittest.TestCase):
         response = self.app.get('/logout', follow_redirects=True)
         self.assertIn(b'log in', response.data)
 
-    def test_decrypt_access(self):
-        self.login('admin', 'admin')
-        response = self.app.get('/decrypt', follow_redirects=True)
-        self.assertIn(b'Data to be decrypyted', response.data)
-
-    def test_decrypt_access_reject(self):
-        response = self.app.get('/decrypt', follow_redirects=True)
-        self.assertIn(b'log in to access this page', response.data)
-
     def test_admin_access_to_add_new_user(self):
         self.login('admin', 'admin')
         response = self.app.get('/adduser', follow_redirects=True)

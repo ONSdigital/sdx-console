@@ -21,15 +21,13 @@ This application uses Flask-Security for login and Flask-Admin for user manageme
 
 You will need to have an SDX-Console account set up by an administrator to access sdx-console while deployed
 
-Locally three accounts will be created on launch: 'admin', 'dev', and 'none'. With differing levels of permissions. All three have the password 'password'
+Locally one account will be created on launch: 'admin'. This user password is default 'admin'. This user can create developer users.
 
 The login page is located at '/Login'. You can log out at '/Logout'
 
 If you the administrator role you can access the user management AI (Flask-Admin) at '/admin'
 
 ## UI
-
- * `/decrypt` - provides a textbox to input encrypted data which can be POSTed to the sdx-decrypt service
 
  * `/store` -  allows searching of the PostgreSQL and reprocessing of transactions
 
@@ -39,7 +37,6 @@ Some of important environment variables available for configuration are listed b
 
 | Environment Variable    | Example                               | Description
 |-------------------------|---------------------------------------|----------------
-| SDX_DECRYPT_URL         | `http://sdx-decrypt:5000/`            | URL of the ``sdx-decrypt`` service
 | SDX_STORE_URL           | `http://sdx-store:5000/`              | URL of the ``sdx-store`` service
 | HB_INTERVAL             | `30`                                  | Interval for console heartbeat
 | CONSOLE_LOGIN_TIMEOUT   | `10`                                  | Number of minutes to user timeout
