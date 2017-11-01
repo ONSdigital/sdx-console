@@ -99,7 +99,7 @@ $(function () {
         // if no submitted_at
         if (!("submitted_at" in obj)) {
             // set as current date and time
-            obj["submitted_at"] = moment.utc().format("YYYY-MM-DDTHH:mm:ssZ");
+            obj = obj["submitted_at"]; // = obj["submitted_at"].utc().format("YYYY-MM-DDTHH:mm:ssZ");
         }
         return obj;
     }
@@ -108,8 +108,9 @@ $(function () {
         obj.innerHTML = convert_utc_to_local(obj.innerHTML);
     });
 
-    $("#submitter-form").on("submit-data", function (event) {
-        event.preventDefault();
+    $("#submitter-form").on("submit", function (event) {
+//        event.preventDefault();
+        window.alert('submitted')
         var postData = get_survey_data();
         var quantity = $("#survey-quantity").val();
         $(".alert").hide();
@@ -128,31 +129,18 @@ $(function () {
         });
     });
 
-    $("#decrypt-form").on("submit", function (event) {
-        event.preventDefault();
-        var postData = get_survey_data();
-        $(".alert").hide();
-        asyncPostJSON("/decrypt", postData).then(function (data) {
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-success").text("Posted encrypted data: " + data.substr(1, 100) + "...");
-            $(".alert").show();
-        }, function (error) {
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-danger").text("Error during submission");
-            $(".alert").show();
-            console.error("Failed!", error);
-        });
-    });
-
     $("#validate").on("click", function (event) {
-        event.preventDefault();
+//        event.preventDefault();
         var postData = get_survey_data();
         $(".alert").hide();
         asyncPostJSON("/validate", postData).then(function (data) {
             $(".alert").removeClass("alert-success alert-danger hidden");
+            window.alert(data)
             if (data.valid === true) {
+                window.alert('Validation success')
                 $(".alert").addClass('alert-success').text("Validation result: " + JSON.stringify(data));
             } else {
+                window.alert('Validation failed')
                 $(".alert").addClass('alert-danger').text("Validation Error. Result: " + JSON.stringify(data));
             }
         }, function (error) {

@@ -32,6 +32,7 @@ app.config['SECURITY_PASSWORD_HASH'] = settings.SECURITY_PASSWORD_HASH
 app.config['SECRET_KEY'] = settings.SECRET_KEY
 app.config['SECURITY_PASSWORD_SALT'] = settings.SECURITY_PASSWORD_SALT
 app.config['WTF_CSRF_ENABLED'] = False
+app.config['USE_MLSD'] = True
 
 user_datastore = SQLAlchemySessionUserDatastore(db_session, FlaskUser, Role)
 security = flask_security.Security(app, user_datastore, login_form=LoginFormExtended)

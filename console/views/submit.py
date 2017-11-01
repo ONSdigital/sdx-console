@@ -77,9 +77,7 @@ def get_file_contents(datatype, filename):
 
 @submit_bp.route('/submit', methods=['POST', 'GET'])
 def submit():
-
     if request.method == 'POST':
-
         data = request.get_data().decode('UTF8')
 
         logger.debug(" [x] Encrypting data")
@@ -104,7 +102,6 @@ def submit():
 
         return data
     else:
-
         return render_template('submit.html',
                                enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
 
@@ -132,10 +129,10 @@ def get_paginate_info(ru_ref):
     return info
 
 
-@app.route('/validate', methods=['POST', 'GET'])
+@submit_bp.route('/validate', methods=['POST', 'GET'])
 def validate():
     if request.method == 'POST':
-
+        logger.info('validation success')
         payload = request.get_data()
 
         logger.debug("Validating json...")
@@ -146,18 +143,18 @@ def validate():
 
         return jsonify(json.loads(r.text))
     else:
-
+        logger.info('Failed validation')
         ftp_data = get_ftp_contents()
 
-        return render_template('decrypt.html', ftp_data=json.dumps(ftp_data))
+        return render_template('submit.html', ftp_data=json.dumps(ftp_data))
 
 
-@app.route('/ftp.json')
+@submit_bp.route('/ftp.json')
 def ftp_list():
     return jsonify(get_ftp_contents())
 
 
-@app.route('/view/<datatype>/<filename>')
+@submit_bp.route('/view/<datatype>/<filename>')
 def view_file(datatype, filename):
     if filename.lower().endswith(('jpg', 'png')):
         return '<img style="width:100%;" src="/' + get_image(filename) + '" />'
@@ -165,7 +162,7 @@ def view_file(datatype, filename):
         return '<pre>' + get_file_contents(datatype, filename) + '</pre>'
 
 
-@app.route('/clear')
+@submit_bp.route('/clear')
 def clear():
     removed = 0
 
@@ -187,6 +184,6 @@ def clear():
         return json.dumps({"removed": removed})
 
 
-@app.route('/surveys')
+@submit_bp.route('/surveys')
 def surveys():
     return json.dumps(list_surveys(), indent=4)

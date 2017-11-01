@@ -1,102 +1,64 @@
-<div id='response-data-wrapper' class='col-md-6'>
-      <h3>Receiver <img src="static/images/ajax-loader.gif" id="ftp-loading-sign" style="position: relative; display: none;"></h3>
-      <p>Lists of the <strong>most recent 10 files</strong> to hit the FTP server:</p>
+<div id="response-data-wrapper" class="col-md-6">
+  <h3>Receiver <img src="static/images/ajax-loader.gif" id="ftp-loading-sign" style="position: relative; display: none;"></h3>
+  <p>Lists of the <strong>most recent 10 files</strong> to hit the FTP server:</p>
 
-      <!--<ul class='nav nav-tabs' role='tablist'>-->
-        <!--<li role="presentation" class="active"><a href="#pcks" aria-controls="pcks" role="tab" data-toggle="tab">PCKs:</a></li>-->
-        <!--<li role="presentation"><a href="#images" aria-controls="images" role="tab" data-toggle="tab">Images:</a></li>-->
-        <!--<li role="presentation"><a href="#indices" aria-controls="indices" role="tab" data-toggle="tab">Image Indices:</a></li>-->
-        <!--<li role="presentation"><a href="#receipts" aria-controls="receipts" role="tab" data-toggle="tab">Receipts:</a></li>-->
-      <!--</ul>-->
+  <!--<ul class='nav nav-tabs' role='tablist'>-->
+    <!--<li role="presentation" class="active"><a href="#pcks" aria-controls="pcks" role="tab" data-toggle="tab">PCKs:</a></li>-->
+    <!--<li role="presentation"><a href="#images" aria-controls="images" role="tab" data-toggle="tab">Images:</a></li>-->
+    <!--<li role="presentation"><a href="#indices" aria-controls="indices" role="tab" data-toggle="tab">Image Indices:</a></li>-->
+    <!--<li role="presentation"><a href="#receipts" aria-controls="receipts" role="tab" data-toggle="tab">Receipts:</a></li>-->
+  <!--</ul>-->
 
-      <ul class="navigation-tabs navigation-tabs--component" role="tablist">
+  <ul class="navigation-tabs navigation-tabs--component" role="tablist">
 
-        <li id="PCK:" class="navigation-tabs__item navigation-tabs__item--primary {% if request.path == '/submit#pcks' %} navigation-tabs__item--active {% endif %}">
-          <a href="#pcks" aria-controls="pcks" role="tab" data-toggle="tab" class="btn btn--secondary btn--border navigation-tabs__tab">PCKs</a> </li>
+    <li id="PCK:" role="presentation" class="navigation-tabs__item navigation-tabs__item--primary">
+      <a href="#pcks" aria-controls="pcks" role="tab" data-toggle="tab" class="btn btn--secondary btn--border navigation-tabs__tab">PCKs</a> </li>
 
-        <li id="Images:" class="navigation-tabs__item navigation-tabs__item--primary">
-          <a href="#images" aria-controls="images" role="tab" data-toggle="tab" class="btn btn--secondary btn--border navigation-tabs__tab">Images</a> </li>
+    <li id="Images:" role="presentation" class="navigation-tabs__item navigation-tabs__item--primary">
+      <a href="#images" aria-controls="images" role="tab" data-toggle="tab" class="btn btn--secondary btn--border navigation-tabs__tab">Images</a> </li>
 
-        <li id="Image Indices:" class="navigation-tabs__item navigation-tabs__item--primary">
-          <a href="#indices" aria-controls="indices" role="tab" data-toggle="tab" class="btn btn--secondary btn--border navigation-tabs__tab">Image Indices</a> </li>
+    <li id="Image Indices:" role="presentation" class="navigation-tabs__item navigation-tabs__item--primary">
+      <a href="#indices" aria-controls="indices" role="tab" data-toggle="tab" class="btn btn--secondary btn--border navigation-tabs__tab">Image Indices</a> </li>
 
-        <li id="Receipts:" class="navigation-tabs__item navigation-tabs__item--primary">
-          <a href="#receipts" aria-controls="receipts" role="tab" data-toggle="tab" class="btn btn--secondary btn--border navigation-tabs__tab">Receipts</a> </li>
+    <li id="Receipts:" role="presentation" class="navigation-tabs__item navigation-tabs__item--primary">
+      <a href="#receipts" aria-controls="receipts" role="tab" data-toggle="tab" class="btn btn--secondary btn--border navigation-tabs__tab">Receipts</a> </li>
+  </ul>
 
-      </ul>
+  <!--{ for data in somehwere.rows }-->
 
-      <ul>
-        <li class="grid card">
+  <div>
+    <ul>
+      <li class="grid card">
 
-        <div class="grid__col col-2@m">
-            <span class="survey-list-item__label venus">Filename: </span>
-        </div>
+      <div class="grid__col col-4@m">
+        <span class="survey-list-item__label venus">Filename: </span><br>
+        <span>Test</span><br>
+        <span>Test</span><br>
+        <span>Test</span>
+      </div>
 
-        <div class="grid__col col-2@m">
-            <span class="survey-list-item__label venus">Size: </span>
-        </div>
+      <div class="grid__col col-4@m">
+        <span class="survey-list-item__label venus">Size: </span><br>
+        <span>Test</span><br>
+        <span>Test</span><br>
+      </div>
 
-        <div class="grid__col col-2@m">
-            <span class="survey-list-item__label venus">Modified: </span>
-        </div>
+      <div class="grid__col col-4@m">
+        <span class="survey-list-item__label venus">Modified: </span><br>
+        <span>Test</span><br>
+      </div>
 
-        </li>
-      </ul>
+      </li>
+    </ul>
+  </div>
+  <br>
 
-      <div class="tab-content" id="ftp-tab-content">
-          <div role="tabpanel" class="tab-pane active" id="pcks">
-            <table id="pck-data" class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Filename</th>
-                        <th>Size</th>
-                        <th>Modified</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-          </div>
-          <div role="tabpanel" class="tab-pane" id="images">
-            <table id="image-data" class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Filename</th>
-                        <th>Size</th>
-                        <th>Modified</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-          </div>
-          <div role="tabpanel" class="tab-pane" id="indices">
-            <table id="index-data" class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Filename</th>
-                        <th>Size</th>
-                        <th>Modified</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-          </div>
-          <div role="tabpanel" class="tab-pane" id="receipts">
-            <table id="receipt-data" class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Filename</th>
-                        <th>Size</th>
-                        <th>Modified</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-          </div>
-        </div>
+  <!--{ endfor }-->
 
+  <button id="empty-ftp" class="btn btn-default">Empty FTP</button>
 
-    </div>
+  <div class="alert hidden alert-danger" role="alert">
+    {# <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button> #}
+  </div>
+
+</div>
