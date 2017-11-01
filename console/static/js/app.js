@@ -97,10 +97,10 @@ $(function () {
         }
 
         // if no submitted_at
-        if (!("submitted_at" in obj)) {
-            // set as current date and time
-            obj = obj["submitted_at"]; // = obj["submitted_at"].utc().format("YYYY-MM-DDTHH:mm:ssZ");
-        }
+//        if (!("submitted_at" in obj)) {
+//            // set as current date and time
+//            obj["submitted_at"] = obj["submitted_at"].utc().format("YYYY-MM-DDTHH:mm:ssZ");
+//        }
         return obj;
     }
 
@@ -109,15 +109,15 @@ $(function () {
     });
 
     $("#submit-data").on("click", function (event) {
-//        event.preventDefault();
-        window.alert('submitted')
+        event.preventDefault();
         var postData = get_survey_data();
         var quantity = $("#survey-quantity").val();
         $(".alert").hide();
-        asyncPostJSON('/', {
+        asyncPostJSON('/submit', {
             "survey": postData,
             "quantity": quantity
         }).then(function (data) {
+            window.alert('Submit success')
             $(".alert").removeClass("alert-success alert-danger hidden");
             $(".alert").addClass("alert-success").text("Posted: " + data);
             $(".alert").show();
@@ -130,18 +130,16 @@ $(function () {
     });
 
     $("#validate").on("click", function (event) {
-//        event.preventDefault();
+        event.preventDefault();
         var postData = get_survey_data();
         $(".alert").hide();
         asyncPostJSON("/validate", postData).then(function (data) {
+             console.log("after asyncPostJSON, then function")
             $(".alert").removeClass("alert-success alert-danger hidden");
-            window.alert(data)
             if (data.valid === true) {
-                window.alert('Validation success')
                 $(".alert").addClass('alert-success').text("Validation result: " + JSON.stringify(data));
             } else {
-                window.alert('Validation failed')
-                $(".alert").addClass('alert-danger').text("Validation Error. Result: " + JSON.stringify(data));
+                $(".alert").addClass('alert-success').text("Validation Error. Result: " + JSON.stringify(data));
             }
         }, function (error) {
             $(".alert").removeClass('alert-success alert-danger hidden');
@@ -169,6 +167,7 @@ $(function () {
             $(".alert").removeClass("alert-success alert-danger hidden");
             $(".alert").addClass("alert-success").text("Cleared " + data.removed + " files from FTP");
             $(".alert").show();
+            window.alert("Cleared " + data.removed + " files from FTP");
         }, function (error) {
             $(".alert").removeClass("alert-success alert-danger hidden");
             $(".alert").addClass("alert-danger").text("Error on emptying ftp");

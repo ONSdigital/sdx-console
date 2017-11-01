@@ -5,6 +5,15 @@ from sdx.common.logger_config import logger_initial_config
 from structlog import wrap_logger
 
 
+def get_key(key_name):
+    """
+    TODO remove these once the encrypted key story is finished
+    :return:
+    """
+    key = open(key_name, 'r')
+    contents = key.read()
+    return contents
+
 logger_initial_config(service_name='sdx-console')
 logger = wrap_logger(logging.getLogger(__name__))
 
@@ -33,6 +42,13 @@ PORT = os.getenv("PORT", 5000)
 ENABLE_EMPTY_FTP = os.getenv('ENABLE_EMPTY_FTP', 0)
 
 HB_INTERVAL = os.getenv("HB_INTERVAL", 30)
+
+# EQ's keys
+EQ_PUBLIC_KEY = get_key(os.getenv('EQ_PUBLIC_KEY', "/keys/sdc-submission-signing-sr-public-key.pem"))
+EQ_PRIVATE_KEY = get_key(os.getenv('EQ_PRIVATE_KEY', "/keys/sdc-submission-signing-sr-private-key.pem"))
+
+# Posies keys
+PRIVATE_KEY = get_key(os.getenv('PRIVATE_KEY', "/keys/sdc-submission-encryption-sdx-private-key.pem"))
 
 SDX_STORE_URL = os.getenv("SDX_STORE_URL", "http://sdx-store:5000/responses")
 SDX_VALIDATE_URL = os.getenv("SDX_VALIDATE_URL", "http://sdx-validate:5000/validate")
