@@ -1,0 +1,11 @@
+applications:
+- name: sdx-console
+  buildpack: python_buildpack
+  health-check-type: process
+
+  env:
+    CF_DEPLOYMENT: True
+    SDX_STORE_URL: http://sdx-store.apps.devtest.onsclofo.uk:8080
+
+  services:
+   - sdx-rabbit-dev
