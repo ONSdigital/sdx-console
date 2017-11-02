@@ -139,7 +139,7 @@ $(function () {
                 $(".alert").addClass('alert-success').text("Validation result: " + JSON.stringify(data));
             } else {
                 $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass('alert-success').text("Validation Error. Result: " + JSON.stringify(data));
+                $(".alert").addClass('alert-danger').text("Validation Error. Result: " + JSON.stringify(data));
             }
         }, function (error) {
             $(".alert").removeClass('alert-success alert-danger hidden');
