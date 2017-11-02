@@ -134,11 +134,11 @@ $(function () {
         var postData = get_survey_data();
         $(".alert").hide();
         asyncPostJSON("/validate", postData).then(function (data) {
-             console.log("after asyncPostJSON, then function")
-            $(".alert").removeClass("alert-success alert-danger hidden");
             if (data.valid === true) {
+                $(".alert").removeClass("alert-success alert-danger hidden");
                 $(".alert").addClass('alert-success').text("Validation result: " + JSON.stringify(data));
             } else {
+                $(".alert").removeClass("alert-success alert-danger hidden");
                 $(".alert").addClass('alert-success').text("Validation Error. Result: " + JSON.stringify(data));
             }
         }, function (error) {

@@ -4,6 +4,7 @@ import logging.handlers
 import os
 import uuid
 
+import flask_security
 import requests
 from flask import Blueprint
 from flask import jsonify
@@ -76,6 +77,7 @@ def get_file_contents(datatype, filename):
 
 
 @submit_bp.route('/submit', methods=['POST', 'GET'])
+@flask_security.login_required
 def submit():
     if request.method == 'POST':
         data = request.get_data().decode('UTF8')
@@ -132,7 +134,6 @@ def get_paginate_info(ru_ref):
 @submit_bp.route('/validate', methods=['POST', 'GET'])
 def validate():
     if request.method == 'POST':
-        logger.info('validation success')
         payload = request.get_data()
 
         logger.debug("Validating json...")
