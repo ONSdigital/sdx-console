@@ -119,7 +119,7 @@ $(function () {
         }).then(function (data) {
             window.alert('Submit success')
             $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-success").text("Posted: " + data);
+            $(".alert").addClass("alert panel panel--simple panel--info alert-success").text("Posted: " + data);
             $(".alert").show();
         }, function (error) {
             $(".alert").removeClass("alert-success alert-danger hidden");

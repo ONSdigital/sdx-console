@@ -9,27 +9,18 @@
   {% include 'partials/navigation_tabs.html' %}
 
   <div class="alert hidden alert-danger" role="alert">
-    {# <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button> #}
-  </div>
-  <br>
-
-
-
-
-  {% include 'partials/submitter.html' %}
-
-  <!-- Start: @panel--simple-info -->
-
-  <div class="panel panel--simple panel--info">
-    <div class="panel__body">
-      <h2 class="venus">Response</h2>
-      <div class="alert hidden alert-danger" role="alert" width="100%">
+    <div class="alert hidden alert-danger panel__body" role="alert">
+      <div class="alert hidden alert-danger" role="alert">
         {# <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button> #}
       </div>
     </div>
   </div>
-  <!-- End: @panel--simple-info -->
-  <br>
+
+  <!--<div class="alert hidden alert-danger" role="alert">-->
+    <!--{# <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button> <br>#}-->
+  <!--</div>-->
+
+  {% include 'partials/submitter.html' %}
 
   {% include 'partials/receiver.html' %}
 
