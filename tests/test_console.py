@@ -1,12 +1,12 @@
 import json
 import os
-import server
 import unittest
 from unittest import mock
 
 import requests
 import testing.postgresql
 
+import server
 from console import app
 from console import logger
 from console import views

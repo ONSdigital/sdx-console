@@ -1,12 +1,10 @@
-import logging
-from structlog import wrap_logger
-
 from console import app
+import logging
 
 import operator
 from ftplib import FTP
 from datetime import datetime
-import logging
+from structlog import wrap_logger
 
 import console.settings as settings
 

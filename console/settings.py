@@ -44,11 +44,11 @@ ENABLE_EMPTY_FTP = os.getenv('ENABLE_EMPTY_FTP', 0)
 HB_INTERVAL = os.getenv("HB_INTERVAL", 30)
 
 # EQ's keys
-EQ_PUBLIC_KEY = get_key(os.getenv('EQ_PUBLIC_KEY', "/keys/sdc-submission-signing-sr-public-key.pem"))
-EQ_PRIVATE_KEY = get_key(os.getenv('EQ_PRIVATE_KEY', "/keys/sdc-submission-signing-sr-private-key.pem"))
+EQ_PUBLIC_KEY = get_key(os.getenv('EQ_PUBLIC_KEY', "./jwt-test-keys/third-party/sdc-sr-submission-signing-public-v1.pem"))
+EQ_PRIVATE_KEY = get_key(os.getenv('EQ_PRIVATE_KEY', "./jwt-test-keys/sdc-sr-submission-signing-private-v1.pem"))
 
 # Posies keys
-PRIVATE_KEY = get_key(os.getenv('PRIVATE_KEY', "/keys/sdc-submission-encryption-sdx-private-key.pem"))
+PRIVATE_KEY = get_key(os.getenv('PRIVATE_KEY', "./jwt-test-keys/third-party/sdc-sdx-submission-encryption-private-v1.pem"))
 
 SDX_STORE_URL = os.getenv("SDX_STORE_URL", "http://sdx-store:5000/responses")
 SDX_VALIDATE_URL = os.getenv("SDX_VALIDATE_URL", "http://sdx-validate:5000/validate")
