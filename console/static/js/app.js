@@ -97,10 +97,10 @@ $(function () {
         }
 
         // if no submitted_at
-//        if (!("submitted_at" in obj)) {
-//            // set as current date and time
-//            obj["submitted_at"] = obj["submitted_at"].utc().format("YYYY-MM-DDTHH:mm:ssZ");
-//        }
+        if (!("submitted_at" in obj)) {
+            // set as current date and time
+            obj["submitted_at"] = moment.utc().format("YYYY-MM-DDTHH:mm:ssZ");
+        }
         return obj;
     }
 
@@ -117,14 +117,14 @@ $(function () {
             "survey": postData,
             "quantity": quantity
         }).then(function (data) {
-            window.alert('Submit success')
             $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert panel panel--simple panel--info alert-success").text("Posted: " + data);
+            $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Posted: " + data);
             $(".alert").show();
         }, function (error) {
             $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-danger").text("Error during submission");
+            $(".alert").addClass("alert panel panel--simple panel--error alert-success").text("Error during submission");
             $(".alert").show();
+            window.alert("Failed submission");
             console.error("Failed!", error);
         });
     });
@@ -136,10 +136,10 @@ $(function () {
         asyncPostJSON("/validate", postData).then(function (data) {
             if (data.valid === true) {
                 $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass('alert-success').text("Validation result: " + JSON.stringify(data));
+                $(".alert").addClass('alert panel panel--simple panel--success alert-success').text("Validation result: " + data);
             } else {
                 $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass('alert-danger').text("Validation Error. Result: " + JSON.stringify(data));
+                $(".alert").addClass('alert panel panel--simple panel--error alert-success').text("Validation Error. Result: " + data);
             }
         }, function (error) {
             $(".alert").removeClass('alert-success alert-danger hidden');
@@ -150,7 +150,7 @@ $(function () {
     });
 
     $("#survey-selector").on("change", function (event) {
-        asyncGet('/static/surveys/' + $(event.target).val()).then(function (data) {
+        asyncGet("/static/surveys/" + $(event.target).val()).then(function (data) {
             $("#post-data").text(data);
         }, function (error) {
             console.error("Failed!", error);
@@ -177,18 +177,23 @@ $(function () {
 
     $(".btn-reprocess").on("click", function (event) {
         $(".alert").hide();
-        var id = $(this).data("id");
-        $.post("/store", id)
-            .done(function (data) {
+        var postData = get_survey_data();
+        asyncPostJSON("/store", postData).then(function(data) {
+            if (data.valid === true) {
                 $(".alert").removeClass("alert-success alert-danger hidden");
                 $(".alert").addClass("alert-success").text("Survey " + data + " queued for processing");
                 $(".alert").show();
-            })
-            .fail(function () {
+            } else {
                 $(".alert").removeClass("alert-success alert-danger hidden");
                 $(".alert").addClass("alert-danger").text("Error queuing survey");
                 $(".alert").show();
-            });
+            }
+        }, function (error) {
+            $(".alert").removeClass('alert-success alert-danger hidden');
+            $(".alert").addClass('alert-danger').text("Error during reprocess submission");
+            $(".alert").show();
+            console.error("Failed!", error);
+        });
     });
 
     var dataTypes = ['pck', 'image', 'index', 'receipt'];
@@ -235,10 +240,10 @@ $(function () {
 
     // on page load stuff:
 
-    asyncGet("static/surveys/0.ce2016.json").then(function (response) {
+    asyncGet("static/surveys/023.0102.heartbeat.json").then(function (response) {
         $("#post-data").text(response);
     }, function (error) {
-        console.error("Failed loading survey 0.ce2016!", error);
+        console.error("Failed loading survey 023.0102.heartbeat!", error);
     });
 
     asyncGetJSON("/surveys").then(function (surveys) {

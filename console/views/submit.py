@@ -16,7 +16,7 @@ import console.settings as settings
 from console import app
 from console.console_ftp import ConsoleFtp, PATHS
 from console.encrypter import Encrypter
-from console.queue_publisher import QueuePublisher
+from sdc.rabbit import QueuePublisher
 
 logger = wrap_logger(logging.getLogger(__name__))
 
@@ -42,8 +42,8 @@ def list_surveys():
 def send_payload(payload, tx_id, no_of_submissions=1):
     logger.debug(" [x] Sending encrypted Payload")
 
-    publisher = QueuePublisher(logger, settings.RABBIT_URLS, settings.RABBIT_QUEUE)
-    for i in range(no_of_submissions):
+    publisher = QueuePublisher(settings.RABBIT_URLS, settings.RABBIT_QUEUE)
+    for _ in range(no_of_submissions):
         publisher.publish_message(payload, tx_id)
 
     logger.debug(" [x] Sent Payload to rabbitmq!")
@@ -90,7 +90,7 @@ def submit():
 
         encrypter = Encrypter()
 
-        for i in range(0, no_of_submissions):
+        for _ in range(0, no_of_submissions):
             # If submitting more than one then randomise the tx_id
             if no_of_submissions > 1:
                 tx_id = str(uuid.uuid4())
