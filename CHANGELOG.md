@@ -1,5 +1,6 @@
 ### Unreleased
-
+  - Remove sdx-common logging and move logging code back into the repo
+  
 ### 1.5.1 2017-10-25
   - Add KID hash to the encrypter
 
