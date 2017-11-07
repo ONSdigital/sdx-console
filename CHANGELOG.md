@@ -1,4 +1,5 @@
 ### Unreleased
+  - Add Cloudfoundry deployment files
 
 ### 1.5.1 2017-10-25
   - Add KID hash to the encrypter
