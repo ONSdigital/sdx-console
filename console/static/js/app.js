@@ -5,7 +5,7 @@ $(function () {
         return new Promise(function (resolve, reject) {
             // Do the usual XHR stuff
             var req = new XMLHttpRequest();
-            req.open('GET', url, true);
+            req.open("GET", url, true);
 
             req.onload = function () {
                 // This is called even on 404 etc
@@ -70,11 +70,11 @@ $(function () {
 
     function convert_utc_to_local(utc_dt) {
         if (!utc_dt) {
-            return '';
+            return "";
         }
         utcDateTime = moment.utc(utc_dt);
         localDateTime = utcDateTime.local();
-        return localDateTime.format('Y-m-d H:mm:ss');
+        return localDateTime.format("Y-m-d H:mm:ss");
     }
 
     function guid() {
@@ -104,7 +104,7 @@ $(function () {
         return obj;
     }
 
-    $('.utc_datetime').each(function (index, obj) {
+    $(".utc_datetime").each(function (index, obj) {
         obj.innerHTML = convert_utc_to_local(obj.innerHTML);
     });
 
@@ -113,7 +113,7 @@ $(function () {
         var postData = get_survey_data();
         var quantity = $("#survey-quantity").val();
         $(".alert").hide();
-        asyncPostJSON('/submit', {
+        asyncPostJSON("/submit", {
             "survey": postData,
             "quantity": quantity
         }).then(function (data) {
@@ -134,17 +134,20 @@ $(function () {
         var postData = get_survey_data();
         $(".alert").hide();
         asyncPostJSON("/validate", postData).then(function (data) {
-            if (data.valid === true) {
+            if (valid === true) {
                 $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass('alert panel panel--simple panel--success alert-success').text("Validation result: " + data);
+                $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Validation result: " + data);
+                $(".alert").show();
             } else {
                 $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass('alert panel panel--simple panel--error alert-success').text("Validation Error. Result: " + data);
+                $(".alert").addClass("alert panel panel--simple panel--error alert-success").text("Validation Error. Result: " + data);
+                $(".alert").show();
             }
         }, function (error) {
-            $(".alert").removeClass('alert-success alert-danger hidden');
-            $(".alert").addClass('alert-danger').text("Error during validation submission");
+            $(".alert").removeClass("alert-success alert-danger hidden");
+            $(".alert").addClass("alert-danger").text("Error during validation submission");
             $(".alert").show();
+            window.alert("Failed validation");
             console.error("Failed!", error);
         });
     });
@@ -159,7 +162,7 @@ $(function () {
 
     $("#empty-ftp").on("click", function (event) {
         $(".alert").hide();
-        asyncGetJSON('/clear').then(function (data) {
+        asyncGetJSON("/clear").then(function (data) {
             for (var i in dataTypes) {
                 var dataType = dataTypes[i];
                 $("#" + dataType + "-data tbody").empty();
@@ -189,14 +192,14 @@ $(function () {
                 $(".alert").show();
             }
         }, function (error) {
-            $(".alert").removeClass('alert-success alert-danger hidden');
-            $(".alert").addClass('alert-danger').text("Error during reprocess submission");
+            $(".alert").removeClass("alert-success alert-danger hidden");
+            $(".alert").addClass("alert-danger").text("Error during reprocess submission");
             $(".alert").show();
             console.error("Failed!", error);
         });
     });
 
-    var dataTypes = ['pck', 'image', 'index', 'receipt'];
+    var dataTypes = ["pck", "image", "index", "receipt"];
 
     function refreshFTP() {
         $("#refresh-ftp").show();

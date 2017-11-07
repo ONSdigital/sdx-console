@@ -6,6 +6,7 @@ import uuid
 
 import flask_security
 import requests
+import yaml
 from flask import Blueprint
 from flask import jsonify
 from flask import render_template
@@ -15,7 +16,9 @@ from structlog import wrap_logger
 import console.settings as settings
 from console import app
 from console.console_ftp import ConsoleFtp, PATHS
-from console.encrypter import Encrypter
+# from console.encrypter import Encrypter
+from sdc.crypto.encrypter import encrypt
+from sdc.crypto.key_store import KeyStore, validate_required_keys
 from sdc.rabbit import QueuePublisher
 
 logger = wrap_logger(logging.getLogger(__name__))
@@ -44,7 +47,7 @@ def send_payload(payload, tx_id, no_of_submissions=1):
 
     publisher = QueuePublisher(settings.RABBIT_URLS, settings.RABBIT_QUEUE)
     for _ in range(no_of_submissions):
-        publisher.publish_message(payload, tx_id)
+        publisher.publish_message(payload, headers={'tx_id': tx_id})
 
     logger.debug(" [x] Sent Payload to rabbitmq!")
 
@@ -88,24 +91,28 @@ def submit():
 
         no_of_submissions = int(unencrypted_json['quantity'])
 
-        encrypter = Encrypter()
+        with open("./keys.yml") as file:
+            secrets_from_file = yaml.safe_load(file)
+
+        logger.debug(secrets_from_file)
+
+        key_store = KeyStore(secrets_from_file)
+
+        tx_id = unencrypted_json['survey']['tx_id']
 
         for _ in range(0, no_of_submissions):
             # If submitting more than one then randomise the tx_id
-            if no_of_submissions > 1:
+            if tx_id is not None:
                 tx_id = str(uuid.uuid4())
                 unencrypted_json['survey']['tx_id'] = tx_id
                 logger.info("Auto setting tx_id", tx_id=tx_id)
-            else:
-                tx_id = unencrypted_json['survey']['tx_id']
 
-            payload = encrypter.encrypt(unencrypted_json['survey'])
+            payload = encrypt(unencrypted_json['survey'], key_store, 'submission')
             send_payload(payload, tx_id, 1)  # let the loop handle the submission
 
         return data
     else:
-        return render_template('submit.html',
-                               enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
+        return render_template('submit.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
 
 
 def client_error(error=None):

@@ -26,3 +26,7 @@
   - Improved login/out navigation
   - Fix login functionality with compose
   - Remove Decrypt Tab
+  - Added multiple flask blueprints to improve readability
+  - Add sdc patterns and common css/js
+  - Improve UX throughout
+  - Add submitter functionality
