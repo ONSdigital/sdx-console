@@ -16,9 +16,8 @@ from structlog import wrap_logger
 import console.settings as settings
 from console import app
 from console.console_ftp import ConsoleFtp, PATHS
-# from console.encrypter import Encrypter
 from sdc.crypto.encrypter import encrypt
-from sdc.crypto.key_store import KeyStore, validate_required_keys
+from sdc.crypto.key_store import KeyStore
 from sdc.rabbit import QueuePublisher
 
 logger = wrap_logger(logging.getLogger(__name__))
