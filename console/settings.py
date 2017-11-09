@@ -1,20 +1,12 @@
 import logging
 import os
 
-from sdx.common.logger_config import logger_initial_config
 from structlog import wrap_logger
 
 
-def get_key(key_name):
-    """
-    TODO remove these once the encrypted key story is finished
-    :return:
-    """
-    key = open(key_name, 'r')
-    contents = key.read()
-    return contents
+LOGGING_LEVEL = logging.getLevelName(os.getenv('LOGGING_LEVEL', 'DEBUG'))
+LOGGING_FORMAT = "%(asctime)s.%(msecs)06dZ|%(levelname)s: sdx-console: %(message)s"
 
-logger_initial_config(service_name='sdx-console')
 logger = wrap_logger(logging.getLogger(__name__))
 
 DB_HOST = os.getenv('POSTGRES_HOST', '0.0.0.0')

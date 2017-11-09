@@ -60,8 +60,8 @@ def get_image(filename):
 
     filepath, ext = os.path.splitext(filename)
 
-    tmp_image_url = 'static/images/' + filepath + ext
-    tmp_image_path = 'console/static/images/' + filepath + ext
+    tmp_image_url = 'static/images/{}/{}'.format(filepath, ext)
+    tmp_image_path = 'console/static/images/{}/{}'.format(filepath, ext)
 
     if os.path.exists(tmp_image_path):
         os.unlink(tmp_image_path)
@@ -92,8 +92,6 @@ def submit():
 
         with open("./keys.yml") as file:
             secrets_from_file = yaml.safe_load(file)
-
-        logger.debug(secrets_from_file)
 
         key_store = KeyStore(secrets_from_file)
 
