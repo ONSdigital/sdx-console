@@ -3,10 +3,12 @@ import logging
 import os
 
 from console import __version__
+from console import settings
 
-from sdx.common.logger_config import logger_initial_config
+logging.basicConfig(format=settings.LOGGING_FORMAT,
+                    datefmt="%Y-%m-%dT%H:%M:%S",
+                    level=settings.LOGGING_LEVEL)
 
-logger_initial_config(service_name='sdx-console')
 logger = logging.getLogger(__name__)
 
 if __name__ == '__main__':
