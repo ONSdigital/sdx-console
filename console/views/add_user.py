@@ -16,6 +16,7 @@ add_user_bp = Blueprint('add_user_bp', __name__, static_folder='static', templat
 
 
 @add_user_bp.route('/add_user', strict_slashes=False, methods=['GET', 'POST'])
+@flask_security.login_required
 @flask_security.roles_required('Admin')
 def add_user():
     form = NewUserForm()

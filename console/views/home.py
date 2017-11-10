@@ -23,12 +23,6 @@ def home():
                            request=request)
 
 
-@home_bp.route('/home/logout', strict_slashes=False, methods=['GET', 'POST'])
-def logout():
-    flask_security.utils.logout_user()
-    return render_template('logout.html')
-
-
 @home_bp.errorhandler(ResponseError)
 def handle_invalid_usage(error):
     json_error = {"message": error.message, "status_code": error.status_code}
