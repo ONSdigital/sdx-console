@@ -67,7 +67,7 @@ def get_image(filename):
         os.unlink(tmp_image_path)
 
     with ConsoleFtp() as ftp:
-        ftp._ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
+        ftp._ftp.retrbinary("RETR " + PATHS['image'] + filename, open(tmp_image_path, 'wb').write)
 
     return tmp_image_url
 
@@ -125,16 +125,6 @@ def client_error(error=None):
     return resp
 
 
-def get_paginate_info(ru_ref):
-    # This is a little hacky as pagination.start or
-    # pagination.end does not work in the view.
-    info = "Found <b>{total}</b>,"
-    if ru_ref:
-        info += " matching ru_ref: <b>{0}</b>,".format(ru_ref)
-    info += " displaying <b>{start} - {end}</b>"
-    return info
-
-
 @submit_bp.route('/validate', methods=['POST', 'GET'])
 def validate():
     if request.method == 'POST':
@@ -149,22 +139,12 @@ def validate():
         return jsonify(json.loads(r.text))
     else:
         logger.info('Failed validation')
-        ftp_data = get_ftp_contents()
-
-        return render_template('submit.html', ftp_data=json.dumps(ftp_data))
+        return render_template('submit.html')
 
 
 @submit_bp.route('/ftp.json')
 def ftp_list():
     return jsonify(get_ftp_contents())
-
-
-@submit_bp.route('/view/<datatype>/<filename>')
-def view_file(datatype, filename):
-    if filename.lower().endswith(('jpg', 'png')):
-        return '<img style="width:100%;" src="/' + get_image(filename) + '" />'
-    else:
-        return '<pre>' + get_file_contents(datatype, filename) + '</pre>'
 
 
 @submit_bp.route('/clear')
