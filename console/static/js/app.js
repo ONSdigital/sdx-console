@@ -266,7 +266,7 @@ $(function () {
 
     // on page load stuff:
 
-    asyncGet("/surveys/023.0102.json").then(function (response) {
+    asyncGet("/static/surveys/023.0102.json").then(function (response) {
         $("#post-data").text(response);
     }, function (error) {
         console.error("Failed loading survey 023.0102!", error);
