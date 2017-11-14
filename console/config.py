@@ -1,11 +1,9 @@
 import os
 import logging
 
-from sdx.common.logger_config import logger_initial_config
-from structlog import wrap_logger
 
-logger_initial_config(service_name='sdx-console')
-logger = wrap_logger(logging.getLogger(__name__))
+LOGGING_LEVEL = logging.getLevelName(os.getenv('LOGGING_LEVEL', 'DEBUG'))
+LOGGING_FORMAT = "%(asctime)s.%(msecs)06dZ|%(levelname)s: sdx-console: %(message)s"
 
 
 class BaseConfig(object):

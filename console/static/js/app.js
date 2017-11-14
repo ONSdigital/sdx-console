@@ -104,6 +104,33 @@ $(function () {
         return obj;
     }
 
+    function get_survey_reprocess_data() {
+        var obj = $("#post-data");
+
+        // if no tx_id
+//        if (!("tx_id" in obj)) {
+//            // generate uuid
+//            obj["tx_id"] = guid();
+//        }
+
+        // if no submitted_at
+        if (!("submitted_at" in obj)) {
+            // set as current date and time
+            obj["submitted_at"] = moment.utc().format("YYYY-MM-DDTHH:mm:ssZ");
+        }
+        return obj;
+    }
+
+    function get_tx_id_from_data() {
+        var obj = $("#json_data");
+        var json_string = obj[0]["value"];
+        var json_data = json_string.replace(/\'/g, '\"');
+        var json_parsed = JSON.parse(json_data)
+        var tx_id = json_parsed["tx_id"];
+//        var tx_id = { "tx_id": "f088d89d-a367-876e-f29f-ae8f1a261000" }
+        return tx_id;
+    }
+
     $(".utc_datetime").each(function (index, obj) {
         obj.innerHTML = convert_utc_to_local(obj.innerHTML);
     });
@@ -122,7 +149,7 @@ $(function () {
             $(".alert").show();
         }, function (error) {
             $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert panel panel--simple panel--error alert-success").text("Error during submission");
+            $(".alert").addClass("alert panel panel--simple panel--error alert-danger").text("Error during submission");
             $(".alert").show();
             window.alert("Failed submission");
             console.error("Failed!", error);
@@ -134,13 +161,14 @@ $(function () {
         var postData = get_survey_data();
         $(".alert").hide();
         asyncPostJSON("/validate", postData).then(function (data) {
+            window.alert(data)
             if (data.valid === true) {
                 $(".alert").removeClass("alert-success alert-danger hidden");
                 $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Validation result: " + data);
                 $(".alert").show();
             } else {
                 $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass("alert panel panel--simple panel--error alert-success").text("Validation Error. Result: " + data);
+                $(".alert").addClass("alert panel panel--simple panel--error alert-danger").text("Validation Error. Result: " + data);
                 $(".alert").show();
             }
         }, function (error) {
@@ -168,7 +196,7 @@ $(function () {
                 $("#" + dataType + "-data tbody").empty();
             }
             $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-success").text("Cleared " + data.removed + " files from FTP");
+            $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Cleared " + data.removed + " files from FTP");
             $(".alert").show();
             window.alert("Cleared " + data.removed + " files from FTP");
         }, function (error) {
@@ -180,23 +208,18 @@ $(function () {
 
     $(".btn-reprocess").on("click", function (event) {
         $(".alert").hide();
-        var postData = get_survey_data();
-        asyncPostJSON("/store", postData).then(function(data) {
-            if (data.valid === true) {
+        var postData = get_tx_id_from_data();
+        $.post("/reprocess", postData)
+            .done(function (data) {
                 $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass("alert-success").text("Survey " + data + " queued for processing");
+                $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Survey " + data + " queued for processing");
                 $(".alert").show();
-            } else {
+            })
+            .fail(function () {
                 $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass("alert-danger").text("Error queuing survey");
+                $(".alert").addClass("alert panel panel--simple panel--error alert-danger").text("Error queuing survey");
                 $(".alert").show();
-            }
-        }, function (error) {
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-danger").text("Error during reprocess submission");
-            $(".alert").show();
-            console.error("Failed!", error);
-        });
+            });
     });
 
     var dataTypes = ["pck", "image", "index", "receipt"];
@@ -243,10 +266,10 @@ $(function () {
 
     // on page load stuff:
 
-    asyncGet("static/surveys/023.0102.heartbeat.json").then(function (response) {
+    asyncGet("/surveys/023.0102.json").then(function (response) {
         $("#post-data").text(response);
     }, function (error) {
-        console.error("Failed loading survey 023.0102.heartbeat!", error);
+        console.error("Failed loading survey 023.0102!", error);
     });
 
     asyncGetJSON("/surveys").then(function (surveys) {
