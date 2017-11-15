@@ -104,15 +104,6 @@ $(function () {
         return obj;
     }
 
-    function get_tx_id_from_data() {
-        var obj = $("#json_data");
-        var json_string = obj[0]["value"];
-        var json_data = json_string.replace(/\'/g, '\"');
-        var json_parsed = JSON.parse(json_data)
-        var tx_id = json_parsed["tx_id"];
-        return tx_id;
-    }
-
     $(".utc_datetime").each(function (index, obj) {
         obj.innerHTML = convert_utc_to_local(obj.innerHTML);
     });
@@ -143,7 +134,7 @@ $(function () {
         var postData = get_survey_data();
         $(".alert").hide();
         asyncPostJSON("/validate", postData).then(function (data) {
-            window.alert(data)
+            window.alert(data);
             if (data.valid === true) {
                 $(".alert").removeClass("alert-success alert-danger hidden");
                 $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Validation result: " + data);
@@ -186,18 +177,6 @@ $(function () {
             $(".alert").addClass("alert-danger").text("Error on emptying ftp");
             $(".alert").show();
         });
-    });
-
-    $(".btn-reprocess").on("click", function (event) {
-        $(".alert").hide();
-        var postData = get_tx_id_from_data();
-        $.post("/reprocess", postData)
-            .done(function (data) {
-                window.alert(data);
-            })
-            .fail(function () {
-                window.alert("Failed to reprocess");
-            });
     });
 
     var dataTypes = ["pck", "image", "index", "receipt"];

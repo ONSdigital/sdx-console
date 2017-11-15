@@ -78,17 +78,18 @@ def reprocess(tx_id):
 @store_bp.route('/reprocess', strict_slashes=False, methods=['POST'])
 @flask_security.login_required
 def reprocess_submission():
-    tx_id = str(request.get_data())[1:]
-    tx_id = tx_id.replace("'", "")
-    logger.debug('Begin reprocessing tx_id: {}'.format(tx_id))
+    tx_ids = request.form.getlist('reprocess-tx_id')
+    data = []
+    for tx_id in tx_ids:
+        logger.debug('Begin reprocessing tx_id: {}'.format(tx_id))
+        data.append(tx_id)
+        reprocess(tx_id)
 
-    reprocess(tx_id)
-
-    return "Data reprocessed", 200
+    return render_template('reprocess.html', data=data)
 
 
-@store_bp.route('/store', strict_slashes=False, defaults={'page': 0}, methods=['GET', 'POST'])
-@store_bp.route('/store/<page>', strict_slashes=False, methods=['GET', 'POST'])
+@store_bp.route('/store', strict_slashes=False, defaults={'page': 0}, methods=['GET'])
+@store_bp.route('/store/<page>', strict_slashes=False, methods=['GET'])
 @flask_security.login_required
 def store(page):
     audited_logger = logger.bind(user=flask_security.core.current_user.email)
@@ -108,11 +109,6 @@ def store(page):
     json_list = [item.data for item in store_data]
 
     no_pages = math.ceil(round(float(len(json_list) / 20)))
-
-    if request.method == 'POST':
-        logger.debug("Post request in store")
-
-        return redirect(url_for('store_bp.store'))
 
     return render_template('store.html',
                            data=json_list,
