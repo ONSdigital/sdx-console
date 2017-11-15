@@ -104,30 +104,12 @@ $(function () {
         return obj;
     }
 
-    function get_survey_reprocess_data() {
-        var obj = $("#post-data");
-
-        // if no tx_id
-//        if (!("tx_id" in obj)) {
-//            // generate uuid
-//            obj["tx_id"] = guid();
-//        }
-
-        // if no submitted_at
-        if (!("submitted_at" in obj)) {
-            // set as current date and time
-            obj["submitted_at"] = moment.utc().format("YYYY-MM-DDTHH:mm:ssZ");
-        }
-        return obj;
-    }
-
     function get_tx_id_from_data() {
         var obj = $("#json_data");
         var json_string = obj[0]["value"];
         var json_data = json_string.replace(/\'/g, '\"');
         var json_parsed = JSON.parse(json_data)
         var tx_id = json_parsed["tx_id"];
-//        var tx_id = { "tx_id": "f088d89d-a367-876e-f29f-ae8f1a261000" }
         return tx_id;
     }
 
@@ -211,14 +193,10 @@ $(function () {
         var postData = get_tx_id_from_data();
         $.post("/reprocess", postData)
             .done(function (data) {
-                $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Survey " + data + " queued for processing");
-                $(".alert").show();
+                window.alert(data);
             })
             .fail(function () {
-                $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass("alert panel panel--simple panel--error alert-danger").text("Error queuing survey");
-                $(".alert").show();
+                window.alert("Failed to reprocess");
             });
     });
 
@@ -266,10 +244,10 @@ $(function () {
 
     // on page load stuff:
 
-    asyncGet("/static/surveys/023.0102.json").then(function (response) {
+    asyncGet("/static/surveys/023.0102.heartbeat.json").then(function (response) {
         $("#post-data").text(response);
     }, function (error) {
-        console.error("Failed loading survey 023.0102!", error);
+        console.error("Failed loading survey 023.0102.heartbeat!", error);
     });
 
     asyncGetJSON("/surveys").then(function (surveys) {

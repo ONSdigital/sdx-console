@@ -1,4 +1,3 @@
-import ast
 import json
 import logging
 import math
@@ -67,8 +66,7 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
 
 
 def reprocess(tx_id):
-    """Reprocess a single transaction"""
-    logger.info('reprocess function')
+    logger.debug('Reprocess function')
     publisher = QueuePublisher(
         settings.RABBIT_URLS,
         'sdx-survey-notification-durable'
@@ -82,9 +80,10 @@ def reprocess(tx_id):
 def reprocess_submission():
     tx_id = str(request.get_data())[1:]
     tx_id = tx_id.replace("'", "")
-    logger.error('Begin reprocessing: {}'.format(tx_id))
+    logger.debug('Begin reprocessing tx_id: {}'.format(tx_id))
 
     reprocess(tx_id)
+
     return "Data reprocessed", 200
 
 
@@ -92,7 +91,6 @@ def reprocess_submission():
 @store_bp.route('/store/<page>', strict_slashes=False, methods=['GET', 'POST'])
 @flask_security.login_required
 def store(page):
-    """Main blueprint for store gets the data"""
     audited_logger = logger.bind(user=flask_security.core.current_user.email)
 
     valid = request.args.get('valid', type=str, default='')
@@ -112,47 +110,9 @@ def store(page):
     no_pages = math.ceil(round(float(len(json_list) / 20)))
 
     if request.method == 'POST':
-        logger.error("SOMETHING GETS POSTED HERE")
-        # json_survey_data = request.form.get('json_data')
-        # if not json_survey_data:
-        #     json_survey_data = request.form.get('json_data_list')
-        #     if not json_survey_data:
-        #         return url_for('store_bp.store')
-        #     json_survey_data = ast.literal_eval(json_survey_data)
-        #
-        # if isinstance(json_survey_data, list):
-        #     try:
-        #         audited_logger.info("Reprocessing multiple transactions")
-        #         for json_data in json_survey_data:
-        #             json_single_data = json.loads(json_data.replace("'", '"'))
-        #             reprocess_transaction(audited_logger, json_single_data)
-        #             logger.debug("Reprocessed multiple transactions successfully")
-        #     except:
-        #         logger.error("Failed reprocessing multiple transactions")
-        # else:
-        #     try:
-        #         audited_logger.info("Reprocessing transaction")
-        #         json_single_data = json.loads(json_survey_data.replace("'", '"'))
-        #         reprocess_transaction(audited_logger, json_single_data)
-        #         logger.debug("Reprocessed transactions successfully")
-        #     except:
-        #         logger.error('Failed reprocessing transaction')
-        return redirect(url_for('store_bp.store'))
+        logger.debug("Post request in store")
 
-    # else:
-    #     logger.error("GET GET GET GET GET")
-    #     valid = request.args.get('valid', type=str, default='')
-    #     tx_id = request.args.get('tx_id', type=str, default='')
-    #     ru_ref = request.args.get('ru_ref', type=str, default='')
-    #     survey_id = request.args.get('survey_id', type=str, default='')
-    #     datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
-    #     datetime_latest = request.args.get('datetime_latest', type=str, default='')
-    #     store_data = get_filtered_responses(
-    #         logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
-    #     logger.info("Successfully retrieved responses")
-    #     json_list = [item.data for item in store_data]
-    #     logger.debug(json_list)
-    #     no_pages = math.ceil(round(float(len(json_list) / 20)))
+        return redirect(url_for('store_bp.store'))
 
     return render_template('store.html',
                            data=json_list,
@@ -163,7 +123,6 @@ def store(page):
 
 @store_bp.route('/storetest', strict_slashes=False, methods=['GET'])
 def storetest():
-    """Send through test data to confirm running system"""
     def create_test_data(number):
         test_data = json.dumps(
             {
