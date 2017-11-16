@@ -42,11 +42,6 @@
     </div>
   </form>
 
-  <form onsubmit="return confirm('Do you really want to submit the form?');" id='reprocess-all' name='reprocess-all' class="form-horizontal", method='POST'>
-    <input type="hidden" name="json_data_list" value="{{ data }}">
-    <button class="btn btn-primary btn-reprocess" form="reprocess-all" type="submit">Reprocess All</button>
-  </form>
-
   <div class="table">
     <table class="table" width="100%">
       <thead class="table__head table__header-cell--align">
@@ -57,25 +52,26 @@
           <th class="table__header-cell"> user_id </th>
           <th class="table__header-cell"> submitted_at </th>
           <th class="table__header-cell"> invalid </th>
+          <th class="table__header-cell"> </th>
         </tr>
       </thead>
       <tbody>
-        {% for item in data[(page*20):((page+1)*20)] %}
-        <tr class="table__row">
-          <form id="reprocess-form" name='reprocess-form' class="form-horizontal", method='POST'>
+        <form id="reprocess-form" name='reprocess-form' class="form-horizontal" method='POST' action="/reprocess">
+          {% for item in data[(page*20):((page+1)*20)] %}
+            <tr class="table__row">
             <td class="table__cell">{{ item.tx_id }}</td>
             <td class="table__cell">{{ item.survey_id }}</td>
             <td class="table__cell">{{ item.metadata.ru_ref }}</td>
             <td class="table__cell">{{ item.metadata.user_id }}</td>
             <td class="table__cell">{{ item.submitted_at }}</td>
             <td class="table__cell">{{ item.invalid }}</td>
-            <input type="hidden" name="json_data" value="{{ item }}">
-            <td align="center">
-              <button class="btn btn-primary btn-reprocess" form="reprocess-form" type="submit">Reprocess</button>
+            <td class="table__cell" align="center">
+              <input type="checkbox" name="reprocess-tx_id" value="{{ item.tx_id }}" align="center">
             </td>
-          </form>
-        </tr>
-        {% endfor %}
+            </tr>
+          {% endfor %}
+          <button class="btn btn-primary" form="reprocess-form" type="submit">Reprocess</button>
+        </form>
       </tbody>
     </table>
     <div class="container">

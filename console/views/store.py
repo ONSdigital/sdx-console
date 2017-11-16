@@ -1,4 +1,3 @@
-import ast
 import json
 import logging
 import math
@@ -7,18 +6,17 @@ from datetime import datetime
 from flask import Blueprint
 from flask import render_template
 from flask import request
-from flask import url_for
 import flask_security
 from sqlalchemy import func
 from sqlalchemy.exc import DataError
 from sqlalchemy.exc import SQLAlchemyError
 from structlog import wrap_logger
-from werkzeug.utils import redirect
 
 from console import settings
 from console.database import db_session
 from console.models import SurveyResponse
 from console.views.home import send_data
+from sdc.rabbit import QueuePublisher
 
 logger = wrap_logger(logging.getLogger(__name__))
 
@@ -65,62 +63,60 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
     return filtered_data
 
 
-def reprocess_transaction(logger, json_data):
-    logger.info("Reprocessing transaction", tx_id=json_data["tx_id"])
-    if json_data.get("invalid"):
-        del json_data["invalid"]
-    validate_response = send_data(
-        logger=logger, url=settings.SDX_VALIDATE_URL, json=json_data, request_type="POST")
-    if validate_response != 200:
-        json_data['invalid'] = "True"
-    send_data(logger=logger, url=settings.SDX_STORE_URL, json=json_data, request_type="POST")
+def reprocess(tx_id):
+    logger.debug('Reprocess function')
+    publisher = QueuePublisher(
+        settings.RABBIT_URLS,
+        'sdx-survey-notification-durable'
+    )
+
+    publisher.publish_message(tx_id, headers={'tx_id': tx_id})
 
 
-@store_bp.route('/store', strict_slashes=False, defaults={'page': 0}, methods=['GET', 'POST'])
-@store_bp.route('/store/<page>', strict_slashes=False, methods=['GET', 'POST'])
+@store_bp.route('/reprocess', strict_slashes=False, methods=['POST'])
+@flask_security.login_required
+def reprocess_submission():
+    tx_ids = request.form.getlist('reprocess-tx_id')
+    data = []
+    for tx_id in tx_ids:
+        logger.debug('Begin reprocessing tx_id: {}'.format(tx_id))
+        data.append(tx_id)
+        reprocess(tx_id)
+
+    return render_template('reprocess.html', data=data)
+
+
+@store_bp.route('/store', strict_slashes=False, defaults={'page': 0}, methods=['GET'])
+@store_bp.route('/store/<page>', strict_slashes=False, methods=['GET'])
 @flask_security.login_required
 def store(page):
     audited_logger = logger.bind(user=flask_security.core.current_user.email)
-    if request.method == 'POST':
-        json_survey_data = request.form.get('json_data')
-        if not json_survey_data:
-            json_survey_data = request.form.get('json_data_list')
-            if not json_survey_data:
-                return url_for('store')
-            json_survey_data = ast.literal_eval(json_survey_data)
 
-        if isinstance(json_survey_data, list):
-            audited_logger.info("Reprocessing multiple transactions")
-            for json_data in json_survey_data:
-                reprocess_transaction(audited_logger, json_data)
-        else:
-            json_single_data = json.loads(json_survey_data.replace("'", '"'))
-            reprocess_transaction(audited_logger, json_single_data)
-        return redirect(url_for('store_bp.store'))
+    valid = request.args.get('valid', type=str, default='')
+    tx_id = request.args.get('tx_id', type=str, default='')
+    ru_ref = request.args.get('ru_ref', type=str, default='')
+    survey_id = request.args.get('survey_id', type=str, default='')
+    datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
+    datetime_latest = request.args.get('datetime_latest', type=str, default='')
 
-    else:
-        valid = request.args.get('valid', type=str, default='')
-        tx_id = request.args.get('tx_id', type=str, default='')
-        ru_ref = request.args.get('ru_ref', type=str, default='')
-        survey_id = request.args.get('survey_id', type=str, default='')
-        datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
-        datetime_latest = request.args.get('datetime_latest', type=str, default='')
-        store_data = get_filtered_responses(
-            audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
-        audited_logger.info("Successfully retireved responses")
-        json_list = [item.data for item in store_data]
-        no_pages = math.ceil(round(float(len(json_list) / 20)))
+    store_data = get_filtered_responses(
+        audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
 
-        return render_template('store.html',
-                               data=json_list,
-                               no_pages=no_pages,
-                               page=int(page),
-                               current_user=flask_security.core.current_user)
+    audited_logger.info("Successfully retrieved responses")
+
+    json_list = [item.data for item in store_data]
+
+    no_pages = math.ceil(round(float(len(json_list) / 20)))
+
+    return render_template('store.html',
+                           data=json_list,
+                           no_pages=no_pages,
+                           page=int(page),
+                           current_user=flask_security.core.current_user)
 
 
 @store_bp.route('/storetest', strict_slashes=False, methods=['GET'])
 def storetest():
-
     def create_test_data(number):
         test_data = json.dumps(
             {
@@ -147,8 +143,12 @@ def storetest():
                 "version": "0.0.1"
             })
         return test_data
+
     for i in range(1000, 1250):
         test_data = create_test_data(str(i))
-        send_data(logger=logger, url=settings.SDX_STORE_URL, data=test_data, request_type="POST")
+        send_data(logger=logger,
+                  url=settings.SDX_STORE_URL,
+                  data=test_data,
+                  request_type="POST")
 
     return "data sent"
