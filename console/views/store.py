@@ -6,13 +6,11 @@ from datetime import datetime
 from flask import Blueprint
 from flask import render_template
 from flask import request
-from flask import url_for
 import flask_security
 from sqlalchemy import func
 from sqlalchemy.exc import DataError
 from sqlalchemy.exc import SQLAlchemyError
 from structlog import wrap_logger
-from werkzeug.utils import redirect
 
 from console import settings
 from console.database import db_session
