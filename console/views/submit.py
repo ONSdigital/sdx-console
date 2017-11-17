@@ -81,6 +81,7 @@ def get_file_contents(datatype, filename):
 @submit_bp.route('/submit', methods=['POST', 'GET'])
 @flask_security.login_required
 def submit():
+    logger.error("HERE>>>>>>>>>>>>>>>>")
     if request.method == 'POST':
         data = request.get_data().decode('UTF8')
 
