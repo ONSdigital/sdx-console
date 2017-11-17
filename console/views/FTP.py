@@ -92,11 +92,6 @@ def client_error(error=None):
     return resp
 
 
-@FTP_bp.route('/ftp.json')
-def ftp_list():
-    return jsonify(get_ftp_contents())
-
-
 @FTP_bp.route('/clear')
 def clear():
     removed = 0

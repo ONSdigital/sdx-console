@@ -16,6 +16,7 @@ from structlog import wrap_logger
 import console.settings as settings
 from console import app
 from console.console_ftp import ConsoleFtp, PATHS
+from console.helpers.exceptions import ClientError, ResponseError, ServiceError
 from sdc.crypto.encrypter import encrypt
 from sdc.crypto.key_store import KeyStore
 from sdc.rabbit import QueuePublisher
@@ -76,6 +77,34 @@ def get_file_contents(datatype, filename):
 
     with ConsoleFtp() as ftp:
         return ftp.get_file_contents(datatype, filename)
+
+
+def send_data(logger, url, data=None, json=None, request_type="POST"):
+    response_logger = logger.bind(url=url)
+    try:
+        if request_type == "POST":
+            response_logger.info("Sending POST request")
+            if data:
+                r = requests.post(url, data=data)
+            elif json:
+                r = requests.post(url, json=json)
+        elif request_type == "GET":
+            response_logger.info("Sending GET request")
+            r = requests.get(url)
+    except requests.exceptions.ConnectionError as e:
+        response_logger.error("Failed to connect to service", response="Connection error")
+        raise e
+
+    if 199 < r.status_code < 300:
+        logger.info('Returned from service', response=r.reason, status_code=r.status_code)
+    elif 399 < r.status_code < 500:
+        logger.error('Returned from service', response=r.reason, status_code=r.status_code)
+        raise ClientError(url=url, message=r.reason, status_code=r.status_code)
+    elif r.status_code > 499:
+        logger.error('Returned from service', response=r.reason, status_code=r.status_code)
+        raise ServiceError(url=url, message=r.reason, status_code=r.status_code)
+
+    return r
 
 
 @submit_bp.route('/submit', methods=['POST', 'GET'])
