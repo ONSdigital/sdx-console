@@ -122,7 +122,7 @@ $(function () {
             $(".alert").show();
         }, function (error) {
             $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert panel panel--simple panel--error alert-success").text("Error during submission");
+            $(".alert").addClass("alert panel panel--simple panel--error alert-danger").text("Error during submission");
             $(".alert").show();
             window.alert("Failed submission");
             console.error("Failed!", error);
@@ -134,13 +134,14 @@ $(function () {
         var postData = get_survey_data();
         $(".alert").hide();
         asyncPostJSON("/validate", postData).then(function (data) {
+            window.alert(data);
             if (data.valid === true) {
                 $(".alert").removeClass("alert-success alert-danger hidden");
                 $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Validation result: " + data);
                 $(".alert").show();
             } else {
                 $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass("alert panel panel--simple panel--error alert-success").text("Validation Error. Result: " + data);
+                $(".alert").addClass("alert panel panel--simple panel--error alert-danger").text("Validation Error. Result: " + data);
                 $(".alert").show();
             }
         }, function (error) {
@@ -168,34 +169,13 @@ $(function () {
                 $("#" + dataType + "-data tbody").empty();
             }
             $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-success").text("Cleared " + data.removed + " files from FTP");
+            $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Cleared " + data.removed + " files from FTP");
             $(".alert").show();
             window.alert("Cleared " + data.removed + " files from FTP");
         }, function (error) {
             $(".alert").removeClass("alert-success alert-danger hidden");
             $(".alert").addClass("alert-danger").text("Error on emptying ftp");
             $(".alert").show();
-        });
-    });
-
-    $(".btn-reprocess").on("click", function (event) {
-        $(".alert").hide();
-        var postData = get_survey_data();
-        asyncPostJSON("/store", postData).then(function(data) {
-            if (data.valid === true) {
-                $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass("alert-success").text("Survey " + data + " queued for processing");
-                $(".alert").show();
-            } else {
-                $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass("alert-danger").text("Error queuing survey");
-                $(".alert").show();
-            }
-        }, function (error) {
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-danger").text("Error during reprocess submission");
-            $(".alert").show();
-            console.error("Failed!", error);
         });
     });
 
@@ -243,7 +223,7 @@ $(function () {
 
     // on page load stuff:
 
-    asyncGet("static/surveys/023.0102.heartbeat.json").then(function (response) {
+    asyncGet("/static/surveys/023.0102.heartbeat.json").then(function (response) {
         $("#post-data").text(response);
     }, function (error) {
         console.error("Failed loading survey 023.0102.heartbeat!", error);
