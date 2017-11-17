@@ -1,85 +1,46 @@
-<div id="response-data-wrapper" class="col-md-6">
-  <h3>Receiver <img src="static/images/ajax-loader.gif" id="ftp-loading-sign" style="position: relative; display: none;"></h3>
-  <p>Lists of the <strong>most recent 20 files</strong> to hit the FTP server:</p>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+  $( function() {
+    $( "#tabs" ).tabs();
+  } );
+</script>
 
-  <ul class="navigation-tabs navigation-tabs--component" role="tablist">
+<h3> Receiver </h3>
+<p>Lists of the <strong>most recent 20 files</strong> to hit the FTP server:</p>
 
-    <li role="presentation" class="navigation-tabs__item navigation-tabs__item--primary active">
-      <a href="#pcks" aria-controls="pcks" role="tab" data-toggle="tab"
-         class="btn btn--secondary btn--border navigation-tabs__tab">PCKs</a> </li>
+<div id="response-data-wrapper">
+  <div id="tabs">
+    <ul class="navigation-tabs navigation-tabs--component" role="tablist">
 
-    <li role="presentation" class="navigation-tabs__item navigation-tabs__item--primary">
-      <a href="#images" aria-controls="images" role="tab" data-toggle="tab"
-         class="btn btn--secondary btn--border navigation-tabs__tab">Images</a> </li>
+      <li class="navigation-tabs__item navigation-tabs__item--primary" role="presentation">
+        <a href="#pcks"
+           class="btn btn--secondary btn--border navigation-tabs__tab">PCKs</a> </li>
 
-    <li role="presentation" class="navigation-tabs__item navigation-tabs__item--primary">
-      <a href="#indices" aria-controls="indices" role="tab" data-toggle="tab"
-         class="btn btn--secondary btn--border navigation-tabs__tab">Image Indices</a> </li>
+      <li class="navigation-tabs__item navigation-tabs__item--primary">
+        <a href="#images"
+           class="btn btn--secondary btn--border navigation-tabs__tab">Images</a> </li>
 
-    <li role="presentation" class="navigation-tabs__item navigation-tabs__item--primary">
-      <a href="#receipts" aria-controls="receipts" role="tab" data-toggle="tab"
-         class="btn btn--secondary btn--border navigation-tabs__tab">Receipts</a> </li>
-  </ul>
+      <li class="navigation-tabs__item navigation-tabs__item--primary" role="tab">
+        <a data-toggle="tab" href="#indices"
+           class="btn btn--secondary btn--border navigation-tabs__tab">Indices</a> </li>
 
-  <div class="tab-content" id="ftp-tab-content">
-    <div role="tabpanel" class="tab-pane active grid__col" id="pcks">
-      <table id="pck-data" class="table table-hover">
-        <thead>
-          <tr>
-            <th>Filename</th>
-            <th>Size</th>
-            <th>Modified</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
+      <li class="navigation-tabs__item navigation-tabs__item--primary" role="tab">
+        <a data-toggle="tab" href="#receipts"
+           class="btn btn--secondary btn--border navigation-tabs__tab">Receipts</a> </li>
+    </ul>
+
+    <div class="tab-content">
+        {% include 'partials/pck_data.html' %}
+
+        {% include 'partials/image_data.html' %}
+
+        {% include 'partials/image_index_data.html' %}
+
+        {% include 'partials/receipts_data.html' %}
     </div>
 
-    <div role="tabpanel" class="tab-pane grid__col" id="images">
-      <table id="image-data" class="table table-hover">
-        <thead>
-          <tr>
-            <th>Filename</th>
-            <th>Size</th>
-            <th>Modified</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
-    </div>
-
-    <div role="tabpanel" class="tab-pane grid__col" id="indices">
-      <table id="index-data" class="table table-hover">
-        <thead>
-          <tr>
-            <th>Filename</th>
-            <th>Size</th>
-            <th>Modified</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
-    </div>
-
-    <div role="tabpanel" class="tab-pane grid__col" id="receipts">
-      <table id="receipt-data" class="table table-hover">
-        <thead>
-          <tr>
-            <th>Filename</th>
-            <th>Size</th>
-            <th>Modified</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
-    </div>
+    <br>
+    <button id="empty-ftp" class="btn btn-default">Empty FTP</button>
   </div>
-
-  <br>
-  <button id="empty-ftp" class="btn btn-default">Empty FTP</button>
-
 </div>
