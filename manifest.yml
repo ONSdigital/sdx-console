@@ -6,6 +6,11 @@ applications:
   env:
     CF_DEPLOYMENT: True
     SDX_STORE_URL: http://sdx-store.apps.devtest.onsclofo.uk:8080
+    SDX_VALIDATE_URL: http://sdx-validate.apps.devtest.onsclofo.uk:8080
+    RABBIT_SURVEY_QUEUE: survey
+    FTP_HOST: sdx-ftp.apps.devtest.onsclofo.uk
+    FTP_USER: ons
+    FTP_PASS: ons
 
   services:
    - sdx-rabbit-dev
