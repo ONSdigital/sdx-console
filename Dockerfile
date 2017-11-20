@@ -17,3 +17,5 @@ RUN apt-get install -yq git gcc make build-essential python3-dev python3-reportl
 RUN make build
 
 ENTRYPOINT ./startup.sh
+
+ENV DEVELOPMENT_MODE True
