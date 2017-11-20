@@ -57,28 +57,6 @@ def mod_to_iso(file_modified):
     return t.isoformat()
 
 
-def get_image(filename):
-
-    filepath, ext = os.path.splitext(filename)
-
-    tmp_image_url = 'static/images/{}/{}'.format(filepath, ext)
-    tmp_image_path = 'console/static/images/{}/{}'.format(filepath, ext)
-
-    if os.path.exists(tmp_image_path):
-        os.unlink(tmp_image_path)
-
-    with ConsoleFtp() as ftp:
-        ftp._ftp.retrbinary("RETR " + PATHS['image'] + filename, open(tmp_image_path, 'wb').write)
-
-    return tmp_image_url
-
-
-def get_file_contents(datatype, filename):
-
-    with ConsoleFtp() as ftp:
-        return ftp.get_file_contents(datatype, filename)
-
-
 def send_data(logger, url, data=None, json=None, request_type="POST"):
     response_logger = logger.bind(url=url)
     try:

@@ -12,7 +12,8 @@ from structlog import wrap_logger
 
 import console.settings as settings
 from console import app
-from console.console_ftp import ConsoleFtp, PATHS
+from console.console_ftp import ConsoleFtp
+from console.console_ftp import PATHS
 from sdc.rabbit import QueuePublisher
 
 logger = wrap_logger(logging.getLogger(__name__))
@@ -55,14 +56,14 @@ def get_image(filename):
 
     filepath, ext = os.path.splitext(filename)
 
-    tmp_image_url = 'static/images/{}/{}'.format(filepath, ext)
-    tmp_image_path = 'console/static/images/{}/{}'.format(filepath, ext)
+    tmp_image_url = 'static/images/{}'.format(filepath)
+    tmp_image_path = 'console/static/images/{}'.format(filepath)
 
     if os.path.exists(tmp_image_path):
         os.unlink(tmp_image_path)
 
     with ConsoleFtp() as ftp:
-        ftp._ftp.retrbinary("RETR " + PATHS['image'] + filename, open(tmp_image_path, 'wb').write)
+        ftp._ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
 
     return tmp_image_url
 
@@ -90,6 +91,19 @@ def client_error(error=None):
     resp.status_code = 400
 
     return resp
+
+
+@FTP_bp.route('/ftp.json')
+def ftp_list():
+    return jsonify(get_ftp_contents())
+
+
+@FTP_bp.route('/view/<datatype>/<filename>')
+def view_file(datatype, filename):
+    if filename.lower().endswith(('jpg', 'png')):
+        return '<img style="width:100%;" src="/' + get_image(filename) + '.jpg" />'
+    else:
+        return '<pre>' + get_file_contents(datatype, filename) + '</pre>'
 
 
 @FTP_bp.route('/clear')
