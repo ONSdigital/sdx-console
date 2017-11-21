@@ -9,15 +9,16 @@
   </header>
 </div>
 
-<div class="bar " role="banner">
+<div class="bar" role="banner">
   <div class="bar__inner container">
-    <div class="ons-application-title bar__title venus" style="text-align: left; position: relative;"> SDX Console </div>
-    <div class="ons-application-title bar__title venus" style="text-align: right; position: relative;">
-      {% if current_user.is_authenticated %}
-        Logged in as: {{current_user.email}}
-      {% else %}
-        You are not logged in.
-      {% endif %}
+    <div class="ons-application-title bar__title venus"> SDX Console
+      <p class="mars">
+        {% if current_user.is_authenticated %}
+          Logged in as: {{current_user.email}}
+        {% else %}
+          You are not logged in.
+        {% endif %}
+      </p>
     </div>
   </div>
 </div>

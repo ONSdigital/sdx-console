@@ -134,8 +134,8 @@ $(function () {
         var postData = get_survey_data();
         $(".alert").hide();
         asyncPostJSON("/validate", postData).then(function (data) {
-            window.alert(data);
-            if (data.valid === true) {
+            var json_data = JSON.parse(data)
+            if (json_data.valid === true) {
                 $(".alert").removeClass("alert-success alert-danger hidden");
                 $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Validation result: " + data);
                 $(".alert").show();
@@ -215,7 +215,7 @@ $(function () {
             $("#refresh-ftp").hide();
 
             // recurse:
-            setTimeout(refreshFTP, 2000);
+            setTimeout(refreshFTP, 5000);
 
         }, function (error) {
             $("#refresh-ftp").hide();
