@@ -134,8 +134,8 @@ $(function () {
         var postData = get_survey_data();
         $(".alert").hide();
         asyncPostJSON("/validate", postData).then(function (data) {
-            var json_data = JSON.parse(data)
-            if (json_data.valid === true) {
+            var jsonData = JSON.parse(data);
+            if (jsonData.valid === true) {
                 $(".alert").removeClass("alert-success alert-danger hidden");
                 $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Validation result: " + data);
                 $(".alert").show();
