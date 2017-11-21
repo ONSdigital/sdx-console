@@ -8,6 +8,7 @@ LOGGING_LEVEL = logging.getLevelName(os.getenv('LOGGING_LEVEL', 'DEBUG'))
 LOGGING_FORMAT = "%(asctime)s.%(msecs)06dZ|%(levelname)s: sdx-console: %(message)s"
 
 logger = wrap_logger(logging.getLogger(__name__))
+DEVELOPMENT_MODE = os.getenv('DEVELOPMENT_MODE', False)
 
 DB_HOST = os.getenv('POSTGRES_HOST', '0.0.0.0')
 DB_PORT = os.getenv('POSTGRES_PORT', '5432')

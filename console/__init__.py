@@ -33,6 +33,7 @@ app.config['SECRET_KEY'] = settings.SECRET_KEY
 app.config['SECURITY_PASSWORD_SALT'] = settings.SECURITY_PASSWORD_SALT
 app.config['WTF_CSRF_ENABLED'] = False
 app.config['USE_MLSD'] = True
+app.config['DEVELOPMENT_MODE'] = settings.DEVELOPMENT_MODE
 
 user_datastore = SQLAlchemySessionUserDatastore(db_session, FlaskUser, Role)
 security = flask_security.Security(app, user_datastore, login_form=LoginFormExtended)
@@ -98,8 +99,11 @@ def session_timeout():
 @app.before_first_request
 def before_first_request():
     init_db()
-    create_initial_users()
-    db_session.commit()
+    # If we're not in development mode, assume that postgres has been provisioned
+    # with the correct usernames and passwords.
+    if settings.DEVELOPMENT_MODE:
+        create_initial_users()
+        db_session.commit()
 
 
 import console.views  # noqa
