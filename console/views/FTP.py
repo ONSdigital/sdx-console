@@ -14,7 +14,6 @@ import console.settings as settings
 from console import app
 from console.console_ftp import ConsoleFtp
 from console.console_ftp import PATHS
-from sdc.rabbit import QueuePublisher
 
 logger = wrap_logger(logging.getLogger(__name__))
 
