@@ -101,7 +101,7 @@ def ftp_list():
 @FTP_bp.route('/view/<datatype>/<filename>')
 def view_file(datatype, filename):
     if filename.lower().endswith(('jpg', 'png')):
-        return '<img style="width:100%;" src="/' + get_image(filename) + '.jpg" />'
+        return '<img style="width:100%;" src="/' + get_image(filename) + '" />'
     else:
         return '<pre>' + get_file_contents(datatype, filename) + '</pre>'
 

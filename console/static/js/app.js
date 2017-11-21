@@ -163,20 +163,22 @@ $(function () {
 
     $("#empty-ftp").on("click", function (event) {
         $(".alert").hide();
-        asyncGetJSON("/clear").then(function (data) {
-            for (var i in dataTypes) {
-                var dataType = dataTypes[i];
-                $("#" + dataType + "-data tbody").empty();
-            }
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Cleared " + data.removed + " files from FTP");
-            $(".alert").show();
-            window.alert("Cleared " + data.removed + " files from FTP");
-        }, function (error) {
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-danger").text("Error on emptying ftp");
-            $(".alert").show();
-        });
+        if (window.confirm("Are you sure you want to clear the FTP?")) {
+            asyncGetJSON("/clear").then(function (data) {
+                for (var i in dataTypes) {
+                    var dataType = dataTypes[i];
+                    $("#" + dataType + "-data tbody").empty();
+                }
+                $(".alert").removeClass("alert-success alert-danger hidden");
+                $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Cleared " + data.removed + " files from FTP");
+                $(".alert").show();
+                window.alert("Cleared " + data.removed + " files from FTP");
+            }, function (error) {
+                $(".alert").removeClass("alert-success alert-danger hidden");
+                $(".alert").addClass("alert-danger").text("Error on emptying ftp");
+                $(".alert").show();
+            });
+        }
     });
 
     var dataTypes = ["pck", "image", "index", "receipt"];
