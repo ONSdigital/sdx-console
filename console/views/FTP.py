@@ -33,20 +33,6 @@ def get_ftp_contents():
     return ftp_data
 
 
-def list_surveys():
-    return [f for f in os.listdir('console/static/surveys') if os.path.isfile(os.path.join('console/static/surveys', f))]
-
-
-def send_payload(payload, tx_id, no_of_submissions=1):
-    logger.debug(" [x] Sending encrypted Payload")
-
-    publisher = QueuePublisher(settings.RABBIT_URLS, settings.RABBIT_QUEUE)
-    for _ in range(no_of_submissions):
-        publisher.publish_message(payload, headers={'tx_id': tx_id})
-
-    logger.debug(" [x] Sent Payload to rabbitmq!")
-
-
 def mod_to_iso(file_modified):
     t = datetime.strptime(file_modified, '%Y%m%d%H%M%S')
     return t.isoformat()

@@ -26,18 +26,6 @@ logger = wrap_logger(logging.getLogger(__name__))
 submit_bp = Blueprint('submit_bp', __name__, static_folder='static', template_folder='templates')
 
 
-def get_ftp_contents():
-
-    ftp_data = {}
-    with ConsoleFtp() as ftp:
-        ftp_data["pck"] = ftp.get_folder_contents(PATHS["pck"])[0:10]
-        ftp_data["index"] = ftp.get_folder_contents(PATHS["index"])[0:10]
-        ftp_data["image"] = ftp.get_folder_contents(PATHS["image"])[0:10]
-        ftp_data["receipt"] = ftp.get_folder_contents(PATHS["receipt"])[0:10]
-
-    return ftp_data
-
-
 def list_surveys():
     return [f for f in os.listdir('console/static/surveys') if os.path.isfile(os.path.join('console/static/surveys', f))]
 
@@ -147,11 +135,6 @@ def validate():
     else:
         logger.info('Failed validation')
         return render_template('submit.html')
-
-
-@submit_bp.route('/ftp.json')
-def ftp_list():
-    return jsonify(get_ftp_contents())
 
 
 @submit_bp.route('/clear')
