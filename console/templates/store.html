@@ -20,7 +20,7 @@
           <input type="radio" name="valid" value="invalid"> Invalid <br> <br>
 
           <label class="col-md-1 control-label" for="tx_id">tx_id:</label> <br>
-          <input type="text" class="form-control" id="tx_id" name="tx_id"> <br>
+          {{ form.tx_id }}<br>
 
           <label class="col-md-1 control-label" for="ru_ref">ru_ref:</label> <br>
           <input type="text" class="form-control" id="ru_ref" name="ru_ref"> <br>
@@ -38,6 +38,13 @@
         <span class="input-group-btn">
             <button class="btn btn-default" type="submit">Search</button>
         </span>
+        {% if form.errors %}
+            <ul class=errors>
+            {% for error in form.errors %}
+              <li>{{error}} : {{ form.errors[error][0] }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
       </div>
     </div>
   </form>
