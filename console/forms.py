@@ -25,6 +25,7 @@ class NewUserForm(Form):
             msg = '{} should have atleast one number'.format(field.name)
             raise ValidationError(msg)
 
+
 class StoreForm(Form):
     tx_id = StringField('tx_id', validators=[
         Length(max=36),
