@@ -100,14 +100,17 @@ def store(page):
     datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
     datetime_latest = request.args.get('datetime_latest', type=str, default='')
 
-    form = StoreForm(tx_id=tx_id)
+    form = StoreForm(
+        tx_id=tx_id,
+        ru_ref=ru_ref,
+        survey_id=survey_id
+    )
+
     if form.validate():
         store_data = get_filtered_responses(
             audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
     else:
-        # If validation unsuccessful, pretend it was an empty search to give user
-        # more than an empty results table to look at
-        store_data = get_filtered_responses(audited_logger, '', '', '', '', '', '')
+        store_data = []
 
     audited_logger.info("Successfully retrieved responses")
 
