@@ -110,9 +110,7 @@ def store(page):
         store_data = get_filtered_responses(
             audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
     else:
-        # If validation unsuccessful, pretend it was an empty search to give user
-        # more than an empty results table to look at
-        store_data = get_filtered_responses(audited_logger, '', '', '', '', '', '')
+        store_data = []
 
     audited_logger.info("Successfully retrieved responses")
 
