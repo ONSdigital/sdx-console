@@ -31,6 +31,7 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
         if valid == "invalid":
             q = q.filter(SurveyResponse.invalid)
         elif valid == "valid":
+            logger.info("omgish inhere!!!!", blah=not SurveyResponse.invalid)
             q = q.filter(not SurveyResponse.invalid)
         if tx_id != '':
             q = q.filter(SurveyResponse.tx_id == tx_id)
@@ -100,7 +101,7 @@ def store(page):
     datetime_latest = request.args.get('datetime_latest', type=str, default='')
 
     form = StoreForm(
-        request.form
+        valid = valid,
         tx_id=tx_id,
         ru_ref=ru_ref,
         survey_id=survey_id,

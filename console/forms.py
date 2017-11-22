@@ -2,7 +2,7 @@ import re
 import uuid
 
 from flask_wtf import Form
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, RadioField
 from wtforms.fields.html5 import DateTimeLocalField
 from wtforms.validators import DataRequired, Length, ValidationError
 
@@ -29,6 +29,7 @@ class NewUserForm(Form):
 
 
 class StoreForm(Form):
+    valid = RadioField('valid', choices=[('', 'Both'), ('valid', 'Valid'), ('invalid', 'Invalid')])
     tx_id = StringField('tx_id')
     ru_ref = StringField('ru_ref')
     survey_id = StringField('survey_id')
