@@ -3,6 +3,7 @@ import uuid
 
 from flask_wtf import Form
 from wtforms import StringField, PasswordField
+from wtforms.fields.html5 import DateTimeLocalField
 from wtforms.validators import DataRequired, Length, ValidationError
 
 
@@ -31,6 +32,8 @@ class StoreForm(Form):
     tx_id = StringField('tx_id')
     ru_ref = StringField('ru_ref')
     survey_id = StringField('survey_id')
+    datetime_earliest = DateTimeLocalField('datetime_earliest')
+    datetime_latest = DateTimeLocalField('datetime_latest')
 
     @staticmethod
     def validate_tx_id(form, field):

@@ -92,7 +92,6 @@ def reprocess_submission():
 @flask_security.login_required
 def store(page):
     audited_logger = logger.bind(user=flask_security.core.current_user.email)
-
     valid = request.args.get('valid', type=str, default='')
     tx_id = request.args.get('tx_id', type=str, default='')
     ru_ref = request.args.get('ru_ref', type=str, default='')
@@ -101,18 +100,19 @@ def store(page):
     datetime_latest = request.args.get('datetime_latest', type=str, default='')
 
     form = StoreForm(
+        request.form
         tx_id=tx_id,
         ru_ref=ru_ref,
-        survey_id=survey_id
+        survey_id=survey_id,
+        datetime_earliest = datetime_earliest,
+        datetime_latest = datetime_latest
     )
 
     if form.validate():
         store_data = get_filtered_responses(
             audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
     else:
-        # If validation unsuccessful, pretend it was an empty search to give user
-        # more than an empty results table to look at
-        store_data = get_filtered_responses(audited_logger, '', '', '', '', '', '')
+        store_data = []
 
     audited_logger.info("Successfully retrieved responses")
 
