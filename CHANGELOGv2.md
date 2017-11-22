@@ -31,3 +31,4 @@
   - Improve UX throughout
   - Add submitter functionality
   - Remove sdx-common logging
+  - Add validation on tx_id search to force a valid UUID string to be entered

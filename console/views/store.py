@@ -14,6 +14,7 @@ from structlog import wrap_logger
 
 from console import settings
 from console.database import db_session
+from console.forms import StoreForm
 from console.models import SurveyResponse
 from console.views.submit import send_data
 from sdc.rabbit import QueuePublisher
@@ -99,8 +100,14 @@ def store(page):
     datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
     datetime_latest = request.args.get('datetime_latest', type=str, default='')
 
-    store_data = get_filtered_responses(
-        audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
+    form = StoreForm(tx_id=tx_id)
+    if form.validate():
+        store_data = get_filtered_responses(
+            audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
+    else:
+        # If validation unsuccessful, pretend it was an empty search to give user
+        # more than an empty results table to look at
+        store_data = get_filtered_responses(audited_logger, '', '', '', '', '', '')
 
     audited_logger.info("Successfully retrieved responses")
 
@@ -112,7 +119,8 @@ def store(page):
                            data=json_list,
                            no_pages=no_pages,
                            page=int(page),
-                           current_user=flask_security.core.current_user)
+                           current_user=flask_security.core.current_user,
+                           form=form)
 
 
 @store_bp.route('/storetest', strict_slashes=False, methods=['GET'])
