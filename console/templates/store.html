@@ -37,16 +37,17 @@
 
           </div>
 
-        <span class="input-group-btn">
-            <button class="btn btn-default" type="submit">Search</button>
-        </span>
-        {% if form.errors %}
-            <ul class=errors>
-            {% for error in form.errors %}
-              <li>{{error}} : {{ form.errors[error][0] }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
+          <span class="input-group-btn">
+              <button class="btn btn-default" type="submit">Search</button>
+          </span>
+          {% if form.errors %}
+              <ul class=errors>
+              {% for error in form.errors %}
+                <li>{{error}} : {{ form.errors[error][0] }}</li>
+              {% endfor %}
+              </ul>
+          {% endif %}
+        </div>
       </div>
     </form>
 
