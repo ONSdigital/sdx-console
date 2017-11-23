@@ -1,8 +1,9 @@
 import re
+import uuid
 
 from flask_wtf import Form
 from wtforms import StringField, PasswordField
-from wtforms.validators import DataRequired, Length, ValidationError, Regexp
+from wtforms.validators import DataRequired, Length, ValidationError
 
 
 class NewUserForm(Form):
@@ -27,8 +28,18 @@ class NewUserForm(Form):
 
 
 class StoreForm(Form):
-    tx_id = StringField('tx_id', validators=[
-        Length(max=36),
-        Regexp('^[0-9a-f\-]{36}$|^$', message="Field can only contain hexadecimal characters (0-9a-f) and dash (-)"),
-        Regexp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|^$', message="Field must be in the form {8}-{4}-{4}-{4}-{12}"),
-    ])
+    tx_id = StringField('tx_id')
+    ru_ref = StringField('ru_ref')
+    survey_id = StringField('survey_id')
+
+    @staticmethod
+    def validate_tx_id(form, field):
+        data = field.data
+
+        # First if handles the empty string.  Using the UUID() and Optional() rules
+        # were attempted but we couldn't get it to work so this is a workaround.
+        if data:
+            try:
+                uuid.UUID(field.data)
+            except ValueError:
+                raise ValidationError('Invalid UUID.')
