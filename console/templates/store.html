@@ -20,10 +20,7 @@
               <td>{{ subfield }}</td>
               <td>{{ subfield.label }}</td>
             </tr>
-          {% endfor %}
-          <!--<input type="radio" name="valid" value="" checked> Both
-          <input type="radio" name="valid" value="valid"> Valid
-          <input type="radio" name="valid" value="invalid"> Invalid --><br> <br>
+          {% endfor %}<br> <br>
 
           <label class="col-md-1 control-label" for="tx_id">tx_id:</label> <br>
           {{ form.tx_id }}<br>
@@ -35,10 +32,10 @@
           {{ form.survey_id }}<br> <br>
 
           <label class="col-md-1 control-label" for="datetime_earliest">datetime_earliest: </label>
-          {{ form.datetime_earliest }} <br>
+          {{ form.datetime_earliest }}<br>
 
           <label class="col-md-1 control-label" for="datetime_latest">datetime_latest: </label>
-          {{ form.datetime_latest }} <br> <br>
+          {{ form.datetime_latest }}<br> <br>
 
         </div>
         <span class="input-group-btn">

@@ -33,8 +33,8 @@ class StoreForm(Form):
     tx_id = StringField('tx_id')
     ru_ref = StringField('ru_ref')
     survey_id = StringField('survey_id')
-    datetime_earliest = DateTimeLocalField('datetime_earliest')
-    datetime_latest = DateTimeLocalField('datetime_latest')
+    datetime_earliest = DateTimeLocalField('datetime_earliest', format='%Y-%m-%dT%H:%M')
+    datetime_latest = DateTimeLocalField('datetime_latest', format='%Y-%m-%dT%H:%M')
 
     @staticmethod
     def validate_tx_id(form, field):

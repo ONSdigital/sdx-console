@@ -31,8 +31,7 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
         if valid == "invalid":
             q = q.filter(SurveyResponse.invalid)
         elif valid == "valid":
-            logger.info("omgish inhere!!!!", blah=not SurveyResponse.invalid)
-            q = q.filter(not SurveyResponse.invalid)
+            q = q.filter(SurveyResponse.invalid == False)
         if tx_id != '':
             q = q.filter(SurveyResponse.tx_id == tx_id)
         if ru_ref != '':
@@ -100,13 +99,24 @@ def store(page):
     datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
     datetime_latest = request.args.get('datetime_latest', type=str, default='')
 
+    # These two variables are either empty, or datetime objects.  A separate variable had
+    # to be used as we need the string representation for the database filter and a
+    # datetime representation of the date for the StoreForm object.
+    datetime_earliest_value = None
+    datetime_latest_value = None
+    if datetime_earliest:
+        datetime_earliest_value = datetime.strptime(datetime_earliest, '%Y-%m-%dT%H:%M')
+
+    if datetime_latest:
+        datetime_latest_value = datetime.strptime(datetime_latest, '%Y-%m-%dT%H:%M')
+
     form = StoreForm(
         valid = valid,
         tx_id=tx_id,
         ru_ref=ru_ref,
         survey_id=survey_id,
-        datetime_earliest = datetime_earliest,
-        datetime_latest = datetime_latest
+        datetime_earliest = datetime_earliest_value,
+        datetime_latest = datetime_latest_value
     )
 
     if form.validate():
