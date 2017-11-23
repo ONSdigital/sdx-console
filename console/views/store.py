@@ -31,7 +31,8 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
         if valid == "invalid":
             q = q.filter(SurveyResponse.invalid)
         elif valid == "valid":
-            q = q.filter(SurveyResponse.invalid == False)
+            #  NOQA comment is used == False is the correct syntax, but flake8 disagrees
+            q = q.filter(SurveyResponse.invalid == False)  # NOQA
         if tx_id != '':
             q = q.filter(SurveyResponse.tx_id == tx_id)
         if ru_ref != '':
@@ -111,12 +112,12 @@ def store(page):
         datetime_latest_value = datetime.strptime(datetime_latest, '%Y-%m-%dT%H:%M')
 
     form = StoreForm(
-        valid = valid,
+        valid=valid,
         tx_id=tx_id,
         ru_ref=ru_ref,
         survey_id=survey_id,
-        datetime_earliest = datetime_earliest_value,
-        datetime_latest = datetime_latest_value
+        datetime_earliest=datetime_earliest_value,
+        datetime_latest=datetime_latest_value
     )
 
     if form.validate():
