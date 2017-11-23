@@ -31,7 +31,7 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
         if valid == "invalid":
             q = q.filter(SurveyResponse.invalid)
         elif valid == "valid":
-            #  NOQA comment is used == False is the correct syntax, but flake8 disagrees
+            #  NOQA comment is used because == False is the correct syntax, but flake8 disagrees
             q = q.filter(SurveyResponse.invalid == False)  # NOQA
         if tx_id != '':
             q = q.filter(SurveyResponse.tx_id == tx_id)
@@ -101,7 +101,7 @@ def store(page):
     datetime_latest = request.args.get('datetime_latest', type=str, default='')
 
     # These two variables are either empty, or datetime objects.  A separate variable had
-    # to be used as we need the string representation for the database filter and a
+    # to be used as we need the string representation of the date for the database filter and a
     # datetime representation of the date for the StoreForm object.
     datetime_earliest_value = None
     datetime_latest_value = None
