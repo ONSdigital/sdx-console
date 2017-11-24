@@ -1,11 +1,5 @@
 <ul class="navigation-tabs navigation-tabs--component">
 
-    <li id="Home"
-        class="navigation-tabs__item navigation-tabs__item--primary {% if request.path == '/home' %} navigation-tabs__item--active {% endif %}">
-        <a href="/home"
-           class="btn btn--secondary btn--border navigation-tabs__tab"> Home </a>
-    </li>
-
     <li id="Submit"
         class="navigation-tabs__item navigation-tabs__item--primary {% if request.path == '/submit' %} navigation-tabs__item--active {% endif %}">
         <a href="/submit"
@@ -16,6 +10,12 @@
         class="navigation-tabs__item navigation-tabs__item--primary {% if request.path == '/store' %} navigation-tabs__item--active {% endif %}">
         <a href="/store"
            class="btn btn--secondary btn--border navigation-tabs__tab"> Store </a>
+    </li>
+
+    <li id="FTP"
+        class="navigation-tabs__item navigation-tabs__item--primary {% if request.path == '/FTP' %} navigation-tabs__item--active {% endif %}">
+        <a href="/FTP"
+           class="btn btn--secondary btn--border navigation-tabs__tab"> FTP </a>
     </li>
 
     <li id="Add User"

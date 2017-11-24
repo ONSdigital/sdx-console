@@ -16,7 +16,7 @@ from console import settings
 from console.database import db_session
 from console.forms import StoreForm
 from console.models import SurveyResponse
-from console.views.home import send_data
+from console.views.submit import send_data
 from sdc.rabbit import QueuePublisher
 
 logger = wrap_logger(logging.getLogger(__name__))

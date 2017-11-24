@@ -134,8 +134,8 @@ $(function () {
         var postData = get_survey_data();
         $(".alert").hide();
         asyncPostJSON("/validate", postData).then(function (data) {
-            window.alert(data);
-            if (data.valid === true) {
+            var jsonData = JSON.parse(data);
+            if (jsonData.valid === true) {
                 $(".alert").removeClass("alert-success alert-danger hidden");
                 $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Validation result: " + data);
                 $(".alert").show();
@@ -155,7 +155,7 @@ $(function () {
 
     $("#survey-selector").on("change", function (event) {
         asyncGet("/static/surveys/" + $(event.target).val()).then(function (data) {
-            $("#post-data").text(data);
+            $("#post-data").val(data);
         }, function (error) {
             console.error("Failed!", error);
         });
@@ -163,20 +163,22 @@ $(function () {
 
     $("#empty-ftp").on("click", function (event) {
         $(".alert").hide();
-        asyncGetJSON("/clear").then(function (data) {
-            for (var i in dataTypes) {
-                var dataType = dataTypes[i];
-                $("#" + dataType + "-data tbody").empty();
-            }
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Cleared " + data.removed + " files from FTP");
-            $(".alert").show();
-            window.alert("Cleared " + data.removed + " files from FTP");
-        }, function (error) {
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-danger").text("Error on emptying ftp");
-            $(".alert").show();
-        });
+        if (window.confirm("Are you sure you want to clear the FTP?")) {
+            asyncGetJSON("/clear").then(function (data) {
+                for (var i in dataTypes) {
+                    var dataType = dataTypes[i];
+                    $("#" + dataType + "-data tbody").empty();
+                }
+                $(".alert").removeClass("alert-success alert-danger hidden");
+                $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Cleared " + data.removed + " files from FTP");
+                $(".alert").show();
+                window.alert("Cleared " + data.removed + " files from FTP");
+            }, function (error) {
+                $(".alert").removeClass("alert-success alert-danger hidden");
+                $(".alert").addClass("alert-danger").text("Error on emptying ftp");
+                $(".alert").show();
+            });
+        }
     });
 
     var dataTypes = ["pck", "image", "index", "receipt"];
@@ -213,7 +215,7 @@ $(function () {
             $("#refresh-ftp").hide();
 
             // recurse:
-            setTimeout(refreshFTP, 2000);
+            setTimeout(refreshFTP, 5000);
 
         }, function (error) {
             $("#refresh-ftp").hide();
@@ -243,3 +245,22 @@ $(function () {
     refreshFTP();
 
 });
+
+
+    function checkAll(ele) {
+        var checkboxes = document.getElementsByTagName('input');
+        if (ele.checked) {
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].type == 'checkbox') {
+                    checkboxes[i].checked = true;
+                }
+            }
+        } else {
+            for (var i = 0; i < checkboxes.length; i++) {
+                console.log(i)
+                if (checkboxes[i].type == 'checkbox') {
+                    checkboxes[i].checked = false;
+                }
+            }
+        }
+    }

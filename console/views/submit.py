@@ -14,8 +14,7 @@ from flask import request
 from structlog import wrap_logger
 
 import console.settings as settings
-from console import app
-from console.console_ftp import ConsoleFtp, PATHS
+from console.helpers.exceptions import ClientError, ServiceError
 from sdc.crypto.encrypter import encrypt
 from sdc.crypto.key_store import KeyStore
 from sdc.rabbit import QueuePublisher
@@ -23,18 +22,6 @@ from sdc.rabbit import QueuePublisher
 logger = wrap_logger(logging.getLogger(__name__))
 
 submit_bp = Blueprint('submit_bp', __name__, static_folder='static', template_folder='templates')
-
-
-def get_ftp_contents():
-
-    ftp_data = {}
-    with ConsoleFtp() as ftp:
-        ftp_data["pck"] = ftp.get_folder_contents(PATHS["pck"])[0:10]
-        ftp_data["index"] = ftp.get_folder_contents(PATHS["index"])[0:10]
-        ftp_data["image"] = ftp.get_folder_contents(PATHS["image"])[0:10]
-        ftp_data["receipt"] = ftp.get_folder_contents(PATHS["receipt"])[0:10]
-
-    return ftp_data
 
 
 def list_surveys():
@@ -56,26 +43,32 @@ def mod_to_iso(file_modified):
     return t.isoformat()
 
 
-def get_image(filename):
+def send_data(logger, url, data=None, json=None, request_type="POST"):
+    response_logger = logger.bind(url=url)
+    try:
+        if request_type == "POST":
+            response_logger.info("Sending POST request")
+            if data:
+                r = requests.post(url, data=data)
+            elif json:
+                r = requests.post(url, json=json)
+        elif request_type == "GET":
+            response_logger.info("Sending GET request")
+            r = requests.get(url)
+    except requests.exceptions.ConnectionError as e:
+        response_logger.error("Failed to connect to service", response="Connection error")
+        raise e
 
-    filepath, ext = os.path.splitext(filename)
+    if 199 < r.status_code < 300:
+        logger.info('Returned from service', response=r.reason, status_code=r.status_code)
+    elif 399 < r.status_code < 500:
+        logger.error('Returned from service', response=r.reason, status_code=r.status_code)
+        raise ClientError(url=url, message=r.reason, status_code=r.status_code)
+    elif r.status_code > 499:
+        logger.error('Returned from service', response=r.reason, status_code=r.status_code)
+        raise ServiceError(url=url, message=r.reason, status_code=r.status_code)
 
-    tmp_image_url = 'static/images/{}/{}'.format(filepath, ext)
-    tmp_image_path = 'console/static/images/{}/{}'.format(filepath, ext)
-
-    if os.path.exists(tmp_image_path):
-        os.unlink(tmp_image_path)
-
-    with ConsoleFtp() as ftp:
-        ftp._ftp.retrbinary("RETR " + PATHS['image'] + filename, open(tmp_image_path, 'wb').write)
-
-    return tmp_image_url
-
-
-def get_file_contents(datatype, filename):
-
-    with ConsoleFtp() as ftp:
-        return ftp.get_file_contents(datatype, filename)
+    return r
 
 
 @submit_bp.route('/submit', methods=['POST', 'GET'])
@@ -112,19 +105,6 @@ def submit():
         return render_template('submit.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
 
 
-def client_error(error=None):
-    logger.error(error)
-    message = {
-        'status': 400,
-        'message': error,
-        'uri': request.url
-    }
-    resp = jsonify(message)
-    resp.status_code = 400
-
-    return resp
-
-
 @submit_bp.route('/validate', methods=['POST', 'GET'])
 def validate():
     if request.method == 'POST':
@@ -140,33 +120,6 @@ def validate():
     else:
         logger.info('Failed validation')
         return render_template('submit.html')
-
-
-@submit_bp.route('/ftp.json')
-def ftp_list():
-    return jsonify(get_ftp_contents())
-
-
-@submit_bp.route('/clear')
-def clear():
-    removed = 0
-
-    with ConsoleFtp() as ftp:
-
-        if app.config['USE_MLSD']:
-            for key, path in PATHS.items():
-                for fname, fmeta in ftp._ftp.mlsd(path=path):
-                    if fname not in ('.', '..'):
-                        ftp._ftp.delete(path + "/" + fname)
-                        removed += 1
-        else:
-            for key, path in PATHS.items():
-                for fname, fmeta in ftp._ftp.nlst(path):
-                    if fname not in ('.', '..'):
-                        ftp._ftp.delete(path + "/" + fname)
-                        removed += 1
-
-        return json.dumps({"removed": removed})
 
 
 @submit_bp.route('/surveys')

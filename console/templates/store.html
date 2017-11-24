@@ -8,91 +8,98 @@
 
 {% include 'partials/navigation_tabs.html' %}
 
-<script text="text/javascript" src="/static/js/get_links.js"></script>
-<div class="col-xs-12">
-  <form id='store-form' class="form-horizontal" action='/store/0'>
-    <div class="form-group">
-      <div class="col-md-11">
-        <div class="input-group">
-          <label class="col-md-1 control-label" for="valid">Valid:</label>
-          {% for subfield in form.valid %}
-            <tr>
-              <td>{{ subfield }}</td>
-              <td>{{ subfield.label }}</td>
-            </tr>
-          {% endfor %}<br> <br>
+<div class="container">
+  <script text="text/javascript" src="/static/js/get_links.js"></script>
+  <div class="col-xs-12">
+    <form id='store-form' class="form-horizontal" action='/store/0'>
+      <div class="form-group">
+        <div class="col-md-11">
+          <div class="input-group">
+            <label class="col-md-1 control-label" for="valid">Valid:</label>
+            {% for subfield in form.valid %}
+              <tr>
+                <td>{{ subfield }}</td>
+                <td>{{ subfield.label }}</td>
+              </tr>
+            {% endfor %}<br> <br>
 
-          <label class="col-md-1 control-label" for="tx_id">tx_id:</label> <br>
-          {{ form.tx_id }}<br>
+            <label class="col-md-1 control-label" for="tx_id">tx_id:</label> <br>
+            {{ form.tx_id }}<br>
 
-          <label class="col-md-1 control-label" for="ru_ref">ru_ref:</label> <br>
-          {{ form.ru_ref }}<br>
+            <label class="col-md-1 control-label" for="ru_ref">ru_ref:</label> <br>
+            {{ form.ru_ref }}<br>
 
-          <label class="col-md-1 control-label" for="survey_id">survey_id:</label> <br>
-          {{ form.survey_id }}<br> <br>
+            <label class="col-md-1 control-label" for="survey_id">survey_id:</label> <br>
+            {{ form.survey_id }}<br> <br>
 
-          <label class="col-md-1 control-label" for="datetime_earliest">datetime_earliest: </label>
-          {{ form.datetime_earliest }}<br>
+            <label class="col-md-1 control-label" for="datetime_earliest">datetime_earliest: </label>
+            {{ form.datetime_earliest }}<br>
 
-          <label class="col-md-1 control-label" for="datetime_latest">datetime_latest: </label>
-          {{ form.datetime_latest }}<br> <br>
+            <label class="col-md-1 control-label" for="datetime_latest">datetime_latest: </label>
+            {{ form.datetime_latest }}<br> <br>
 
+          </div>
+
+          <span class="input-group-btn">
+              <button class="btn btn-default" type="submit">Search</button>
+          </span>
+          {% if form.errors %}
+              <ul class=errors>
+              {% for error in form.errors %}
+                <li>{{error}} : {{ form.errors[error][0] }}</li>
+              {% endfor %}
+              </ul>
+          {% endif %}
         </div>
-        <span class="input-group-btn">
-            <button class="btn btn-default" type="submit">Search</button>
-        </span>
-        {% if form.errors %}
-            <ul class=errors>
-            {% for error in form.errors %}
-              <li>{{error}} : {{ form.errors[error][0] }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
+      </div>
+    </form>
+
+    <div class="table">
+      <table class="table" width="100%">
+        <thead class="table__head table__header-cell--align">
+          <tr>
+            <th class="table__header-cell table__header-cell--align"> tx_id </th>
+            <th class="table__header-cell"> survey_id </th>
+            <th class="table__header-cell"> ru_ref </th>
+            <th class="table__header-cell"> user_id </th>
+            <th class="table__header-cell"> submitted_at </th>
+            <th class="table__header-cell"> invalid </th>
+            <th class="table__header-cell" style="text-align: center;"> Reprocess <input type="checkbox" onchange="checkAll(this)" name="chk[]" /> </th>
+          </tr>
+        </thead>
+        <tbody>
+          <form id="reprocess-form" name='reprocess-form' class="form-horizontal" method='POST' action="/reprocess">
+            {% if request.path == '/store' %}
+            {% else %}
+              {% for item in data[(page*20):((page+1)*20)] %}
+                <tr class="table__row">
+                <td class="table__cell">{{ item.tx_id }}</td>
+                <td class="table__cell">{{ item.survey_id }}</td>
+                <td class="table__cell">{{ item.metadata.ru_ref }}</td>
+                <td class="table__cell">{{ item.metadata.user_id }}</td>
+                <td class="table__cell">{{ item.submitted_at }}</td>
+                <td class="table__cell">{{ item.invalid }}</td>
+                <td class="table__cell" style="text-align: center;">
+                  <input type="checkbox" name="reprocess-tx_id" value="{{ item.tx_id }}">
+                </td>
+                </tr>
+              {% endfor %}
+            {% endif %}
+          </form>
+        </tbody>
+      </table>
+      <br>
+      <button class="btn btn-primary" form="reprocess-form" type="submit" style="float: right;">Reprocess</button>
+
+      <div class="container">
+        <ul id="paglist" class="pagination">
+        </ul>
       </div>
     </div>
-  </form>
-
-  <div class="table">
-    <table class="table" width="100%">
-      <thead class="table__head table__header-cell--align">
-        <tr>
-          <th class="table__header-cell table__header-cell--align"> tx_id </th>
-          <th class="table__header-cell"> survey_id </th>
-          <th class="table__header-cell"> ru_ref </th>
-          <th class="table__header-cell"> user_id </th>
-          <th class="table__header-cell"> submitted_at </th>
-          <th class="table__header-cell"> invalid </th>
-          <th class="table__header-cell"> </th>
-        </tr>
-      </thead>
-      <tbody>
-        <form id="reprocess-form" name='reprocess-form' class="form-horizontal" method='POST' action="/reprocess">
-          {% for item in data[(page*20):((page+1)*20)] %}
-            <tr class="table__row">
-            <td class="table__cell">{{ item.tx_id }}</td>
-            <td class="table__cell">{{ item.survey_id }}</td>
-            <td class="table__cell">{{ item.metadata.ru_ref }}</td>
-            <td class="table__cell">{{ item.metadata.user_id }}</td>
-            <td class="table__cell">{{ item.submitted_at }}</td>
-            <td class="table__cell">{{ item.invalid }}</td>
-            <td class="table__cell" align="center">
-              <input type="checkbox" name="reprocess-tx_id" value="{{ item.tx_id }}" align="center">
-            </td>
-            </tr>
-          {% endfor %}
-          <button class="btn btn-primary" form="reprocess-form" type="submit">Reprocess</button>
-        </form>
-      </tbody>
-    </table>
-    <div class="container">
-      <ul id="paglist" class="pagination">
-      </ul>
-    </div>
+    {% for i in range(page - 4, page + 5) %}
+      <script>genList({{i}}, {{no_pages}});</script>
+      <script>getLinks({{i}});</script>
+    {% endfor %}
   </div>
-  {% for i in range(page - 4, page + 5) %}
-    <script>genList({{i}}, {{no_pages}});</script>
-    <script>getLinks({{i}});</script>
-  {% endfor %}
 </div>
-
 {% endblock content %}

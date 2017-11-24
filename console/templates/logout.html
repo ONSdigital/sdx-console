@@ -8,7 +8,7 @@
 
 {% include 'partials/navigation_tabs.html' %}
 
-<div class='container'>
+<div class="container">
   <div class="row">
     <div class="col-sm-6">
       {% if current_user.is_authenticated %}
@@ -16,7 +16,7 @@
       {% else %}
         You have been logged out.<br>
         To use this service you need to
-        <a href="{{ url_for('security.login', next='home')}}"> log in</a>
+        <a href="{{ url_for('security.login', next='submit')}}"> log in</a>
       {% endif %}
     </div>
   </div>

@@ -14,8 +14,8 @@ logger = wrap_logger(logging.getLogger(__name__))
 
 
 @app.route('/')
-def localhost_home():
-    return redirect(url_for('home_bp.home'))
+def localhost_to_submit():
+    return redirect(url_for('submit_bp.submit'))
 
 if __name__ == '__main__':
     logging.basicConfig(format=LOGGING_FORMAT,
