@@ -16,9 +16,12 @@
         <div class="col-md-11">
           <div class="input-group">
             <label class="col-md-1 control-label" for="valid">Valid:</label>
-            <input type="radio" name="valid" value="" checked> Both
-            <input type="radio" name="valid" value="valid"> Valid
-            <input type="radio" name="valid" value="invalid"> Invalid <br> <br>
+            {% for subfield in form.valid %}
+              <tr>
+                <td>{{ subfield }}</td>
+                <td>{{ subfield.label }}</td>
+              </tr>
+            {% endfor %}<br> <br>
 
             <label class="col-md-1 control-label" for="tx_id">tx_id:</label> <br>
             {{ form.tx_id }}<br>
@@ -30,10 +33,10 @@
             {{ form.survey_id }}<br> <br>
 
             <label class="col-md-1 control-label" for="datetime_earliest">datetime_earliest: </label>
-            <input type="datetime-local" class="form-control" id="datetime_earliest" name="datetime_earliest"> <br>
+            {{ form.datetime_earliest }}<br>
 
             <label class="col-md-1 control-label" for="datetime_latest">datetime_latest: </label>
-            <input type="datetime-local" class="form-control" id="datetime_latest" name="datetime_latest"> <br> <br>
+            {{ form.datetime_latest }}<br> <br>
 
           </div>
 
