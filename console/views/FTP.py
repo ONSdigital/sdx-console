@@ -7,7 +7,6 @@ import flask_security
 from flask import Blueprint
 from flask import jsonify
 from flask import render_template
-from flask import request
 from structlog import wrap_logger
 
 import console.settings as settings

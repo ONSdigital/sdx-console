@@ -14,8 +14,6 @@ from flask import request
 from structlog import wrap_logger
 
 import console.settings as settings
-from console import app
-from console.console_ftp import ConsoleFtp, PATHS
 from console.helpers.exceptions import ClientError, ServiceError
 from sdc.crypto.encrypter import encrypt
 from sdc.crypto.key_store import KeyStore
