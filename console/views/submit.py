@@ -107,19 +107,6 @@ def submit():
         return render_template('submit.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
 
 
-def client_error(error=None):
-    logger.error(error)
-    message = {
-        'status': 400,
-        'message': error,
-        'uri': request.url
-    }
-    resp = jsonify(message)
-    resp.status_code = 400
-
-    return resp
-
-
 @submit_bp.route('/validate', methods=['POST', 'GET'])
 def validate():
     if request.method == 'POST':
@@ -135,28 +122,6 @@ def validate():
     else:
         logger.info('Failed validation')
         return render_template('submit.html')
-
-
-@submit_bp.route('/clear')
-def clear():
-    removed = 0
-
-    with ConsoleFtp() as ftp:
-
-        if app.config['USE_MLSD']:
-            for key, path in PATHS.items():
-                for fname, fmeta in ftp._ftp.mlsd(path=path):
-                    if fname not in ('.', '..'):
-                        ftp._ftp.delete(path + "/" + fname)
-                        removed += 1
-        else:
-            for key, path in PATHS.items():
-                for fname, fmeta in ftp._ftp.nlst(path):
-                    if fname not in ('.', '..'):
-                        ftp._ftp.delete(path + "/" + fname)
-                        removed += 1
-
-        return json.dumps({"removed": removed})
 
 
 @submit_bp.route('/surveys')

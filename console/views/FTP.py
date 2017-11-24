@@ -39,7 +39,7 @@ def mod_to_iso(file_modified):
 
 def get_image(filename):
 
-    filepath, ext = os.path.splitext(filename)
+    filepath, _ = os.path.splitext(filename)
 
     tmp_image_url = 'static/images/{}'.format(filepath)
     tmp_image_path = 'console/static/images/{}'.format(filepath)
@@ -65,19 +65,6 @@ def ftp_home():
     return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
 
 
-def client_error(error=None):
-    logger.error(error)
-    message = {
-        'status': 400,
-        'message': error,
-        'uri': request.url
-    }
-    resp = jsonify(message)
-    resp.status_code = 400
-
-    return resp
-
-
 @FTP_bp.route('/ftp.json')
 def ftp_list():
     return jsonify(get_ftp_contents())
@@ -99,7 +86,7 @@ def clear():
 
         if app.config['USE_MLSD']:
             for key, path in PATHS.items():
-                for fname, fmeta in ftp._ftp.mlsd(path=path):
+                for fname, _ in ftp._ftp.mlsd(path=path):
                     if fname not in ('.', '..'):
                         ftp._ftp.delete(path + "/" + fname)
                         removed += 1
