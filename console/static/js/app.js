@@ -155,7 +155,7 @@ $(function () {
 
     $("#survey-selector").on("change", function (event) {
         asyncGet("/static/surveys/" + $(event.target).val()).then(function (data) {
-            $("#post-data").text(data);
+            $("#post-data").val(data);
         }, function (error) {
             console.error("Failed!", error);
         });
