@@ -1,4 +1,5 @@
 import logging
+<<<<<<< HEAD
 import os
 
 from structlog import wrap_logger
@@ -9,6 +10,12 @@ LOGGING_FORMAT = "%(asctime)s.%(msecs)06dZ|%(levelname)s: sdx-console: %(message
 
 logger = wrap_logger(logging.getLogger(__name__))
 DEVELOPMENT_MODE = os.getenv('DEVELOPMENT_MODE', False)
+=======
+import json
+
+LOGGING_LEVEL = logging.getLevelName(os.getenv('LOGGING_LEVEL', 'DEBUG'))
+LOGGING_FORMAT = "%(asctime)s.%(msecs)06dZ|%(levelname)s: sdx-console: %(message)s"
+>>>>>>> origin
 
 DB_HOST = os.getenv('POSTGRES_HOST', '0.0.0.0')
 DB_PORT = os.getenv('POSTGRES_PORT', '5432')
@@ -32,9 +39,18 @@ WTF_CSRF_ENABLED = False
 
 PORT = os.getenv("PORT", 5000)
 
+<<<<<<< HEAD
 ENABLE_EMPTY_FTP = os.getenv('ENABLE_EMPTY_FTP', 0)
 
 HB_INTERVAL = os.getenv("HB_INTERVAL", 30)
+=======
+# EQ's jwt_test_keys
+EQ_PUBLIC_KEY = get_key(os.getenv('EQ_PUBLIC_KEY', "jwt_test_keys/sdc-submission-signing-sr-public-key.pem"))
+EQ_PRIVATE_KEY = get_key(os.getenv('EQ_PRIVATE_KEY', "jwt_test_keys/sdc-submission-signing-sr-private-key.pem"))
+
+# Posies jwt_test_keys
+PRIVATE_KEY = get_key(os.getenv('PRIVATE_KEY', "jwt_test_keys/sdc-submission-encryption-sdx-private-key.pem"))
+>>>>>>> origin
 
 SDX_STORE_URL = os.getenv("SDX_STORE_URL", "http://sdx-store:5000/responses")
 SDX_VALIDATE_URL = os.getenv("SDX_VALIDATE_URL", "http://sdx-validate:5000/validate")
@@ -49,20 +65,28 @@ SDX_FTP_RECEIPT_PATH = os.getenv("SDX_FTP_RECEIPT_PATH", "EDC_QReceipts")
 
 RABBIT_QUEUE = os.getenv('RABBIT_SURVEY_QUEUE', 'survey')
 
-RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
-    hostname=os.getenv('RABBITMQ_HOST', 'rabbit'),
-    port=os.getenv('RABBITMQ_PORT', 5672),
-    user=os.getenv('RABBITMQ_DEFAULT_USER', 'rabbit'),
-    password=os.getenv('RABBITMQ_DEFAULT_PASS', 'rabbit'),
-    vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
-)
+if os.getenv("CF_DEPLOYMENT", False):
+    vcap_services = os.getenv("VCAP_SERVICES")
+    parsed_vcap_services = json.loads(vcap_services)
+    rabbit_config = parsed_vcap_services.get('rabbitmq')
 
-RABBIT_URL2 = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
-    hostname=os.getenv('RABBITMQ_HOST2', 'rabbit'),
-    port=os.getenv('RABBITMQ_PORT2', 5672),
-    user=os.getenv('RABBITMQ_DEFAULT_USER', 'rabbit'),
-    password=os.getenv('RABBITMQ_DEFAULT_PASS', 'rabbit'),
-    vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
-)
+    RABBIT_URL = rabbit_config[0].get('credentials').get('uri')
+    RABBIT_URL2 = rabbit_config[1].get('credentials').get('uri') if len(rabbit_config) > 1 else RABBIT_URL
+else:
+    RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
+        hostname=os.getenv('RABBITMQ_HOST', 'rabbit'),
+        port=os.getenv('RABBITMQ_PORT', 5672),
+        user=os.getenv('RABBITMQ_DEFAULT_USER', 'rabbit'),
+        password=os.getenv('RABBITMQ_DEFAULT_PASS', 'rabbit'),
+        vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
+    )
+
+    RABBIT_URL2 = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
+        hostname=os.getenv('RABBITMQ_HOST2', 'rabbit'),
+        port=os.getenv('RABBITMQ_PORT2', 5672),
+        user=os.getenv('RABBITMQ_DEFAULT_USER', 'rabbit'),
+        password=os.getenv('RABBITMQ_DEFAULT_PASS', 'rabbit'),
+        vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
+    )
 
 RABBIT_URLS = [RABBIT_URL, RABBIT_URL2]

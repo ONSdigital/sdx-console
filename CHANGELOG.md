@@ -1,5 +1,9 @@
 ### Unreleased
 
+### 1.6.0 2017-11-21
+  - Remove sdx-common logging and move logging code back into the repo
+  - Add Cloudfoundry deployment files
+
 ### 1.5.1 2017-10-25
   - Add KID hash to the encrypter
 
