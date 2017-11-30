@@ -1,5 +1,8 @@
 ### Unreleased
 
+### 1.7.0 2017-11-30
+  - Deploying new console
+
 ### 1.6.0 2017-11-21
   - Remove sdx-common logging and move logging code back into the repo
   - Add Cloudfoundry deployment files
