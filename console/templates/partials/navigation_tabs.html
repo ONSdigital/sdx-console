@@ -1,0 +1,32 @@
+<ul class="navigation-tabs navigation-tabs--component">
+
+    <li id="Submit"
+        class="navigation-tabs__item navigation-tabs__item--primary {% if request.path == '/submit' %} navigation-tabs__item--active {% endif %}">
+        <a href="/submit"
+           class="btn btn--secondary btn--border navigation-tabs__tab"> Submit </a>
+    </li>
+
+    <li id="Store"
+        class="navigation-tabs__item navigation-tabs__item--primary {% if request.path == '/store' %} navigation-tabs__item--active {% endif %}">
+        <a href="/store"
+           class="btn btn--secondary btn--border navigation-tabs__tab"> Store </a>
+    </li>
+
+    <li id="FTP"
+        class="navigation-tabs__item navigation-tabs__item--primary {% if request.path == '/FTP' %} navigation-tabs__item--active {% endif %}">
+        <a href="/FTP"
+           class="btn btn--secondary btn--border navigation-tabs__tab"> FTP </a>
+    </li>
+
+    <li id="Add User"
+        class="navigation-tabs__item navigation-tabs__item--primary {% if request.path == '/add_user' %} navigation-tabs__item--active {% endif %}">
+        <a href="/add_user"
+           class="btn btn--secondary btn--border navigation-tabs__tab"> Add User </a>
+    </li>
+
+    <li id="Logout"
+        class="navigation-tabs__item navigation-tabs__item--primary">
+        <a href="/logout"
+           class="btn btn--secondary btn--border navigation-tabs__tab"> Logout </a>
+    </li>
+</ul>

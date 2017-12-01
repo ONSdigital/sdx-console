@@ -5,7 +5,7 @@ $(function () {
         return new Promise(function (resolve, reject) {
             // Do the usual XHR stuff
             var req = new XMLHttpRequest();
-            req.open('GET', url, true);
+            req.open("GET", url, true);
 
             req.onload = function () {
                 // This is called even on 404 etc
@@ -70,11 +70,11 @@ $(function () {
 
     function convert_utc_to_local(utc_dt) {
         if (!utc_dt) {
-            return '';
+            return "";
         }
         utcDateTime = moment.utc(utc_dt);
         localDateTime = utcDateTime.local();
-        return localDateTime.format('Y-m-d H:mm:ss');
+        return localDateTime.format("Y-m-d H:mm:ss");
     }
 
     function guid() {
@@ -104,42 +104,27 @@ $(function () {
         return obj;
     }
 
-    $('.utc_datetime').each(function (index, obj) {
+    $(".utc_datetime").each(function (index, obj) {
         obj.innerHTML = convert_utc_to_local(obj.innerHTML);
     });
 
-    $("#submitter-form").on("submit", function (event) {
+    $("#submit-data").on("click", function (event) {
         event.preventDefault();
         var postData = get_survey_data();
         var quantity = $("#survey-quantity").val();
         $(".alert").hide();
-        asyncPostJSON('/', {
+        asyncPostJSON("/submit", {
             "survey": postData,
             "quantity": quantity
         }).then(function (data) {
             $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-success").text("Posted: " + data);
+            $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Posted: " + data);
             $(".alert").show();
         }, function (error) {
             $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-danger").text("Error during submission");
+            $(".alert").addClass("alert panel panel--simple panel--error alert-danger").text("Error during submission");
             $(".alert").show();
-            console.error("Failed!", error);
-        });
-    });
-
-    $("#decrypt-form").on("submit", function (event) {
-        event.preventDefault();
-        var postData = get_survey_data();
-        $(".alert").hide();
-        asyncPostJSON("/decrypt", postData).then(function (data) {
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-success").text("Posted encrypted data: " + data.substr(1, 100) + "...");
-            $(".alert").show();
-        }, function (error) {
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-danger").text("Error during submission");
-            $(".alert").show();
+            window.alert("Failed submission");
             console.error("Failed!", error);
         });
     });
@@ -149,23 +134,28 @@ $(function () {
         var postData = get_survey_data();
         $(".alert").hide();
         asyncPostJSON("/validate", postData).then(function (data) {
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            if (data.valid === true) {
-                $(".alert").addClass('alert-success').text("Validation result: " + JSON.stringify(data));
+            var jsonData = JSON.parse(data);
+            if (jsonData.valid === true) {
+                $(".alert").removeClass("alert-success alert-danger hidden");
+                $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Validation result: " + data);
+                $(".alert").show();
             } else {
-                $(".alert").addClass('alert-danger').text("Validation Error. Result: " + JSON.stringify(data));
+                $(".alert").removeClass("alert-success alert-danger hidden");
+                $(".alert").addClass("alert panel panel--simple panel--error alert-danger").text("Validation Error. Result: " + data);
+                $(".alert").show();
             }
         }, function (error) {
-            $(".alert").removeClass('alert-success alert-danger hidden');
-            $(".alert").addClass('alert-danger').text("Error during validation submission");
+            $(".alert").removeClass("alert-success alert-danger hidden");
+            $(".alert").addClass("alert-danger").text("Error during validation submission");
             $(".alert").show();
+            window.alert("Failed validation");
             console.error("Failed!", error);
         });
     });
 
     $("#survey-selector").on("change", function (event) {
-        asyncGet('/surveys/' + $(event.target).val()).then(function (data) {
-            $("#post-data").text(data);
+        asyncGet("/static/surveys/" + $(event.target).val()).then(function (data) {
+            $("#post-data").val(data);
         }, function (error) {
             console.error("Failed!", error);
         });
@@ -173,41 +163,28 @@ $(function () {
 
     $("#empty-ftp").on("click", function (event) {
         $(".alert").hide();
-        asyncGetJSON('/clear').then(function (data) {
-            for (var i in dataTypes) {
-                var dataType = dataTypes[i];
-                $("#" + dataType + "-data tbody").empty();
-            }
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-success").text("Cleared " + data.removed + " files from FTP");
-            $(".alert").show();
-        }, function (error) {
-            $(".alert").removeClass("alert-success alert-danger hidden");
-            $(".alert").addClass("alert-danger").text("Error on emptying ftp");
-            $(".alert").show();
-        });
-    });
-
-    $(".btn-reprocess").on("click", function (event) {
-        $(".alert").hide();
-        var id = $(this).data("id");
-        $.post("/store", id)
-            .done(function (data) {
+        if (window.confirm("Are you sure you want to clear the FTP?")) {
+            asyncGetJSON("/clear").then(function (data) {
+                for (var i in dataTypes) {
+                    var dataType = dataTypes[i];
+                    $("#" + dataType + "-data tbody").empty();
+                }
                 $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass("alert-success").text("Survey " + data + " queued for processing");
+                $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Cleared " + data.removed + " files from FTP");
                 $(".alert").show();
-            })
-            .fail(function () {
+                window.alert("Cleared " + data.removed + " files from FTP");
+            }, function (error) {
                 $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass("alert-danger").text("Error queuing survey");
+                $(".alert").addClass("alert-danger").text("Error on emptying ftp");
                 $(".alert").show();
             });
+        }
     });
 
-    var dataTypes = ['pck', 'image', 'index', 'receipt'];
+    var dataTypes = ["pck", "image", "index", "receipt"];
 
     function refreshFTP() {
-        $("#ftp-loading-sign").show();
+        $("#refresh-ftp").show();
         asyncGetJSON("/ftp.json").then(function (ftpData) {
 
             for (var i in dataTypes) {
@@ -235,23 +212,23 @@ $(function () {
                     $("#" + dataType + "-data tbody").append($tableRow);
                 });
             }
-            $("#ftp-loading-sign").hide();
+            $("#refresh-ftp").hide();
 
             // recurse:
-            setTimeout(refreshFTP, 2000);
+            setTimeout(refreshFTP, 5000);
 
         }, function (error) {
-            $("#ftp-loading-sign").hide();
+            $("#refresh-ftp").hide();
             console.error("FTP failed!", error);
         });
     }
 
     // on page load stuff:
 
-    asyncGet('/surveys/0.ce2016.json').then(function (response) {
+    asyncGet("/static/surveys/023.0102.heartbeat.json").then(function (response) {
         $("#post-data").text(response);
     }, function (error) {
-        console.error("Failed!", error);
+        console.error("Failed loading survey 023.0102.heartbeat!", error);
     });
 
     asyncGetJSON("/surveys").then(function (surveys) {
@@ -261,10 +238,29 @@ $(function () {
                     .text(surveys[i]));
         }
     }, function (error) {
-        console.error("Failed!", error);
+        console.error("Failed loading surveys!", error);
     });
 
     // kick off the ftp polling:
     refreshFTP();
 
 });
+
+
+    function checkAll(ele) {
+        var checkboxes = document.getElementsByTagName('input');
+        if (ele.checked) {
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].type == 'checkbox') {
+                    checkboxes[i].checked = true;
+                }
+            }
+        } else {
+            for (var i = 0; i < checkboxes.length; i++) {
+                console.log(i)
+                if (checkboxes[i].type == 'checkbox') {
+                    checkboxes[i].checked = false;
+                }
+            }
+        }
+    }

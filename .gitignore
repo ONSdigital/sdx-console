@@ -6,3 +6,5 @@ logs/
 /console/static/images/*.jpg
 tmpfile
 .idea
+.coverage
+.python-version

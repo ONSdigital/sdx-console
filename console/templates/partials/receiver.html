@@ -1,0 +1,45 @@
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+  $( function() {
+    $( "#tabs" ).tabs();
+  } );
+</script>
+
+<h3> Receiver </h3>
+<p>Lists of the <strong>most recent 20 files</strong> to hit the FTP server:</p>
+
+<div id="response-data-wrapper">
+  <div id="tabs">
+    <ul class="navigation-tabs navigation-tabs--component" role="tablist">
+
+      <li class="navigation-tabs__item navigation-tabs__item--primary">
+        <a href="#pcks"
+           class="btn btn--secondary btn--border navigation-tabs__tab">PCKs</a> </li>
+
+      <li class="navigation-tabs__item navigation-tabs__item--primary">
+        <a href="#images"
+           class="btn btn--secondary btn--border navigation-tabs__tab">Images</a> </li>
+
+      <li class="navigation-tabs__item navigation-tabs__item--primary">
+        <a href="#indices"
+           class="btn btn--secondary btn--border navigation-tabs__tab">Indices</a> </li>
+
+      <li class="navigation-tabs__item navigation-tabs__item--primary">
+        <a href="#receipts"
+           class="btn btn--secondary btn--border navigation-tabs__tab">Receipts</a> </li>
+    </ul>
+
+    <div class="tab-content">
+        {% include 'partials/pck_data.html' %}
+
+        {% include 'partials/image_data.html' %}
+
+        {% include 'partials/image_index_data.html' %}
+
+        {% include 'partials/receipts_data.html' %}
+    </div>
+
+    <br>
+    <button id="empty-ftp" class="btn btn-default">Empty FTP</button>
+  </div>
+</div>

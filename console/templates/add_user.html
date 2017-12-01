@@ -1,0 +1,45 @@
+{% import 'partials/section.html' as section %}
+{% extends "layouts/_twocol.html" %}
+
+{% block page_title %} Add User {% endblock %}
+
+
+{% block content %}
+
+{% include 'partials/navigation_tabs.html' %}
+
+<div class="container">
+  <div class="row">
+
+    <div class="col-sm-6">
+      <form class="form-group" action="/add_user" method="POST">
+        <h2>Add a new SDX developer user</h2>
+        <p>
+          Please enter an email for the user:<br>
+          {{ form.email }}<br>
+        </p>
+        <p>
+          Please enter a password for the user:<br>
+          {{ form.password }}<br>
+        </p>
+        {% if form.errors %}
+            <ul class=errors>
+            {% for error in form.errors %}
+              <li>{{error}} : {{ form.errors[error][0] }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+        <input value="Add User" class="btn btn-default" type="submit"><br>
+      </form>
+
+      <br>
+      {% if success %}
+        Added new user {{user}}
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+{% endblock content %}
