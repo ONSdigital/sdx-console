@@ -16,7 +16,7 @@ PATHS = {
     "image": settings.SDX_FTP_IMAGE_PATH + "/Images",
     "index": settings.SDX_FTP_IMAGE_PATH + "/Index",
     "receipt": settings.SDX_FTP_RECEIPT_PATH,
-    "json": settings.SDX_FTP_DATA_PATH
+    "json": settings.SDX_RESPONSE_JSON_PATH
 }
 
 
