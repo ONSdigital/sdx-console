@@ -181,7 +181,7 @@ $(function () {
         }
     });
 
-    var dataTypes = ["pck", "image", "index", "receipt"];
+    var dataTypes = ["pck", "image", "index", "receipt", "json"];
 
     function refreshFTP() {
         $("#refresh-ftp").show();

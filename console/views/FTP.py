@@ -7,6 +7,7 @@ import flask_security
 from flask import Blueprint
 from flask import jsonify
 from flask import render_template
+from flask import request
 from structlog import wrap_logger
 
 import console.settings as settings
@@ -27,6 +28,7 @@ def get_ftp_contents():
         ftp_data["index"] = ftp.get_folder_contents(PATHS["index"])[0:20]
         ftp_data["image"] = ftp.get_folder_contents(PATHS["image"])[0:20]
         ftp_data["receipt"] = ftp.get_folder_contents(PATHS["receipt"])[0:20]
+        ftp_data["json"] = ftp.get_folder_contents(PATHS["json"])[0:20]
 
     return ftp_data
 

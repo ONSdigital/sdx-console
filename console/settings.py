@@ -48,6 +48,8 @@ FTP_PASS = os.getenv('FTP_PASS')
 SDX_FTP_IMAGE_PATH = os.getenv("SDX_FTP_IMAGE_PATH", "EDC_QImages")
 SDX_FTP_DATA_PATH = os.getenv("SDX_FTP_DATA_PATH", "EDC_QData")
 SDX_FTP_RECEIPT_PATH = os.getenv("SDX_FTP_RECEIPT_PATH", "EDC_QReceipts")
+SDX_FTP_RESPONSE_PATH = os.getenv("SDX_FTP_RESPONSE_PATH", "")
+
 
 RABBIT_QUEUE = os.getenv('RABBIT_SURVEY_QUEUE', 'survey')
 
