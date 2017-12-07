@@ -225,10 +225,10 @@ $(function () {
 
     // on page load stuff:
 
-    asyncGet("/static/surveys/023.0102.heartbeat.json").then(function (response) {
+    asyncGet("/static/surveys/139.0001.json").then(function (response) {
         $("#post-data").text(response);
     }, function (error) {
-        console.error("Failed loading survey 023.0102.heartbeat!", error);
+        console.error("Failed loading survey 139.0001!", error);
     });
 
     asyncGetJSON("/surveys").then(function (surveys) {
