@@ -58,6 +58,7 @@ class ConsoleFtp(object):
             pre = []
             self._ftp.dir("{}".format(path), pre.append)
             for unparsed_line in pre:
+                logger.info("Unparsed line", line=unparsed_line)
                 bits = unparsed_line.split()
                 date_string = ' '.join([bits[0], bits[1]])
                 fname = ' '.join(bits[3:])
