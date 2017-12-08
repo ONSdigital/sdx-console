@@ -44,7 +44,9 @@ class ConsoleFtp(object):
 
         file_list = []
 
+        logger.error("about to get folder contents")
         if self._mlsd_enabled:
+            logger.error("in mlsd section")
             for fname, fmeta in self._ftp.mlsd(path=path):
                 if fname not in ('.', '..', '.DS_Store'):
                     meta = {
@@ -55,10 +57,11 @@ class ConsoleFtp(object):
                     file_list.append(meta)
 
         else:
+            logger.error("in nlst section")
             pre = []
             self._ftp.dir("{}".format(path), pre.append)
             for unparsed_line in pre:
-                logger.info("Unparsed line", line=unparsed_line)
+                logger.error("Unparsed line", line=unparsed_line)
                 bits = unparsed_line.split()
                 date_string = ' '.join([bits[0], bits[1]])
                 fname = ' '.join(bits[3:])
