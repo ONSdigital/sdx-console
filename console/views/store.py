@@ -110,7 +110,7 @@ def store(page):
 
     # These two variables are either empty, or datetime objects.  A separate variable had
     # to be used as we need the string representation of the date for the database filter and a
-    # datetime representation of the date for the StoreForm object
+    # datetime representation of the date for the StoreForm object.
     datetime_earliest_value = None
     datetime_latest_value = None
     if datetime_earliest:
