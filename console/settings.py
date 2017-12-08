@@ -41,7 +41,7 @@ HB_INTERVAL = os.getenv("HB_INTERVAL", 30)
 SDX_STORE_URL = os.getenv("SDX_STORE_URL", "http://sdx-store:5000/responses")
 SDX_VALIDATE_URL = os.getenv("SDX_VALIDATE_URL", "http://sdx-validate:5000/validate")
 
-FTP_PATH = os.getenv('FTP_PATH', 'pure-ftpd')
+FTP_HOST = os.getenv('FTP_HOST', 'pure-ftpd')
 FTP_USER = os.getenv('FTP_USER')
 FTP_PASS = os.getenv('FTP_PASS')
 
