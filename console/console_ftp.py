@@ -57,11 +57,11 @@ class ConsoleFtp(object):
                     file_list.append(meta)
 
         else:
-            logger.error("in nlst section")
+            logger.info("in nlst section")
             pre = []
             self._ftp.dir("{}".format(path), pre.append)
             for unparsed_line in pre:
-                logger.error("Unparsed line", line=unparsed_line)
+                #logger.error("Unparsed line", line=unparsed_line)
                 bits = unparsed_line.split()
                 date_string = ' '.join([bits[0], bits[1]])
                 fname = ' '.join(bits[3:])
@@ -75,6 +75,7 @@ class ConsoleFtp(object):
                     file_list.append(meta)
 
         file_list.sort(key=operator.itemgetter('modify'), reverse=True)
+        logger.info("file list", filelist=file_list)
         return file_list
 
     def get_file_contents(self, datatype, filename):
