@@ -12,11 +12,11 @@ logger = wrap_logger(logging.getLogger(__name__))
 DEVELOPMENT_MODE = os.getenv('DEVELOPMENT_MODE', False)
 
 
-DB_HOST = os.getenv('POSTGRES_HOST', '0.0.0.0')
-DB_PORT = os.getenv('POSTGRES_PORT', '5432')
-DB_NAME = os.getenv('POSTGRES_NAME', 'postgres')
-DB_USER = os.getenv('POSTGRES_USER', 'postgres')
-DB_PASSWORD = os.getenv('POSTGRES_PASSWORD', 'secret')
+DB_HOST = os.getenv('SDX_CONSOLE_POSTGRES_HOST', '0.0.0.0')
+DB_PORT = os.getenv('SDX_CONSOLE_POSTGRES_PORT', '5432')
+DB_NAME = os.getenv('SDX_CONSOLE_POSTGRES_NAME', 'postgres')
+DB_USER = os.getenv('SDX_CONSOLE_POSTGRES_USER', 'postgres')
+DB_PASSWORD = os.getenv('SDX_CONSOLE_POSTGRES_PASSWORD', 'secret')
 DB_URI = 'postgresql://{}:{}@{}:{}/{}'.format(DB_USER,
                                               DB_PASSWORD,
                                               DB_HOST,
@@ -41,7 +41,7 @@ HB_INTERVAL = os.getenv("HB_INTERVAL", 30)
 SDX_STORE_URL = os.getenv("SDX_STORE_URL", "http://sdx-store:5000/responses")
 SDX_VALIDATE_URL = os.getenv("SDX_VALIDATE_URL", "http://sdx-validate:5000/validate")
 
-FTP_PATH = os.getenv('FTP_PATH', 'pure-ftpd')
+FTP_HOST = os.getenv('FTP_HOST', 'pure-ftpd')
 FTP_USER = os.getenv('FTP_USER')
 FTP_PASS = os.getenv('FTP_PASS')
 

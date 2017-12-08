@@ -29,7 +29,7 @@ class ConsoleFtp(object):
         self._ftp.quit()
 
     def __init__(self):
-        self._ftp = FTP(settings.FTP_PATH)
+        self._ftp = FTP(settings.FTP_HOST)
         self._ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
         self._mlsd_enabled = True
         try:
