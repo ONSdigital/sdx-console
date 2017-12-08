@@ -25,7 +25,7 @@ submit_bp = Blueprint('submit_bp', __name__, static_folder='static', template_fo
 
 
 def list_surveys():
-    return [f for f in os.listdir('console/static/surveys') if os.path.isfile(os.path.join('console/static/surveys', f))]
+    return sorted([f for f in os.listdir('console/static/surveys') if os.path.isfile(os.path.join('console/static/surveys', f))])
 
 
 def send_payload(payload, tx_id, no_of_submissions=1):
