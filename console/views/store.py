@@ -89,6 +89,14 @@ def reprocess_submission():
 
 
 @store_bp.route('/store', strict_slashes=False, defaults={'page': 0}, methods=['GET'])
+@flask_security.login_required
+def store_home(page):
+    return render_template('store.html',
+                           page=int(page),
+                           current_user=flask_security.core.current_user,
+                           form=StoreForm())
+
+
 @store_bp.route('/store/<page>', strict_slashes=False, methods=['GET'])
 @flask_security.login_required
 def store(page):
@@ -102,12 +110,11 @@ def store(page):
 
     # These two variables are either empty, or datetime objects.  A separate variable had
     # to be used as we need the string representation of the date for the database filter and a
-    # datetime representation of the date for the StoreForm object.
+    # datetime representation of the date for the StoreForm object
     datetime_earliest_value = None
     datetime_latest_value = None
     if datetime_earliest:
         datetime_earliest_value = datetime.strptime(datetime_earliest, '%Y-%m-%dT%H:%M')
-
     if datetime_latest:
         datetime_latest_value = datetime.strptime(datetime_latest, '%Y-%m-%dT%H:%M')
 
