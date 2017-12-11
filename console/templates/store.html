@@ -69,8 +69,7 @@
         </thead>
         <tbody>
           <form id="reprocess-form" name='reprocess-form' class="form-horizontal" method='POST' action="/reprocess">
-            {% if request.path == '/store' %}
-            {% else %}
+            {% if data %}
               {% for item in data[(page*20):((page+1)*20)] %}
                 <tr class="table__row">
                 <td class="table__cell">{{ item.tx_id }}</td>
