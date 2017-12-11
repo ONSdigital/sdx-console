@@ -22,7 +22,10 @@ class LoginFormExtended(flask_security.forms.LoginForm):
 
 
 __version__ = "2.0.0"
-
+logging.basicConfig(format=settings.LOGGING_FORMAT,
+                    datefmt="%Y-%m-%dT%H:%M:%S",
+                    level=settings.LOGGING_LEVEL)
+logging.getLogger("sdc.rabbit").setLevel(logging.DEBUG)
 logger = wrap_logger(logging.getLogger(__name__))
 
 app = Flask(__name__)
