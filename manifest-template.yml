@@ -9,7 +9,20 @@ applications:
 
   env:
     CF_DEPLOYMENT: True
-    SDX_STORE_URL: http://sdx-store-SPACE.apps.devtest.onsclofo.uk
-
+    SDX_STORE_URL: http://sdx-store-SPACE.apps.devtest.onsclofo.uk/responses
+    SDX_VALIDATE_URL: http://sdx-validate-SPACE.apps.devtest.onsclofo.uk/validate
+    FTP_HOST: FTPHOST
+    FTP_USER: FTPUSER   
+    FTP_PASS: FTPPASS
+    CONSOLE_PASSWORD_HASH: PASSHASH
+    ENABLE_EMPTY_FTP: ENABLEEMPTYFTP
+    SECRET_KEY: SECRETKEY
+    SECURITY_PASSWORD_SALT: SECURITYPASS
+    SDX_FTP_IMAGE_PATH: FTPIMAGEPATH 
+    SDX_FTP_DATA_PATH: FTPDATAPATH
+    SDX_FTP_RECEIPT_PATH: FTPRECEIPTPATH
+    SDX_RESPONSE_JSON_PATH: FTPJSONPATH
+    
   services:
    - sdx-rabbit-SPACE
+   - sdx-postgres-SPACE
