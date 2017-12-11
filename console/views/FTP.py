@@ -36,15 +36,6 @@ def mod_to_iso(file_modified):
     t = datetime.strptime(file_modified, '%Y%m%d%H%M%S')
     return t.isoformat()
 
-
-def get_image(filename):
-    ftp_file = BytesIO()
-    with ConsoleFtp() as ftp:
-        ftp._ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, ftp_file.write)
-    ftp_file.seek(0)
-    return base64.b64encode(ftp_file.read()).decode()
-
-
 def get_file_contents(datatype, filename):
     with ConsoleFtp() as ftp:
         return ftp.get_file_contents(datatype, filename)
@@ -65,9 +56,10 @@ def ftp_list():
 def view_file(datatype, filename):
     if filename.lower().endswith(('jpg', 'png')):
         extension = filename.split(".")[-1]
-        return '<img style="width:100%;" src="data:image/' + extension + ';base64,' + get_image(filename) + '" />'
+        b64_image = base64.b64encode(get_file_contents(datatype, filename)).decode()
+        return '<img style="width:100%;" src="data:image/' + extension + ';base64,' + b64_image + '" />'
     else:
-        return '<pre>' + get_file_contents(datatype, filename) + '</pre>'
+        return '<pre>' + get_file_contents(datatype, filename).decode("utf-8") + '</pre>'
 
 
 @FTP_bp.route('/clear')

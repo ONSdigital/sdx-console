@@ -74,8 +74,12 @@ class ConsoleFtp(object):
         file_list.sort(key=operator.itemgetter('modify'), reverse=True)
         return file_list
 
+    """ Searches for a file in the FTP server and returns it in binary
+    format.  It's up to the function calling this one to convert the output
+    into a more useful format.
+    """
     def get_file_contents(self, datatype, filename):
         ftp_file = BytesIO()
         self._ftp.retrbinary("RETR " + PATHS[datatype] + "/" + filename, ftp_file.write)
         ftp_file.seek(0)
-        return ftp_file.read().decode("utf-8")
+        return ftp_file.read()
