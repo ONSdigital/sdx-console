@@ -1,5 +1,4 @@
 from datetime import datetime
-from io import BytesIO
 import base64
 import json
 import logging.handlers
@@ -35,6 +34,7 @@ def get_ftp_contents():
 def mod_to_iso(file_modified):
     t = datetime.strptime(file_modified, '%Y%m%d%H%M%S')
     return t.isoformat()
+
 
 def get_file_contents(datatype, filename):
     with ConsoleFtp() as ftp:
