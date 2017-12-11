@@ -1,4 +1,5 @@
 from console import app
+from io import BytesIO
 import logging
 
 import operator
@@ -74,6 +75,7 @@ class ConsoleFtp(object):
         return file_list
 
     def get_file_contents(self, datatype, filename):
-        self._ftp.retrbinary("RETR " + PATHS[datatype] + "/" + filename, open('tmpfile', 'wb').write)
-        transferred = open('tmpfile', 'r')
-        return transferred.read()
+        ftp_file = BytesIO()
+        self._ftp.retrbinary("RETR " + PATHS[datatype] + "/" + filename, ftp_file.write())
+        ftp_file.seek(0)
+        return ftp_file.read().decode("utf-8")
