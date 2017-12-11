@@ -1,7 +1,8 @@
 from datetime import datetime
+from io import BytesIO
+import base64
 import json
 import logging.handlers
-import os
 
 import flask_security
 from flask import Blueprint
@@ -20,7 +21,6 @@ FTP_bp = Blueprint('FTP_bp', __name__, static_folder='static', template_folder='
 
 
 def get_ftp_contents():
-
     ftp_data = {}
     with ConsoleFtp() as ftp:
         ftp_data["pck"] = ftp.get_folder_contents(PATHS["pck"])[0:20]
@@ -38,23 +38,14 @@ def mod_to_iso(file_modified):
 
 
 def get_image(filename):
-
-    filepath, _ = os.path.splitext(filename)
-
-    tmp_image_url = 'static/images/{}'.format(filepath)
-    tmp_image_path = 'console/static/images/{}'.format(filepath)
-
-    if os.path.exists(tmp_image_path):
-        os.unlink(tmp_image_path)
-
+    ftp_file = BytesIO()
     with ConsoleFtp() as ftp:
-        ftp._ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
-
-    return tmp_image_url
+        ftp._ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, ftp_file.write)
+    ftp_file.seek(0)
+    return base64.b64encode(ftp_file.read()).decode()
 
 
 def get_file_contents(datatype, filename):
-
     with ConsoleFtp() as ftp:
         return ftp.get_file_contents(datatype, filename)
 
@@ -73,7 +64,8 @@ def ftp_list():
 @FTP_bp.route('/view/<datatype>/<filename>')
 def view_file(datatype, filename):
     if filename.lower().endswith(('jpg', 'png')):
-        return '<img style="width:100%;" src="/' + get_image(filename) + '" />'
+        extension = filename.split(".")[-1]
+        return '<img style="width:100%;" src="data:image/' + extension + ';base64,' + get_image(filename) + '" />'
     else:
         return '<pre>' + get_file_contents(datatype, filename) + '</pre>'
 
