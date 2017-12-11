@@ -1,0 +1,15 @@
+applications:
+- name: sdx-console-SPACE
+  buildpack: python_buildpack
+  health-check-type: process
+  instances: INSTANCES
+  host: sdx-console-SPACE
+  timeout: 180
+  memory: 512M
+
+  env:
+    CF_DEPLOYMENT: True
+    SDX_STORE_URL: http://sdx-store-SPACE.apps.devtest.onsclofo.uk
+
+  services:
+   - sdx-rabbit-SPACE
