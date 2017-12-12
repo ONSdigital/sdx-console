@@ -70,7 +70,7 @@
         <tbody>
           <form id="reprocess-form" name='reprocess-form' class="form-horizontal" method='POST' action="/reprocess">
             {% if data %}
-              {% for item in data[(page*20):((page+1)*20)] %}
+              {% for item in data %}
                 <tr class="table__row">
                 <td class="table__cell">{{ item.tx_id }}</td>
                 <td class="table__cell">{{ item.survey_id }}</td>
@@ -84,21 +84,14 @@
                 </tr>
               {% endfor %}
             {% endif %}
+
+
           </form>
         </tbody>
       </table>
       <br>
       <button class="btn btn-primary" form="reprocess-form" type="submit" style="float: right;">Reprocess</button>
-
-      <div class="container">
-        <ul id="paglist" class="pagination">
-        </ul>
-      </div>
     </div>
-    {% for i in range(page - 4, page + 5) %}
-      <script>genList({{i}}, {{no_pages}});</script>
-      <script>getLinks({{i}});</script>
-    {% endfor %}
   </div>
 </div>
 {% endblock content %}

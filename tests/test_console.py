@@ -10,7 +10,6 @@ import server
 from console import app
 from console import logger
 from console import views
-from console.database import db_session
 from console.helpers.exceptions import ClientError, ServiceError
 from console.models import SurveyResponse
 

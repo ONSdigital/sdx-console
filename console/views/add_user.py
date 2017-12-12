@@ -6,9 +6,9 @@ from flask import request
 import flask_security
 from structlog import wrap_logger
 
-from console import create_dev_user
 from console.forms import NewUserForm
 from console.helpers.exceptions import UserCreationError, UserExistsError
+from console.models import create_dev_user
 
 logger = wrap_logger(logging.getLogger(__name__))
 

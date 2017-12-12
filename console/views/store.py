@@ -1,6 +1,5 @@
 import json
 import logging
-import math
 
 from datetime import datetime
 from flask import Blueprint
@@ -13,7 +12,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from structlog import wrap_logger
 
 from console import settings
-from console.database import db_session
 from console.forms import StoreForm
 from console.models import SurveyResponse
 from console.views.submit import send_data
@@ -27,7 +25,9 @@ store_bp = Blueprint('store_bp', __name__, static_folder='static', template_fold
 def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
     logger.info('Retrieving responses from sdx-store')
     try:
-        q = db_session.query(SurveyResponse)
+        q = SurveyResponse.query
+        logger.debug(type(q))
+
         if valid == "invalid":
             q = q.filter(SurveyResponse.invalid)
         elif valid == "valid":
@@ -55,6 +55,9 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
             minute = int(datetime_latest[14])
             q = q.filter(dt_column < datetime(year, month, day, hour, minute))
         filtered_data = q.all()
+        logger.debug(type(q))
+        # filtered_data = q.paginate(per_page=10, page=1, error_out=True)
+
     except DataError as e:
         logger.error("Invalid search term", error=e)
         return []
@@ -88,18 +91,17 @@ def reprocess_submission():
     return render_template('reprocess.html', data=data)
 
 
-@store_bp.route('/store', strict_slashes=False, defaults={'page': 0}, methods=['GET'])
+@store_bp.route('/store', strict_slashes=False, methods=['GET'])
 @flask_security.login_required
-def store_home(page):
+def store_home():
     return render_template('store.html',
-                           page=int(page),
                            current_user=flask_security.core.current_user,
                            form=StoreForm())
 
 
-@store_bp.route('/store/<page>', strict_slashes=False, methods=['GET'])
+@store_bp.route('/store/<page_num>', strict_slashes=False, defaults={'page_num': 0}, methods=['GET'])
 @flask_security.login_required
-def store(page):
+def store(page_num):
     audited_logger = logger.bind(user=flask_security.core.current_user.email)
     valid = request.args.get('valid', type=str, default='')
     tx_id = request.args.get('tx_id', type=str, default='')
@@ -137,12 +139,10 @@ def store(page):
 
     json_list = [item.data for item in store_data]
 
-    no_pages = math.ceil(round(float(len(json_list) / 20)))
+    logger.debug(len(json_list))
 
     return render_template('store.html',
                            data=json_list,
-                           no_pages=no_pages,
-                           page=int(page),
                            current_user=flask_security.core.current_user,
                            form=form)
 

@@ -225,6 +225,12 @@ $(function () {
 
     // on page load stuff:
 
+    asyncGet("/static/surveys/023.0102.json").then(function (response) {
+        $("#post-data").text(response);
+    }, function (error) {
+        console.error("Failed loading survey 023.0102!", error);
+    });
+
     asyncGetJSON("/surveys").then(function (surveys) {
         for (var i = 0; i < surveys.length; i++) {
             $("#survey-selector")
