@@ -54,7 +54,7 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
             hour = int(datetime_latest[11:13])
             minute = int(datetime_latest[14])
             q = q.filter(dt_column < datetime(year, month, day, hour, minute))
-        filtered_data = q.all()
+        filtered_data = q.paginate(per_page=10, page=1, error_out=True)
         logger.debug(type(q))
         # filtered_data = q.paginate(per_page=10, page=1, error_out=True)
 
@@ -99,7 +99,7 @@ def store_home():
                            form=StoreForm())
 
 
-@store_bp.route('/store/<page_num>', strict_slashes=False, defaults={'page_num': 0}, methods=['GET'])
+@store_bp.route('/store/page/<page_num>', strict_slashes=False, methods=['GET'])
 @flask_security.login_required
 def store(page_num):
     audited_logger = logger.bind(user=flask_security.core.current_user.email)
@@ -130,19 +130,19 @@ def store(page_num):
     )
 
     if form.validate():
-        store_data = get_filtered_responses(
+        pagnated_store_data = get_filtered_responses(
             audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
     else:
-        store_data = []
+        pagnated_store_data = []
 
     audited_logger.info("Successfully retrieved responses")
 
-    json_list = [item.data for item in store_data]
+    # json_list = [item.data for item in pagnated_store_data.items]
 
-    logger.debug(len(json_list))
+    # logger.debug(len(json_list))
 
     return render_template('store.html',
-                           data=json_list,
+                           data=pagnated_store_data,
                            current_user=flask_security.core.current_user,
                            form=form)
 

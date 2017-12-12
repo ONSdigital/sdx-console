@@ -11,7 +11,7 @@
 <div class="container">
   <script text="text/javascript" src="/static/js/get_links.js"></script>
   <div class="col-xs-12">
-    <form id='store-form' class="form-horizontal" action='/store/0'>
+    <form id='store-form' class="form-horizontal" action='/store/page/0'>
       <div class="form-group">
         <div class="col-md-11">
           <div class="input-group">
@@ -70,7 +70,7 @@
         <tbody>
           <form id="reprocess-form" name='reprocess-form' class="form-horizontal" method='POST' action="/reprocess">
             {% if data %}
-              {% for item in data %}
+              {% for item in data.items %}
                 <tr class="table__row">
                 <td class="table__cell">{{ item.tx_id }}</td>
                 <td class="table__cell">{{ item.survey_id }}</td>
@@ -83,9 +83,20 @@
                 </td>
                 </tr>
               {% endfor %}
+
+
+              {% for page in data.iter_pages(left_edge=3, right_edge=3, left_current=3, right_current=3) %}
+                {% if page %}
+                  {% if page != data.page %}
+                    <a href="{{ url_for('store_bp.store', page_num=page) }}">{{ page }}</a>
+                  {% else %}
+                    <strong>{{ page }}</strong>
+                  {% endif %}
+                {% else %}
+                  <span class=ellipsis>…</span>
+                {% endif %}
+              {% endfor %}
             {% endif %}
-
-
           </form>
         </tbody>
       </table>
