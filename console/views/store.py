@@ -99,7 +99,7 @@ def store_home():
                            form=StoreForm())
 
 
-@store_bp.route('/store/page/<page_num>', strict_slashes=False, methods=['GET'])
+@store_bp.route('/store/page/<int:page_num>', strict_slashes=False, methods=['GET'])
 @flask_security.login_required
 def store(page_num):
     audited_logger = logger.bind(user=flask_security.core.current_user.email)
@@ -141,7 +141,7 @@ def store(page_num):
 
     # logger.debug(len(json_list))
 
-    return render_template('store.html',
+    return render_template('store_data.html',
                            data=pagnated_store_data,
                            current_user=flask_security.core.current_user,
                            form=form)
