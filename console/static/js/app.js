@@ -184,7 +184,6 @@ $(function () {
     var dataTypes = ["pck", "image", "index", "receipt", "json"];
 
     function refreshFTP() {
-        $("#refresh-ftp").show();
         asyncGetJSON("/ftp.json").then(function (ftpData) {
 
             for (var i in dataTypes) {
@@ -212,13 +211,8 @@ $(function () {
                     $("#" + dataType + "-data tbody").append($tableRow);
                 });
             }
-            $("#refresh-ftp").hide();
-
-            // recurse:
-            setTimeout(refreshFTP, 5000);
 
         }, function (error) {
-            $("#refresh-ftp").hide();
             console.error("FTP failed!", error);
         });
     }
@@ -238,6 +232,9 @@ $(function () {
     // kick off the ftp polling:
     refreshFTP();
 
+    $("#refresh-ftp").click(function(){
+        refreshFTP();
+    });
 });
 
 
