@@ -22,11 +22,10 @@ logger = wrap_logger(logging.getLogger(__name__))
 store_bp = Blueprint('store_bp', __name__, static_folder='static', template_folder='templates')
 
 
-def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
+def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest, page_num):
     logger.info('Retrieving responses from sdx-store')
     try:
         q = SurveyResponse.query
-        logger.debug(type(q))
 
         if valid == "invalid":
             q = q.filter(SurveyResponse.invalid)
@@ -54,9 +53,7 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
             hour = int(datetime_latest[11:13])
             minute = int(datetime_latest[14])
             q = q.filter(dt_column < datetime(year, month, day, hour, minute))
-        filtered_data = q.paginate(per_page=10, page=1, error_out=True)
-        logger.debug(type(q))
-        # filtered_data = q.paginate(per_page=10, page=1, error_out=True)
+        filtered_data = q.paginate(per_page=10, page=page_num, error_out=True)
 
     except DataError as e:
         logger.error("Invalid search term", error=e)
@@ -131,15 +128,11 @@ def store(page_num):
 
     if form.validate():
         pagnated_store_data = get_filtered_responses(
-            audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
+            audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest, page_num)
     else:
         pagnated_store_data = []
 
     audited_logger.info("Successfully retrieved responses")
-
-    # json_list = [item.data for item in pagnated_store_data.items]
-
-    # logger.debug(len(json_list))
 
     return render_template('store_data.html',
                            data=pagnated_store_data,
