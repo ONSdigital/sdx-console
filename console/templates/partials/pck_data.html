@@ -8,6 +8,9 @@
       </tr>
     </thead>
     <tbody>
+      {% for metadata in contents %}
+          <tr id={{ metadata['name'] }} ><td><a href="#">{{ metadata['name'] }}</a></td><td>{{ metadata['size'] }}b</td><td>{{ metadata['modify'] }} </td></tr>
+      {% endfor %}
     </tbody>
   </table>
 </div>

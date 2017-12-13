@@ -183,39 +183,19 @@ $(function () {
 
     var dataTypes = ["pck", "image", "index", "receipt", "json"];
 
-    function refreshFTP() {
-        asyncGetJSON("/ftp.json").then(function (ftpData) {
-
-            for (var i in dataTypes) {
-                var dataType = dataTypes[i];
-                var tableData = ftpData[dataType];
-
-                $("#" + dataType + "-data tbody").empty();
-
-                $.each(tableData, function (filename, metadata) {
-                    var $tableRow = $('<tr id="' + metadata['name'] + '"><td><a href="#">' + metadata['name'] + '</a></td><td>' + metadata['size'] + 'b</td><td>' + metadata['modify'] + '</td></tr>');
-
-                    var onClickType = dataType;
-
-                    $tableRow.on("click", function (event) {
-                        var filename = $(event.target).closest("tr").attr("id");
-                        $("#contentModal .modal-title").text(filename);
-                        asyncGet("/view/" + onClickType + "/" + filename).then(function (data) {
-                            $("#contentModal .modal-body").html(data);
-                            $("#contentModal").modal("show");
-                        }, function (error) {
-                            console.error("FTP failed!", error);
-                        });
-                    });
-
-                    $("#" + dataType + "-data tbody").append($tableRow);
-                });
-            }
-
+    // Make pck-data -> datatype-data
+    $('#pck-data > tr').on("click", function (event) {
+      alert("in here")
+        var filename = $(event.target).closest("tr").attr("id");
+        $("#contentModal .modal-title").text(filename);
+        asyncGet("/view/" + onClickType + "/" + filename).then(function (data) {
+            $("#contentModal .modal-body").html(data);
+            $("#contentModal").modal("show");
         }, function (error) {
             console.error("FTP failed!", error);
         });
-    }
+    });
+
 
     // on page load stuff:
 
@@ -230,7 +210,7 @@ $(function () {
     });
 
     // kick off the ftp polling:
-    refreshFTP();
+    //refreshFTP();
 
     $("#refresh-ftp").click(function(){
         refreshFTP();

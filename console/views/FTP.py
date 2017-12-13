@@ -46,6 +46,13 @@ def get_file_contents(datatype, filename):
 def ftp_home():
     return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
 
+@FTP_bp.route('/FTP/<datatype>', methods=['POST', 'GET'])
+@flask_security.login_required
+def ftp_pcks(datatype):
+    #Add checking to make sure datatype is one of the 5 we care about.
+    with ConsoleFtp() as ftp:
+        contents = ftp.get_folder_contents(PATHS[datatype])[0:20]
+    return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP, contents=contents)
 
 @FTP_bp.route('/ftp.json')
 def ftp_list():
