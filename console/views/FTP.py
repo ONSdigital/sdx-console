@@ -4,15 +4,12 @@ import json
 import logging.handlers
 
 import flask_security
-from flask import Blueprint
-from flask import jsonify
-from flask import render_template
+from flask import Blueprint, render_template
 from structlog import wrap_logger
 
 import console.settings as settings
 from console import app
-from console.console_ftp import ConsoleFtp
-from console.console_ftp import PATHS
+from console.console_ftp import ConsoleFtp, PATHS
 
 logger = wrap_logger(logging.getLogger(__name__))
 
@@ -36,15 +33,17 @@ def ftp_home():
         contents = ftp.get_folder_contents(PATHS["pck"])[0:20]
     return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP, contents=contents)
 
+
 @FTP_bp.route('/FTP/<datatype>', methods=['POST', 'GET'])
 @flask_security.login_required
 def ftp_pcks(datatype):
-    if datatype not in [ 'pck', 'image', 'index', 'receipt', 'json']:
+    if datatype not in ['pck', 'image', 'index', 'receipt', 'json']:
         return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
 
     with ConsoleFtp() as ftp:
         contents = ftp.get_folder_contents(PATHS[datatype])[0:20]
     return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP, contents=contents)
+
 
 @FTP_bp.route('/view/<datatype>/<filename>')
 def view_file(datatype, filename):
