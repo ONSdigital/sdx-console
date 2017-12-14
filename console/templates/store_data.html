@@ -8,7 +8,14 @@
 {% include 'partials/navigation_tabs.html' %}
 
 <div class="container">
-  <h1>Search results for: {{ data.items }} </h1> <br>
+  <h1>Search results for:</h1>
+    <h2>
+      <br> {{ search_query.tx_id }}
+      <br> {{ search_query.survey_id }}
+      <br> {{ search_query.ru_ref }}
+      <br> {{ search_query.datetime_earliest }}
+      <br> {{ search_query.datetime_latest }}
+    </h2>
 
     <div class="table">
       <table class="table" width="100%">
@@ -40,13 +47,12 @@
                 </tr>
               {% endfor %}
 
-
               {% for page in data.iter_pages(left_edge=3, right_edge=3, left_current=3, right_current=3) %}
                 {% if page %}
                   {% if page != data.page %}
-                    <a href="{{ url_for('store_bp.store', page_num=page) }}">{{ page }}</a>
+                    <a href="{{ url_for('store_bp.store', page_num=page) }}"> {{ page }} </a>
                   {% else %}
-                    <strong>{{ page }}</strong>
+                    <strong> {{ page }} </strong>
                   {% endif %}
                 {% else %}
                   <span class=ellipsis>…</span>

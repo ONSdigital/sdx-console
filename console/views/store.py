@@ -21,6 +21,8 @@ logger = wrap_logger(logging.getLogger(__name__))
 
 store_bp = Blueprint('store_bp', __name__, static_folder='static', template_folder='templates')
 
+TRANSACTIONS_PER_PAGE = 20
+
 
 def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest, page_num):
     logger.info('Retrieving responses from sdx-store')
@@ -53,7 +55,7 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
             hour = int(datetime_latest[11:13])
             minute = int(datetime_latest[14])
             q = q.filter(dt_column < datetime(year, month, day, hour, minute))
-        filtered_data = q.paginate(per_page=10, page=page_num, error_out=True)
+        filtered_data = q.paginate(per_page=TRANSACTIONS_PER_PAGE, page=page_num, error_out=True)
 
     except DataError as e:
         logger.error("Invalid search term", error=e)
@@ -106,6 +108,13 @@ def store(page_num):
     survey_id = request.args.get('survey_id', type=str, default='')
     datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
     datetime_latest = request.args.get('datetime_latest', type=str, default='')
+    search_query = {
+        "tx_id": tx_id,
+        "ru_ref": ru_ref,
+        "survey_id": survey_id,
+        "datetime_earliest": datetime_earliest,
+        "datetime_latest": datetime_latest
+    }
 
     # These two variables are either empty, or datetime objects.  A separate variable had
     # to be used as we need the string representation of the date for the database filter and a
@@ -134,8 +143,11 @@ def store(page_num):
 
     audited_logger.info("Successfully retrieved responses")
 
+    audited_logger.info("Search query: {}".format(search_query))
+
     return render_template('store_data.html',
                            data=pagnated_store_data,
+                           search_query=search_query,
                            current_user=flask_security.core.current_user,
                            form=form)
 
