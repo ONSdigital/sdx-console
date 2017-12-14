@@ -1,5 +1,5 @@
-<div class="tab-pane" id="receipts">
-  <table id="receipt-data" class="table" width="100%">
+<div class="tab-pane" id="{{ datatype }}">
+  <table id="{{ datatype }}-data" class="table" width="100%">
     <thead>
       <tr>
         <th class="table__header-cell table__header-cell--align">Filename</th>
@@ -8,6 +8,9 @@
       </tr>
     </thead>
     <tbody>
+      {% for metadata in contents %}
+          <tr id={{ metadata['name'] }} ><td><a href="#">{{ metadata['name'] }}</a></td><td>{{ metadata['size'] }}b</td><td>{{ metadata['modify'] }} </td></tr>
+      {% endfor %}
     </tbody>
   </table>
 </div>
