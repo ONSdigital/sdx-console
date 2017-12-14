@@ -11,17 +11,22 @@ LOGGING_FORMAT = "%(asctime)s.%(msecs)06dZ|%(levelname)s: sdx-console: %(message
 logger = wrap_logger(logging.getLogger(__name__))
 DEVELOPMENT_MODE = os.getenv('DEVELOPMENT_MODE', False)
 
-
-DB_HOST = os.getenv('SDX_CONSOLE_POSTGRES_HOST', '0.0.0.0')
-DB_PORT = os.getenv('SDX_CONSOLE_POSTGRES_PORT', '5432')
-DB_NAME = os.getenv('SDX_CONSOLE_POSTGRES_NAME', 'postgres')
-DB_USER = os.getenv('SDX_CONSOLE_POSTGRES_USER', 'postgres')
-DB_PASSWORD = os.getenv('SDX_CONSOLE_POSTGRES_PASSWORD', 'secret')
-DB_URI = 'postgresql://{}:{}@{}:{}/{}'.format(DB_USER,
-                                              DB_PASSWORD,
-                                              DB_HOST,
-                                              DB_PORT,
-                                              DB_NAME)
+if os.getenv("CF_DEPLOYMENT", False):
+    vcap_services = os.getenv("VCAP_SERVICES")
+    parsed_vcap_services = json.loads(vcap_services)
+    rds_config = parsed_vcap_services.get('rds')
+    DB_URI = rds_config[0].get('credentials').get('uri')
+else:
+    DB_HOST = os.getenv('SDX_STORE_POSTGRES_HOST', '0.0.0.0')
+    DB_PORT = os.getenv('SDX_STORE_POSTGRES_PORT', '5432')
+    DB_NAME = os.getenv('SDX_STORE_POSTGRES_NAME', 'postgres')
+    DB_USER = os.getenv('SDX_STORE_POSTGRES_USER', 'postgres')
+    DB_PASSWORD = os.getenv('SDX_CONSOLE_POSTGRES_PASSWORD', 'secret')
+    DB_URI = 'postgresql://{}:{}@{}:{}/{}'.format(DB_USER,
+                                                  DB_PASSWORD,
+                                                  DB_HOST,
+                                                  DB_PORT,
+                                                  DB_NAME)
 
 SECURITY_PASSWORD_HASH = os.getenv('CONSOLE_PASSWORD_HASH', 'bcrypt')
 SECRET_KEY = os.getenv('CONSOLE_SECRET_KEY', 'secretwords')
