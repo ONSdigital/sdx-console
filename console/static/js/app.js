@@ -176,11 +176,11 @@ $(function () {
 
     var dataTypes = ["pck", "image", "index", "receipt", "json"];
     var currentUrl = window.location.href;
-    var dataType = currentUrl.split('/').slice(-1)[0];
+    var dataType = currentUrl.split("/").slice(-1)[0];
     // <host>/FTP will load pck data
-    if (dataType == 'FTP') dataType = 'pck';
+    if (dataType === "FTP") { dataType = "pck"; }
     if ( dataTypes.includes(dataType) ) {
-      $('#' + dataType + '-data > tbody > tr').on("click", function (event) {
+      $("#" + dataType + "-data > tbody > tr").on("click", function (event) {
           var filename = $(event.target).closest("tr").attr("id");
           $("#contentModal .modal-title").text(filename);
           asyncGet("/view/" + dataType + "/" + filename).then(function (data) {
@@ -206,7 +206,7 @@ $(function () {
     }
 
     $("#refresh-ftp").click(function(){
-        location.reload()
+        location.reload();
     });
 });
 
