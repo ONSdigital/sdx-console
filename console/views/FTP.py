@@ -1,35 +1,19 @@
 from datetime import datetime
+import base64
 import json
 import logging.handlers
-import os
 
 import flask_security
-from flask import Blueprint
-from flask import jsonify
-from flask import render_template
+from flask import Blueprint, render_template
 from structlog import wrap_logger
 
 import console.settings as settings
 from console import app
-from console.console_ftp import ConsoleFtp
-from console.console_ftp import PATHS
+from console.console_ftp import ConsoleFtp, PATHS
 
 logger = wrap_logger(logging.getLogger(__name__))
 
 FTP_bp = Blueprint('FTP_bp', __name__, static_folder='static', template_folder='templates')
-
-
-def get_ftp_contents():
-
-    ftp_data = {}
-    with ConsoleFtp() as ftp:
-        ftp_data["pck"] = ftp.get_folder_contents(PATHS["pck"])[0:20]
-        ftp_data["index"] = ftp.get_folder_contents(PATHS["index"])[0:20]
-        ftp_data["image"] = ftp.get_folder_contents(PATHS["image"])[0:20]
-        ftp_data["receipt"] = ftp.get_folder_contents(PATHS["receipt"])[0:20]
-        ftp_data["json"] = ftp.get_folder_contents(PATHS["json"])[0:20]
-
-    return ftp_data
 
 
 def mod_to_iso(file_modified):
@@ -37,24 +21,7 @@ def mod_to_iso(file_modified):
     return t.isoformat()
 
 
-def get_image(filename):
-
-    filepath, _ = os.path.splitext(filename)
-
-    tmp_image_url = 'static/images/{}'.format(filepath)
-    tmp_image_path = 'console/static/images/{}'.format(filepath)
-
-    if os.path.exists(tmp_image_path):
-        os.unlink(tmp_image_path)
-
-    with ConsoleFtp() as ftp:
-        ftp._ftp.retrbinary("RETR " + PATHS['image'] + "/" + filename, open(tmp_image_path, 'wb').write)
-
-    return tmp_image_url
-
-
 def get_file_contents(datatype, filename):
-
     with ConsoleFtp() as ftp:
         return ftp.get_file_contents(datatype, filename)
 
@@ -62,20 +29,30 @@ def get_file_contents(datatype, filename):
 @FTP_bp.route('/FTP', methods=['POST', 'GET'])
 @flask_security.login_required
 def ftp_home():
-    return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
+    with ConsoleFtp() as ftp:
+        contents = ftp.get_folder_contents(PATHS["pck"])[0:20]
+    return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP, contents=contents)
 
 
-@FTP_bp.route('/ftp.json')
-def ftp_list():
-    return jsonify(get_ftp_contents())
+@FTP_bp.route('/FTP/<datatype>', methods=['POST', 'GET'])
+@flask_security.login_required
+def ftp_pcks(datatype):
+    if datatype not in ['pck', 'image', 'index', 'receipt', 'json']:
+        return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
+
+    with ConsoleFtp() as ftp:
+        contents = ftp.get_folder_contents(PATHS[datatype])[0:20]
+    return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP, contents=contents)
 
 
 @FTP_bp.route('/view/<datatype>/<filename>')
 def view_file(datatype, filename):
     if filename.lower().endswith(('jpg', 'png')):
-        return '<img style="width:100%;" src="/' + get_image(filename) + '" />'
+        extension = filename.split(".")[-1]
+        b64_image = base64.b64encode(get_file_contents(datatype, filename)).decode()
+        return '<img style="width:100%;" src="data:image/' + extension + ';base64,' + b64_image + '" />'
     else:
-        return '<pre>' + get_file_contents(datatype, filename) + '</pre>'
+        return '<pre>' + get_file_contents(datatype, filename).decode("utf-8") + '</pre>'
 
 
 @FTP_bp.route('/clear')

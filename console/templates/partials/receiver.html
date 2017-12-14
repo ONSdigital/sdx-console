@@ -1,10 +1,3 @@
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script>
-  $( function() {
-    $( "#tabs" ).tabs();
-  } );
-</script>
-
 <h3> Receiver </h3>
 <p>Lists of the <strong>most recent 20 files</strong> to hit the FTP server:</p>
 
@@ -13,39 +6,47 @@
     <ul class="navigation-tabs navigation-tabs--component" role="tablist">
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
-        <a href="#pcks"
+        <a href="/FTP/pck"
            class="btn btn--secondary btn--border navigation-tabs__tab">PCKs</a> </li>
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
-        <a href="#images"
+        <a href="/FTP/image"
            class="btn btn--secondary btn--border navigation-tabs__tab">Images</a> </li>
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
-        <a href="#indices"
+        <a href="/FTP/index"
            class="btn btn--secondary btn--border navigation-tabs__tab">Indices</a> </li>
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
-        <a href="#receipts"
+        <a href="/FTP/receipt"
            class="btn btn--secondary btn--border navigation-tabs__tab">Receipts</a> </li>
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
-        <a href="#json"
+        <a href="/FTP/json"
            class="btn btn--secondary btn--border navigation-tabs__tab">Original JSON</a> </li>
     </ul>
 
     <div class="tab-content">
-        {% include 'partials/pck_data.html' %}
-
-        {% include 'partials/image_data.html' %}
-
-        {% include 'partials/image_index_data.html' %}
-
-        {% include 'partials/receipts_data.html' %}
-
-        {% include 'partials/json_data.html' %}
+      {% if request.path=="/FTP/pck" or request.path=="/FTP" %}
+        {% set datatype='pck' %}
+        {% include 'partials/data_table.html' %}
+      {% elif request.path=="/FTP/image" %}
+        {% set datatype='image' %}
+        {% include 'partials/data_table.html' %}
+      {% elif request.path=="/FTP/index" %}
+        {% set datatype='index' %}
+        {% include 'partials/data_table.html' %}
+      {% elif request.path=="/FTP/receipt" %}
+        {% set datatype='receipt' %}
+        {% include 'partials/data_table.html' %}
+      {% elif request.path=="/FTP/json" %}
+        {% set datatype='json' %}
+        {% include 'partials/data_table.html' %}
+      {% endif %}
     </div>
 
     <br>
+    <button id="refresh-ftp" class="btn btn-default">Refresh FTP</button>
     <button id="empty-ftp" class="btn btn-default">Empty FTP</button>
   </div>
 </div>
