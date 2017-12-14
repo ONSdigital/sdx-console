@@ -27,17 +27,22 @@
     </ul>
 
     <div class="tab-content">
-        {% if request.path=="/FTP/pck" or request.path=="/FTP" %}
-          {% include 'partials/pck_data.html' %}
-        {% elif request.path=="/FTP/image" %}
-          {% include 'partials/image_data.html' %}
-        {% elif request.path=="/FTP/index" %}
-          {% include 'partials/image_index_data.html' %}
-        {% elif request.path=="/FTP/receipt" %}
-          {% include 'partials/receipts_data.html' %}
-        {% elif request.path=="/FTP/json" %}
-          {% include 'partials/json_data.html' %}
-        {% endif %}
+      {% if request.path=="/FTP/pck" or request.path=="/FTP" %}
+        {% set datatype='pck' %}
+        {% include 'partials/data_table.html' %}
+      {% elif request.path=="/FTP/image" %}
+        {% set datatype='image' %}
+        {% include 'partials/data_table.html' %}
+      {% elif request.path=="/FTP/index" %}
+        {% set datatype='index' %}
+        {% include 'partials/data_table.html' %}
+      {% elif request.path=="/FTP/receipt" %}
+        {% set datatype='receipt' %}
+        {% include 'partials/data_table.html' %}
+      {% elif request.path=="/FTP/json" %}
+        {% set datatype='json' %}
+        {% include 'partials/data_table.html' %}
+      {% endif %}
     </div>
 
     <br>
