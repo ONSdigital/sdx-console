@@ -27,7 +27,7 @@
     </ul>
 
     <div class="tab-content">
-        {% if request.path=="/FTP/pck" %}
+        {% if request.path=="/FTP/pck" or request.path=="/FTP" %}
           {% include 'partials/pck_data.html' %}
         {% elif request.path=="/FTP/image" %}
           {% include 'partials/image_data.html' %}

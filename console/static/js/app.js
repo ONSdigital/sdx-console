@@ -165,14 +165,7 @@ $(function () {
         $(".alert").hide();
         if (window.confirm("Are you sure you want to clear the FTP?")) {
             asyncGetJSON("/clear").then(function (data) {
-                for (var i in dataTypes) {
-                    var dataType = dataTypes[i];
-                    $("#" + dataType + "-data tbody").empty();
-                }
-                $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass("alert panel panel--simple panel--success alert-success").text("Cleared " + data.removed + " files from FTP");
-                $(".alert").show();
-                window.alert("Cleared " + data.removed + " files from FTP");
+                location.reload();
             }, function (error) {
                 $(".alert").removeClass("alert-success alert-danger hidden");
                 $(".alert").addClass("alert-danger").text("Error on emptying ftp");
@@ -182,38 +175,38 @@ $(function () {
     });
 
     var dataTypes = ["pck", "image", "index", "receipt", "json"];
+    var currentUrl = window.location.href;
+    var dataType = currentUrl.split('/').slice(-1)[0];
+    // <host>/FTP will load pck data
+    if (dataType == 'FTP') dataType = 'pck';
+    if ( dataTypes.includes(dataType) ) {
+      $('#' + dataType + '-data > tbody > tr').on("click", function (event) {
+          var filename = $(event.target).closest("tr").attr("id");
+          $("#contentModal .modal-title").text(filename);
+          asyncGet("/view/" + dataType + "/" + filename).then(function (data) {
+              $("#contentModal .modal-body").html(data);
+              $("#contentModal").modal("show");
+          }, function (error) {
+              console.error("FTP failed!", error);
+          });
+      });
+    }
 
-    // Make pck-data -> datatype-data
-    $('#pck-data > tr').on("click", function (event) {
-      alert("in here")
-        var filename = $(event.target).closest("tr").attr("id");
-        $("#contentModal .modal-title").text(filename);
-        asyncGet("/view/" + onClickType + "/" + filename).then(function (data) {
-            $("#contentModal .modal-body").html(data);
-            $("#contentModal").modal("show");
-        }, function (error) {
-            console.error("FTP failed!", error);
-        });
-    });
-
-
-    // on page load stuff:
-
-    asyncGetJSON("/surveys").then(function (surveys) {
-        for (var i = 0; i < surveys.length; i++) {
-            $("#survey-selector")
-                .append($("<option>", {value: surveys[i]})
-                    .text(surveys[i]));
-        }
-    }, function (error) {
-        console.error("Failed loading surveys!", error);
-    });
-
-    // kick off the ftp polling:
-    //refreshFTP();
+    // Consider putting this javascript into it's own file loaded by the submit page.
+    if ( currentUrl.endsWith("/submit")) {
+      asyncGetJSON("/surveys").then(function (surveys) {
+          for (var i = 0; i < surveys.length; i++) {
+              $("#survey-selector")
+                  .append($("<option>", {value: surveys[i]})
+                      .text(surveys[i]));
+          }
+      }, function (error) {
+          console.error("Failed loading surveys!", error);
+      });
+    }
 
     $("#refresh-ftp").click(function(){
-        refreshFTP();
+        location.reload()
     });
 });
 
