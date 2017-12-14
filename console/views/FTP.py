@@ -4,31 +4,16 @@ import json
 import logging.handlers
 
 import flask_security
-from flask import Blueprint
-from flask import jsonify
-from flask import render_template
+from flask import Blueprint, render_template
 from structlog import wrap_logger
 
 import console.settings as settings
 from console import app
-from console.console_ftp import ConsoleFtp
-from console.console_ftp import PATHS
+from console.console_ftp import ConsoleFtp, PATHS
 
 logger = wrap_logger(logging.getLogger(__name__))
 
 FTP_bp = Blueprint('FTP_bp', __name__, static_folder='static', template_folder='templates')
-
-
-def get_ftp_contents():
-    ftp_data = {}
-    with ConsoleFtp() as ftp:
-        ftp_data["pck"] = ftp.get_folder_contents(PATHS["pck"])[0:20]
-        ftp_data["index"] = ftp.get_folder_contents(PATHS["index"])[0:20]
-        ftp_data["image"] = ftp.get_folder_contents(PATHS["image"])[0:20]
-        ftp_data["receipt"] = ftp.get_folder_contents(PATHS["receipt"])[0:20]
-        ftp_data["json"] = ftp.get_folder_contents(PATHS["json"])[0:20]
-
-    return ftp_data
 
 
 def mod_to_iso(file_modified):
@@ -44,12 +29,20 @@ def get_file_contents(datatype, filename):
 @FTP_bp.route('/FTP', methods=['POST', 'GET'])
 @flask_security.login_required
 def ftp_home():
-    return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
+    with ConsoleFtp() as ftp:
+        contents = ftp.get_folder_contents(PATHS["pck"])[0:20]
+    return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP, contents=contents)
 
 
-@FTP_bp.route('/ftp.json')
-def ftp_list():
-    return jsonify(get_ftp_contents())
+@FTP_bp.route('/FTP/<datatype>', methods=['POST', 'GET'])
+@flask_security.login_required
+def ftp_pcks(datatype):
+    if datatype not in ['pck', 'image', 'index', 'receipt', 'json']:
+        return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
+
+    with ConsoleFtp() as ftp:
+        contents = ftp.get_folder_contents(PATHS[datatype])[0:20]
+    return render_template('FTP.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP, contents=contents)
 
 
 @FTP_bp.route('/view/<datatype>/<filename>')
