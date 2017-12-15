@@ -111,8 +111,8 @@ class SurveyResponse(db.Model):
 class LoginFormExtended(flask_security.forms.LoginForm):
     # Overriding LoginForm to remove remember me button
     remember = HiddenField('')
-    
-    
+
+
 user_datastore = SQLAlchemySessionUserDatastore(db.session, FlaskUser, Role)
 security = flask_security.Security(app, user_datastore, login_form=LoginFormExtended)
 
