@@ -69,6 +69,7 @@ class ConsoleFtp(object):
             self._ftp.dir("{}".format(path), pre.append)
 
             for unparsed_line in pre:
+                logger.info("Unparsed line", line=unparsed_line)
                 bits = unparsed_line.split()
                 meta = {}
                 try: # First we'll assume it's a windows based FTP server
