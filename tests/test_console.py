@@ -8,9 +8,9 @@ import testing.postgresql
 
 import server
 from console import app
+from console import db
 from console import logger
 from console import views
-from console.database import db_session
 from console.helpers.exceptions import ClientError, ServiceError
 from console.models import SurveyResponse
 
@@ -77,8 +77,8 @@ def submit_test_responses():
             response_data = SurveyResponse(tx_id=tx_id,
                                            invalid=invalid,
                                            data=data)
-            db_session.merge(response_data)
-            db_session.commit()
+            db.session.merge(response_data)
+            db.session.commit()
 
 
 class TestAuthentication(unittest.TestCase):

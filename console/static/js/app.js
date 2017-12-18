@@ -192,6 +192,14 @@ $(function () {
       });
     }
 
+    // on page load stuff:
+
+    asyncGet("/static/surveys/023.0102.json").then(function (response) {
+        $("#post-data").text(response);
+    }, function (error) {
+        console.error("Failed loading survey 023.0102!", error);
+    });
+
     // Consider putting this javascript into it's own file loaded by the submit page.
     if ( currentUrl.endsWith("/submit")) {
       asyncGetJSON("/surveys").then(function (surveys) {

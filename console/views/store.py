@@ -1,6 +1,5 @@
 import json
 import logging
-import math
 
 from datetime import datetime
 from flask import Blueprint
@@ -13,7 +12,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from structlog import wrap_logger
 
 from console import settings
-from console.database import db_session
 from console.forms import StoreForm
 from console.models import SurveyResponse
 from console.views.submit import send_data
@@ -23,11 +21,14 @@ logger = wrap_logger(logging.getLogger(__name__))
 
 store_bp = Blueprint('store_bp', __name__, static_folder='static', template_folder='templates')
 
+TRANSACTIONS_PER_PAGE = 20
 
-def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest):
+
+def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest, page_num):
     logger.info('Retrieving responses from sdx-store')
     try:
-        q = db_session.query(SurveyResponse)
+        q = SurveyResponse.query
+
         if valid == "invalid":
             q = q.filter(SurveyResponse.invalid)
         elif valid == "valid":
@@ -44,17 +45,14 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
             year = int(datetime_earliest[:4])
             month = int(datetime_earliest[5:7])
             day = int(datetime_earliest[8:10])
-            hour = int(datetime_earliest[11:13])
-            minute = int(datetime_earliest[14])
-            q = q.filter(dt_column > datetime(year, month, day, hour, minute))
+            q = q.filter(dt_column > datetime(year, month, day))
         if datetime_latest:
             year = int(datetime_latest[:4])
             month = int(datetime_latest[5:7])
             day = int(datetime_latest[8:10])
-            hour = int(datetime_latest[11:13])
-            minute = int(datetime_latest[14])
-            q = q.filter(dt_column < datetime(year, month, day, hour, minute))
-        filtered_data = q.all()
+            q = q.filter(dt_column < datetime(year, month, day))
+        filtered_data = q.paginate(per_page=TRANSACTIONS_PER_PAGE, page=page_num, error_out=True)
+
     except DataError as e:
         logger.error("Invalid search term", error=e)
         return []
@@ -88,18 +86,17 @@ def reprocess_submission():
     return render_template('reprocess.html', data=data)
 
 
-@store_bp.route('/store', strict_slashes=False, defaults={'page': 0}, methods=['GET'])
+@store_bp.route('/store', strict_slashes=False, methods=['GET'])
 @flask_security.login_required
-def store_home(page):
+def store_home():
     return render_template('store.html',
-                           page=int(page),
                            current_user=flask_security.core.current_user,
                            form=StoreForm())
 
 
-@store_bp.route('/store/<page>', strict_slashes=False, methods=['GET'])
+@store_bp.route('/store/page/<int:page_num>', strict_slashes=False, methods=['GET'])
 @flask_security.login_required
-def store(page):
+def store(page_num):
     audited_logger = logger.bind(user=flask_security.core.current_user.email)
     valid = request.args.get('valid', type=str, default='')
     tx_id = request.args.get('tx_id', type=str, default='')
@@ -107,6 +104,13 @@ def store(page):
     survey_id = request.args.get('survey_id', type=str, default='')
     datetime_earliest = request.args.get('datetime_earliest', type=str, default='')
     datetime_latest = request.args.get('datetime_latest', type=str, default='')
+    search_query = {
+        "tx_id": tx_id,
+        "ru_ref": ru_ref,
+        "survey_id": survey_id,
+        "datetime_earliest": datetime_earliest,
+        "datetime_latest": datetime_latest
+    }
 
     # These two variables are either empty, or datetime objects.  A separate variable had
     # to be used as we need the string representation of the date for the database filter and a
@@ -114,9 +118,9 @@ def store(page):
     datetime_earliest_value = None
     datetime_latest_value = None
     if datetime_earliest:
-        datetime_earliest_value = datetime.strptime(datetime_earliest, '%Y-%m-%dT%H:%M')
+        datetime_earliest_value = datetime.strptime(datetime_earliest, '%Y-%m-%d')
     if datetime_latest:
-        datetime_latest_value = datetime.strptime(datetime_latest, '%Y-%m-%dT%H:%M')
+        datetime_latest_value = datetime.strptime(datetime_latest, '%Y-%m-%d')
 
     form = StoreForm(
         valid=valid,
@@ -128,21 +132,18 @@ def store(page):
     )
 
     if form.validate():
-        store_data = get_filtered_responses(
-            audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest)
+        pagnated_store_data = get_filtered_responses(
+            audited_logger, valid, tx_id, ru_ref, survey_id, datetime_earliest, datetime_latest, page_num)
     else:
-        store_data = []
+        pagnated_store_data = []
 
     audited_logger.info("Successfully retrieved responses")
 
-    json_list = [item.data for item in store_data]
+    audited_logger.info("Search query: {}".format(search_query))
 
-    no_pages = math.ceil(round(float(len(json_list) / 20)))
-
-    return render_template('store.html',
-                           data=json_list,
-                           no_pages=no_pages,
-                           page=int(page),
+    return render_template('store_data.html',
+                           data=pagnated_store_data,
+                           search_query=search_query,
                            current_user=flask_security.core.current_user,
                            form=form)
 

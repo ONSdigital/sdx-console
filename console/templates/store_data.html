@@ -1,0 +1,76 @@
+{% import 'partials/section.html' as section %}
+{% extends "layouts/_twocol.html" %}
+
+{% block page_title %} Store data {% endblock %}
+
+{% block content %}
+
+{% include 'partials/navigation_tabs.html' %}
+
+<div class="container">
+  <h1>Search results for:</h1>
+    <h2>
+      {% if search_query.tx_id %} <br> tx_id: {{ search_query.tx_id }} {% endif %}
+      {% if search_query.survey_id %} <br> survey_id: {{ search_query.survey_id }} {% endif %}
+      {% if search_query.ru_ref %} <br> ru_ref: {{ search_query.ru_ref }} {% endif %}
+      {% if search_query.datetime_earliest %} <br> datetime_earliest: {{ search_query.datetime_earliest }} {% endif %}
+      {% if search_query.datetime_latest %} <br> datetime_latest:{{ search_query.datetime_latest }} {% endif %}
+    </h2>
+    <br>
+
+    <div class="table">
+      <table class="table" width="100%">
+        <thead class="table__head table__header-cell--align">
+          <tr>
+            <th class="table__header-cell table__header-cell--align"> tx_id </th>
+            <th class="table__header-cell"> survey_id </th>
+            <th class="table__header-cell"> ru_ref </th>
+            <th class="table__header-cell"> user_id </th>
+            <th class="table__header-cell"> submitted_at </th>
+            <th class="table__header-cell"> invalid </th>
+            <th class="table__header-cell" style="text-align: center;"> Reprocess <input type="checkbox" onchange="checkAll(this)" name="chk[]" /> </th>
+          </tr>
+        </thead>
+        <tbody>
+          <form id="reprocess-form" name='reprocess-form' class="form-horizontal" method='POST' action="/reprocess">
+            {% if data %}
+              {% for item in data.items %}
+                <tr class="table__row">
+                <td class="table__cell">{{ item.data.tx_id }}</td>
+                <td class="table__cell">{{ item.data.survey_id }}</td>
+                <td class="table__cell">{{ item.data.metadata.ru_ref }}</td>
+                <td class="table__cell">{{ item.data.metadata.user_id }}</td>
+                <td class="table__cell">{{ item.data.submitted_at }}</td>
+                <td class="table__cell">{{ item.data.invalid }}</td>
+                <td class="table__cell" style="text-align: center;">
+                  <input type="checkbox" name="reprocess-tx_id" value="{{ item.data.tx_id }}">
+                </td>
+                </tr>
+              {% endfor %}
+
+              {% for page in data.iter_pages(left_edge=3, right_edge=3, left_current=3, right_current=3) %}
+                {% if page %}
+                  {% if page != data.page %}
+                    <a href="{{ url_for('store_bp.store', page_num=page) }}?{{request.query_string.decode()}}">{{ page }} </a>
+                  {% else %}
+                    <strong> {{ page }} </strong>
+                  {% endif %}
+                {% else %}
+                  <span class=ellipsis>…</span>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <tbody>
+                  <tr class="table__row">
+                    <td class="table__cell"> Failed to retrieve data </td>
+                  </tr>
+              </tbody>
+            {% endif %}
+          </form>
+        </tbody>
+      </table>
+      <br>
+      <button class="btn btn-primary" form="reprocess-form" type="submit" style="float: right;">Reprocess</button>
+    </div>
+</div>
+{% endblock content %}
