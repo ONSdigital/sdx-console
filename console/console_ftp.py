@@ -73,7 +73,7 @@ class ConsoleFtp(object):
                 bits = unparsed_line.split()
                 meta = {}
                 try: # First we'll assume it's a windows based FTP server
-
+                    logger.info("inside the windows section")
                     date_string = ' '.join([bits[0], bits[1]])
                     modify = datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat()
                     fname = ' '.join(bits[3:])
@@ -82,7 +82,9 @@ class ConsoleFtp(object):
                         meta['modify'] = modify
                         meta['fname'] = ' '.join(bits[3:])
                         meta['size'] = int(bits[2])
+
                 except Exception: # We next test for a unix based FTP server
+                    logger.info ("Inside the unix section")
                     try:
                         date_string = ' '.join([bits[5], bits[6], bits[7]])
                         modify = datetime.strptime(date_string, '%b %d %H:%M').isoformat(),
@@ -92,6 +94,7 @@ class ConsoleFtp(object):
                             meta['name'] = fname,
                             meta['size'] = int(bits[4])
                     except Exception:
+                        logger.info("no idea where I am ;-;")
                         # If neither of the above work, we don't know what format the
                         # list is coming back in, and we just don't give any metadata
                         # and assume the name is the last element
@@ -100,11 +103,7 @@ class ConsoleFtp(object):
                         meta['size'] = 'N/A'
                         metadata_available = False
 
-
-                    meta = {
-                        'name': fname,
-                    }
-                    file_list.append(meta)
+                file_list.append(meta)
 
         if metadata_available:
             file_list.sort(key=operator.itemgetter('modify'), reverse=True)
