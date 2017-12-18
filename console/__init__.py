@@ -5,6 +5,7 @@ from flask import Flask
 from flask import session
 from flask_sqlalchemy import SQLAlchemy
 from structlog import wrap_logger
+from ftplib import FTP
 
 from console import settings
 
@@ -22,9 +23,19 @@ app.config['SECURITY_PASSWORD_HASH'] = settings.SECURITY_PASSWORD_HASH
 app.config['SECRET_KEY'] = settings.SECRET_KEY
 app.config['SECURITY_PASSWORD_SALT'] = settings.SECURITY_PASSWORD_SALT
 app.config['WTF_CSRF_ENABLED'] = False
-app.config['USE_MLSD'] = True
 app.config['DEVELOPMENT_MODE'] = settings.DEVELOPMENT_MODE
 db = SQLAlchemy(app)
+
+try:
+    logger.info("Checking if FTP server supports MLSD")
+    ftp = FTP(settings.FTP_HOST).login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
+    len([fname for fname, fmeta in ftp.mlsd(path=settings.SDX_FTP_DATA_PATH)])
+except Exception as e:
+    logger.info("MLSD command not availible in the FTP server, will use NLST instead", exception=e)
+    app.config['USE_MLSD'] = False
+else:
+    logger.info("MLSD will be used to communicate with the FTP server")
+    app.config['USE_MLSD'] = True
 
 
 @app.before_request
