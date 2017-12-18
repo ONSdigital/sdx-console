@@ -81,7 +81,7 @@ class ConsoleFtp(object):
                     try:
                         meta['modify'] = datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat()
                         meta['size'] = int(bits[2])
-                    except Exception as e:
+                    except Exception:
                         meta['modify'] = 'N/A'
                         meta['size'] = 'N/A'
                         metadata_available = False
