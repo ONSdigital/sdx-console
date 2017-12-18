@@ -56,12 +56,12 @@ class ConsoleFtp(object):
 
             Because of this, we can be fairly sure the filename is the last element, but
             nothing else.  Currently we deal with 2 different formats for 2 different servers
-            so we try the format most commonly used, and if that doesn't work (i.e., an Exception
+            so we try the 2 known formats, and if that doesn't work (i.e., an Exception
             is thrown because the datetime was in a different place) we catch the Exception
             and display N/A to the user because we can't be certain of what the format
-            will be; We could guess, but over time this would lead to multiple
-            if..elif..elif..else blocks where we repeatedly guess but this would be difficult
-            to maintain.  An error isn't logged, because if it happens once, it will happen
+            will be.
+
+            An error isn't logged in these exceptions because if it happens once, it will happen
             every time and will unlikely ever be changed so we won't flood the logs with
             needless messages.
             """
@@ -70,22 +70,39 @@ class ConsoleFtp(object):
 
             for unparsed_line in pre:
                 bits = unparsed_line.split()
-                date_string = ' '.join([bits[0], bits[1]])
-                fname = ' '.join(bits[3:])
-                # the isdigit() checks this is a file and a directory
-                if fname not in ('.', '..', '.DS_Store') and bits[2].isdigit():
-                    meta = {
-                        'name': fname,
-                    }
+                meta = {}
+                try: # First we'll assume it's a windows based FTP server
 
-                    try:
-                        meta['modify'] = datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat()
+                    date_string = ' '.join([bits[0], bits[1]])
+                    modify = datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat()
+                    fname = ' '.join(bits[3:])
+                    # If this works then we're on a windows based FTP server and can continue
+                    if fname not in ('.', '..', '.DS_Store') and bits[2].isdigit():
+                        meta['modify'] = modify
+                        meta['fname'] = ' '.join(bits[3:])
                         meta['size'] = int(bits[2])
+                except Exception: # We next test for a unix based FTP server
+                    try:
+                        date_string = ' '.join([bits[5], bits[6], bits[7]])
+                        modify = datetime.strptime(date_string, '%b %d %H:%M').isoformat(),
+                        fname = ' '.bits[-1]
+                        if fname not in ('.', '..', '.DS_Store') and bits[1].isdigit():
+                            meta['modify'] = modify
+                            meta['name'] = fname,
+                            meta['size'] = int(bits[4])
                     except Exception:
+                        # If neither of the above work, we don't know what format the
+                        # list is coming back in, and we just don't give any metadata
+                        # and assume the name is the last element
+                        meta['name'] = ' '.bits[-1]
                         meta['modify'] = 'N/A'
                         meta['size'] = 'N/A'
                         metadata_available = False
 
+
+                    meta = {
+                        'name': fname,
+                    }
                     file_list.append(meta)
 
         if metadata_available:
