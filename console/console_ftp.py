@@ -76,11 +76,11 @@ class ConsoleFtp(object):
                     logger.info("inside the windows section")
                     date_string = ' '.join([bits[0], bits[1]])
                     modify = datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat()
-                    fname = ' '.join(bits[3:])
+                    fname = bits[-1]
                     # If this works then we're on a windows based FTP server and can continue
                     if fname not in ('.', '..', '.DS_Store') and bits[2].isdigit():
                         meta['modify'] = modify
-                        meta['fname'] = ' '.join(bits[3:])
+                        meta['fname'] = fname
                         meta['size'] = int(bits[2])
 
                 except Exception: # We next test for a unix based FTP server
@@ -88,7 +88,7 @@ class ConsoleFtp(object):
                     try:
                         date_string = ' '.join([bits[5], bits[6], bits[7]])
                         modify = datetime.strptime(date_string, '%b %d %H:%M').isoformat(),
-                        fname = ' '.bits[-1]
+                        fname = bits[-1]
                         if fname not in ('.', '..', '.DS_Store') and bits[1].isdigit():
                             meta['modify'] = modify
                             meta['name'] = fname,
@@ -98,7 +98,7 @@ class ConsoleFtp(object):
                         # If neither of the above work, we don't know what format the
                         # list is coming back in, and we just don't give any metadata
                         # and assume the name is the last element
-                        meta['name'] = ' '.bits[-1]
+                        meta['name'] = bits[-1]
                         meta['modify'] = 'N/A'
                         meta['size'] = 'N/A'
                         metadata_available = False
