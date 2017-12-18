@@ -28,7 +28,8 @@ db = SQLAlchemy(app)
 
 try:
     logger.info("Checking if FTP server supports MLSD")
-    ftp = FTP(settings.FTP_HOST).login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
+    ftp = FTP(settings.FTP_HOST)
+    ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
     len([fname for fname, fmeta in ftp.mlsd(path=settings.SDX_FTP_DATA_PATH)])
 except Exception as e:
     logger.info("MLSD command not availible in the FTP server, will use NLST instead", exception=e)
