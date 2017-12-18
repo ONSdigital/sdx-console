@@ -32,7 +32,7 @@ try:
     ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
     len([fname for fname, fmeta in ftp.mlsd(path=settings.SDX_FTP_DATA_PATH)])
 except Exception as e:
-    logger.info("MLSD command not availible in the FTP server, will use NLST instead", exception=e)
+    logger.info("MLSD command not availible in the FTP server, will use LIST instead", exception=e)
     app.config['USE_MLSD'] = False
 else:
     logger.info("MLSD will be used to communicate with the FTP server")
