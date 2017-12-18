@@ -37,6 +37,7 @@ class ConsoleFtp(object):
     def get_folder_contents(self, path):
 
         file_list = []
+        metadata_available = True
 
         if self._mlsd_enabled:
             for fname, fmeta in self._ftp.mlsd(path=path):
@@ -49,8 +50,24 @@ class ConsoleFtp(object):
                     file_list.append(meta)
 
         else:
+            """ Parts of this block might look strange but are there for a good reason.
+            Using the LIST command (which is what .dir is doing), there is no standard
+            format the data will be returned in (one of the reasons mlsd was created).
+
+            Because of this, we can be fairly sure the filename is the last element, but
+            nothing else.  Currently we deal with 2 different formats for 2 different servers
+            so we try the format most commonly used, and if that doesn't work (i.e., an Exception
+            is thrown because the datetime was in a different place) we catch the Exception
+            and display N/A to the user because we can't be certain of what the format
+            will be; We could guess, but over time this would lead to multiple
+            if..elif..elif..else blocks where we repeatedly guess but this would be difficult
+            to maintain.  An error isn't logged, because if it happens once, it will happen
+            every time and will unlikely ever be changed so we won't flood the logs with
+            needless messages.
+            """
             pre = []
             self._ftp.dir("{}".format(path), pre.append)
+
             for unparsed_line in pre:
                 bits = unparsed_line.split()
                 date_string = ' '.join([bits[0], bits[1]])
@@ -59,12 +76,20 @@ class ConsoleFtp(object):
                 if fname not in ('.', '..', '.DS_Store') and bits[2].isdigit():
                     meta = {
                         'name': fname,
-                        'modify': datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat(),
-                        'size': int(bits[2])
                     }
+
+                    try:
+                        meta['modify'] = datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat()
+                        meta['size'] = int(bits[2])
+                    except Exception as e:
+                        meta['modify'] = 'N/A'
+                        meta['size'] = 'N/A'
+                        metadata_available = False
+
                     file_list.append(meta)
 
-        file_list.sort(key=operator.itemgetter('modify'), reverse=True)
+        if metadata_available:
+            file_list.sort(key=operator.itemgetter('modify'), reverse=True)
         return file_list
 
     """ Searches for a file in the FTP server and returns it in binary
