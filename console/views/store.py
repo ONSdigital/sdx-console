@@ -45,16 +45,12 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
             year = int(datetime_earliest[:4])
             month = int(datetime_earliest[5:7])
             day = int(datetime_earliest[8:10])
-            hour = int(datetime_earliest[11:13])
-            minute = int(datetime_earliest[14])
-            q = q.filter(dt_column > datetime(year, month, day, hour, minute))
+            q = q.filter(dt_column > datetime(year, month, day))
         if datetime_latest:
             year = int(datetime_latest[:4])
             month = int(datetime_latest[5:7])
             day = int(datetime_latest[8:10])
-            hour = int(datetime_latest[11:13])
-            minute = int(datetime_latest[14])
-            q = q.filter(dt_column < datetime(year, month, day, hour, minute))
+            q = q.filter(dt_column < datetime(year, month, day))
         filtered_data = q.paginate(per_page=TRANSACTIONS_PER_PAGE, page=page_num, error_out=True)
 
     except DataError as e:
@@ -122,9 +118,9 @@ def store(page_num):
     datetime_earliest_value = None
     datetime_latest_value = None
     if datetime_earliest:
-        datetime_earliest_value = datetime.strptime(datetime_earliest, '%Y-%m-%dT%H:%M')
+        datetime_earliest_value = datetime.strptime(datetime_earliest, '%Y-%m-%d')
     if datetime_latest:
-        datetime_latest_value = datetime.strptime(datetime_latest, '%Y-%m-%dT%H:%M')
+        datetime_latest_value = datetime.strptime(datetime_latest, '%Y-%m-%d')
 
     form = StoreForm(
         valid=valid,
