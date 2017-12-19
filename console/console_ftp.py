@@ -72,7 +72,6 @@ class ConsoleFtp(object):
                 bits = unparsed_line.split()
                 meta = {}
                 try: # First we'll assume it's a windows based FTP server
-                    logger.info("inside the windows section")
                     date_string = ' '.join([bits[0], bits[1]])
                     modify = datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat()
                     fname = bits[-1]
@@ -92,7 +91,6 @@ class ConsoleFtp(object):
                             meta['name'] = fname,
                             meta['size'] = int(bits[4])
                     except Exception:
-                        logger.info("no idea where I am ;-;")
                         # If neither of the above work, we don't know what format the
                         # list is coming back in, and we just don't give any metadata
                         # and assume the name is the last element
