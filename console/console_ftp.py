@@ -86,13 +86,13 @@ class ConsoleFtp(object):
                         modify = None
                         # bit[7] can be a year (2017) or a time (10:50) depending on the age of the file
                         if bits[7].isdigit():
-                            date_string = ' '.join(bits[7], [bits[5], bits[6]])
+                            date_string = ' '.join([bits[7], bits[5], bits[6]])
                             # Results in YYYY-MM-DDT00:00:00. Inaccurate, but iif the file is over a year old
                             # time is fairly unimportant.
                             modify = datetime.strptime(date_string, '%Y %b %d').isoformat()
                         else:
                             current_year = datetime.now().year
-                            date_string = ' '.join(current_year, [bits[5], bits[6], bits[7])
+                            date_string = ' '.join([current_year, bits[5], bits[6], bits[7]])
                             modify = datetime.strptime(date_string, '%Y %b %d %H:%M').isoformat()
 
                         fname = bits[-1]
