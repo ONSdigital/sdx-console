@@ -34,7 +34,6 @@ class ConsoleFtp(object):
         self._ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
         self._mlsd_enabled = app.config['USE_MLSD']
 
-
     def get_folder_contents(self, path):
         file_list = []
         metadata_available = True
@@ -71,7 +70,7 @@ class ConsoleFtp(object):
             for unparsed_line in pre:
                 bits = unparsed_line.split()
                 meta = {}
-                try: # First we'll assume it's a windows based FTP server
+                try:  # First we'll assume it's a windows based FTP server
                     date_string = ' '.join([bits[0], bits[1]])
                     modify = datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat()
                     fname = bits[-1]
@@ -80,7 +79,7 @@ class ConsoleFtp(object):
                         meta['name'] = fname
                         meta['size'] = int(bits[2])
 
-                except ValueError: # We next test for a unix based FTP server
+                except ValueError:  # We next test for a unix based FTP server
                     try:
                         modify = None
                         # bit[7] can be a year (2017) or a time (10:50) depending on the age of the file
