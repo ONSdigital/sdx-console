@@ -34,13 +34,18 @@ class ConsoleFtp(object):
         self._ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
         self._mlsd_enabled = app.config['USE_MLSD']
 
-    def get_folder_contents(self, path):
 
+    def get_folder_contents(self, path):
         file_list = []
         metadata_available = True
+        counter = 0;
 
         if self._mlsd_enabled:
             for fname, fmeta in self._ftp.mlsd(path=path):
+                # We only ever want the first 20 results parsed.  Hard coding it there
+                # to save time, but this can easily be made configurable.
+                if counter >= 20:
+                    break
                 if fname not in ('.', '..', '.DS_Store'):
                     meta = {
                         'name': fname,
@@ -48,6 +53,7 @@ class ConsoleFtp(object):
                         'size': fmeta['size']
                     }
                     file_list.append(meta)
+                counter += 1
 
         else:
             """ Parts of this block might look strange but are there for a good reason.
@@ -69,6 +75,10 @@ class ConsoleFtp(object):
             self._ftp.dir("{}".format(path), pre.append)
 
             for unparsed_line in pre:
+                # We only ever want the first 20 results parsed.  Hard coding it there
+                # to save time, but this can easily be made configurable.
+                if counter >= 20:
+                     break
                 bits = unparsed_line.split()
                 meta = {}
                 try: # First we'll assume it's a windows based FTP server
@@ -81,7 +91,7 @@ class ConsoleFtp(object):
                         meta['name'] = fname
                         meta['size'] = int(bits[2])
 
-                except Exception: # We next test for a unix based FTP server
+                except ValueError: # We next test for a unix based FTP server
                     try:
                         date_string = ' '.join([bits[5], bits[6], bits[7]])
                         modify = datetime.strptime(date_string, '%b %d %H:%M').isoformat(),
@@ -90,7 +100,7 @@ class ConsoleFtp(object):
                             meta['modify'] = modify
                             meta['name'] = fname,
                             meta['size'] = int(bits[4])
-                    except Exception:
+                    except ValueError:
                         # If neither of the above work, we don't know what format the
                         # list is coming back in, and we just don't give any metadata
                         # and assume the name is the last element
@@ -100,11 +110,11 @@ class ConsoleFtp(object):
                         metadata_available = False
 
                 file_list.append(meta)
+                counter += 1
 
         if metadata_available:
             file_list.sort(key=operator.itemgetter('modify'), reverse=True)
 
-        logger.info("file list returning now", list=file_list)
         return file_list
 
     """ Searches for a file in the FTP server and returns it in binary
