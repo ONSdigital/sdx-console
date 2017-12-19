@@ -103,10 +103,13 @@ class ConsoleFtp(object):
                         meta['size'] = 'N/A'
                         metadata_available = False
 
+                logger.info("Meta", data=meta)
                 file_list.append(meta)
 
         if metadata_available:
             file_list.sort(key=operator.itemgetter('modify'), reverse=True)
+
+        logger.info("file list returning now", list=file_list)
         return file_list
 
     """ Searches for a file in the FTP server and returns it in binary
