@@ -73,6 +73,7 @@ class ConsoleFtp(object):
             """
             pre = []
             self._ftp.dir("{}".format(path), pre.append)
+            pre = list(reversed(pre))
 
             for unparsed_line in pre:
                 # We only ever want the first 20 results parsed.  Hard coding it there
