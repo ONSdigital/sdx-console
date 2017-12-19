@@ -70,6 +70,7 @@ class ConsoleFtp(object):
 
             for unparsed_line in pre:
                 bits = unparsed_line.split()
+                logger.info("bits", array=bits)
                 meta = {}
                 try: # First we'll assume it's a windows based FTP server
                     date_string = ' '.join([bits[0], bits[1]])
@@ -104,6 +105,7 @@ class ConsoleFtp(object):
         if metadata_available:
             file_list.sort(key=operator.itemgetter('modify'), reverse=True)
 
+        logger.info("file list", list=file_list)
         return file_list
 
     """ Searches for a file in the FTP server and returns it in binary
