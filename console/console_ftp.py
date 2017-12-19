@@ -80,7 +80,7 @@ class ConsoleFtp(object):
                     # If this works then we're on a windows based FTP server and can continue
                     if fname not in ('.', '..', '.DS_Store') and bits[2].isdigit():
                         meta['modify'] = modify
-                        meta['fname'] = fname
+                        meta['name'] = fname
                         meta['size'] = int(bits[2])
 
                 except Exception: # We next test for a unix based FTP server
