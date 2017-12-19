@@ -92,7 +92,7 @@ class ConsoleFtp(object):
                             modify = datetime.strptime(date_string, '%Y %b %d').isoformat()
                         else:
                             current_year = datetime.now().year
-                            date_string = ' '.join([current_year, bits[5], bits[6], bits[7]])
+                            date_string = ' '.join([str(current_year), bits[5], bits[6], bits[7]])
                             modify = datetime.strptime(date_string, '%Y %b %d %H:%M').isoformat()
 
                         fname = bits[-1]
