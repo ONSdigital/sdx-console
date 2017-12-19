@@ -84,12 +84,14 @@ class ConsoleFtp(object):
 
                 except ValueError: # We next test for a unix based FTP server
                     try:
+                        logger.info("inside unix based ftp")
                         date_string = ' '.join([bits[5], bits[6], bits[7]])
                         modify = datetime.strptime(date_string, '%b %d %H:%M').isoformat(),
                         fname = bits[-1]
+                        logger.info("fname", name=fname, transformed=' '.join(bits[-1]), other=bits[8:])
                         if fname not in ('.', '..', '.DS_Store') and bits[1].isdigit():
                             meta['modify'] = modify
-                            meta['name'] = fname,
+                            meta['name'] = fname
                             meta['size'] = int(bits[4])
                     except ValueError:
                         # If neither of the above work, we don't know what format the
