@@ -75,7 +75,6 @@ class ConsoleFtp(object):
                     date_string = ' '.join([bits[0], bits[1]])
                     modify = datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat()
                     fname = bits[-1]
-                    # If this works then we're on a windows based FTP server and can continue
                     if fname not in ('.', '..', '.DS_Store') and bits[2].isdigit():
                         meta['modify'] = modify
                         meta['name'] = fname
@@ -87,7 +86,7 @@ class ConsoleFtp(object):
                         # bit[7] can be a year (2017) or a time (10:50) depending on the age of the file
                         if bits[7].isdigit():
                             date_string = ' '.join([bits[7], bits[5], bits[6]])
-                            # Results in YYYY-MM-DDT00:00:00. Inaccurate, but iif the file is over a year old
+                            # Results in YYYY-MM-DDT00:00:00. Inaccurate, but if the file is over a year old
                             # time is fairly unimportant.
                             modify = datetime.strptime(date_string, '%Y %b %d').isoformat()
                         else:
