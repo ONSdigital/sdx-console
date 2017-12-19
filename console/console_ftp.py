@@ -32,18 +32,11 @@ class ConsoleFtp(object):
     def __init__(self):
         self._ftp = FTP(settings.FTP_HOST)
         self._ftp.login(user=settings.FTP_USER, passwd=settings.FTP_PASS)
-        self._mlsd_enabled = True
-        try:
-            # Perform a simple mlsd test to see if the ftp server has the extra functionality:
-            len([fname for fname, fmeta in self._ftp.mlsd(path=PATHS['pck'])])
-        except Exception as e:
-            logger.error("Exception initialising consoleftp", exception=e)
-            app.config['USE_MLSD'] = False
-            self._mlsd_enabled = False
+        self._mlsd_enabled = app.config['USE_MLSD']
 
     def get_folder_contents(self, path):
-
         file_list = []
+        metadata_available = True
 
         if self._mlsd_enabled:
             for fname, fmeta in self._ftp.mlsd(path=path):
@@ -56,22 +49,69 @@ class ConsoleFtp(object):
                     file_list.append(meta)
 
         else:
+            """ Parts of this block might look strange but are there for a good reason.
+            Using the LIST command (which is what .dir is doing), there is no standard
+            format the data will be returned in (one of the reasons mlsd was created).
+
+            Because of this, we can be fairly sure the filename is the last element, but
+            nothing else.  Currently we deal with 2 different formats for 2 different servers
+            so we try the 2 known formats, and if that doesn't work (i.e., an Exception
+            is thrown because the datetime was in a different place) we catch the Exception
+            and display N/A to the user because we can't be certain of what the format
+            will be.
+
+            An error isn't logged in these exceptions because if it happens once, it will happen
+            every time and will unlikely ever be changed so we won't flood the logs with
+            needless messages.
+            """
             pre = []
             self._ftp.dir("{}".format(path), pre.append)
+
             for unparsed_line in pre:
                 bits = unparsed_line.split()
-                date_string = ' '.join([bits[0], bits[1]])
-                fname = ' '.join(bits[3:])
-                # the isdigit() checks this is a file and a directory
-                if fname not in ('.', '..', '.DS_Store') and bits[2].isdigit():
-                    meta = {
-                        'name': fname,
-                        'modify': datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat(),
-                        'size': int(bits[2])
-                    }
-                    file_list.append(meta)
+                meta = {}
+                try:  # First we'll assume it's a windows based FTP server
+                    date_string = ' '.join([bits[0], bits[1]])
+                    modify = datetime.strptime(date_string, '%m-%d-%y %I:%M%p').isoformat()
+                    fname = bits[-1]
+                    if fname not in ('.', '..', '.DS_Store') and bits[2].isdigit():
+                        meta['modify'] = modify
+                        meta['name'] = fname
+                        meta['size'] = int(bits[2])
 
-        file_list.sort(key=operator.itemgetter('modify'), reverse=True)
+                except ValueError:  # We next test for a unix based FTP server
+                    try:
+                        modify = None
+                        # bit[7] can be a year (2017) or a time (10:50) depending on the age of the file
+                        if bits[7].isdigit():
+                            date_string = ' '.join([bits[7], bits[5], bits[6]])
+                            # Results in YYYY-MM-DDT00:00:00. Inaccurate, but if the file is over a year old
+                            # time is fairly unimportant.
+                            modify = datetime.strptime(date_string, '%Y %b %d').isoformat()
+                        else:
+                            current_year = datetime.now().year
+                            date_string = ' '.join([str(current_year), bits[5], bits[6], bits[7]])
+                            modify = datetime.strptime(date_string, '%Y %b %d %H:%M').isoformat()
+
+                        fname = bits[-1]
+                        if fname not in ('.', '..', '.DS_Store') and bits[1].isdigit():
+                            meta['modify'] = modify
+                            meta['name'] = fname
+                            meta['size'] = int(bits[4])
+                    except ValueError:
+                        # If neither of the above work, we don't know what format the
+                        # list is coming back in, and we just don't give any metadata
+                        # and assume the name is the last element
+                        meta['name'] = bits[-1]
+                        meta['modify'] = 'N/A'
+                        meta['size'] = 'N/A'
+                        metadata_available = False
+
+                file_list.append(meta)
+
+        if metadata_available:
+            file_list.sort(key=operator.itemgetter('modify'), reverse=True)
+
         return file_list
 
     """ Searches for a file in the FTP server and returns it in binary
