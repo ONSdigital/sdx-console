@@ -69,7 +69,6 @@ class ConsoleFtp(object):
             self._ftp.dir("{}".format(path), pre.append)
 
             for unparsed_line in pre:
-                logger.info("Unparsed line", line=unparsed_line)
                 bits = unparsed_line.split()
                 meta = {}
                 try: # First we'll assume it's a windows based FTP server
@@ -84,7 +83,6 @@ class ConsoleFtp(object):
                         meta['size'] = int(bits[2])
 
                 except Exception: # We next test for a unix based FTP server
-                    logger.info ("Inside the unix section")
                     try:
                         date_string = ' '.join([bits[5], bits[6], bits[7]])
                         modify = datetime.strptime(date_string, '%b %d %H:%M').isoformat(),
@@ -103,7 +101,6 @@ class ConsoleFtp(object):
                         meta['size'] = 'N/A'
                         metadata_available = False
 
-                logger.info("Meta", data=meta)
                 file_list.append(meta)
 
         if metadata_available:
