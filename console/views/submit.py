@@ -92,7 +92,7 @@ def submit():
 
         for _ in range(0, no_of_submissions):
             # If submitting more than one then randomise the tx_id
-            if tx_id is not None:
+            if tx_id is None:
                 tx_id = str(uuid.uuid4())
                 unencrypted_json['survey']['tx_id'] = tx_id
                 logger.info("Auto setting tx_id", tx_id=tx_id)
