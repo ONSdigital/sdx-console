@@ -38,14 +38,9 @@ class ConsoleFtp(object):
     def get_folder_contents(self, path):
         file_list = []
         metadata_available = True
-        # counter = 0;
 
         if self._mlsd_enabled:
             for fname, fmeta in self._ftp.mlsd(path=path):
-                # We only ever want the first 20 results parsed.  Hard coding it there
-                # to save time, but this can easily be made configurable.
-                # if counter >= 20:
-                #     break
                 if fname not in ('.', '..', '.DS_Store'):
                     meta = {
                         'name': fname,
@@ -53,7 +48,6 @@ class ConsoleFtp(object):
                         'size': fmeta['size']
                     }
                     file_list.append(meta)
-                # counter += 1
 
         else:
             """ Parts of this block might look strange but are there for a good reason.
@@ -73,13 +67,8 @@ class ConsoleFtp(object):
             """
             pre = []
             self._ftp.dir("{}".format(path), pre.append)
-            pre = list(reversed(pre))
 
             for unparsed_line in pre:
-                # We only ever want the first 20 results parsed.  Hard coding it there
-                # to save time, but this can easily be made configurable.
-                # if counter >= 20:
-                #      break
                 bits = unparsed_line.split()
                 meta = {}
                 try: # First we'll assume it's a windows based FTP server
@@ -111,7 +100,6 @@ class ConsoleFtp(object):
                         metadata_available = False
 
                 file_list.append(meta)
-                # counter += 1
 
         if metadata_available:
             file_list.sort(key=operator.itemgetter('modify'), reverse=True)
