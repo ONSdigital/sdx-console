@@ -6,24 +6,54 @@
     <ul class="navigation-tabs navigation-tabs--component" role="tablist">
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
-        <a href="/FTP/pck"
-           class="btn btn--secondary btn--border navigation-tabs__tab">PCKs</a> </li>
+        {% if request.path in '/FTP/pck' %}
+          <a href="/FTP/pck"
+             class="btn btn--secondary navigation-tabs__tab">PCKs</a>
+        {% else %}
+          <a href="/FTP/pck"
+             class="btn btn--secondary btn--border navigation-tabs__tab">PCKs</a>
+        {% endif %}
+      </li>
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
+        {% if request.path in '/FTP/image' %}
         <a href="/FTP/image"
-           class="btn btn--secondary btn--border navigation-tabs__tab">Images</a> </li>
+           class="btn btn--secondary navigation-tabs__tab">Images</a>
+        {% else %}
+          <a href="/FTP/image"
+           class="btn btn--secondary btn--border navigation-tabs__tab">Images</a>
+        {% endif %}
+      </li>
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
+        {% if request.path in '/FTP/index' %}
         <a href="/FTP/index"
-           class="btn btn--secondary btn--border navigation-tabs__tab">Indices</a> </li>
+           class="btn btn--secondary navigation-tabs__tab">Indices</a>
+        {% else %}
+          <a href="/FTP/index"
+           class="btn btn--secondary btn--border navigation-tabs__tab">Indices</a>
+        {% endif %}
+      </li>
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
+        {% if request.path in '/FTP/receipt' %}
         <a href="/FTP/receipt"
-           class="btn btn--secondary btn--border navigation-tabs__tab">Receipts</a> </li>
+           class="btn btn--secondary navigation-tabs__tab">Receipts</a>
+        {% else %}
+          <a href="/FTP/receipt"
+           class="btn btn--secondary btn--border navigation-tabs__tab">Receipts</a>
+        {% endif %}
+      </li>
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
+        {% if request.path in '/FTP/json' %}
         <a href="/FTP/json"
-           class="btn btn--secondary btn--border navigation-tabs__tab">Original JSON</a> </li>
+           class="btn btn--secondary navigation-tabs__tab">Original JSON</a>
+        {% else %}
+          <a href="/FTP/json"
+           class="btn btn--secondary btn--border navigation-tabs__tab">Original JSON </a>
+        {% endif %}
+      </li>
     </ul>
 
     <div class="tab-content">
