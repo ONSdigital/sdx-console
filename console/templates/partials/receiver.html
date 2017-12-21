@@ -6,7 +6,7 @@
     <ul class="navigation-tabs navigation-tabs--component" role="tablist">
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
-        {% if request.path in '/FTP/pck' %}
+        {% if request.path == '/FTP/pck' %}
           <a href="/FTP/pck"
              class="btn btn--secondary navigation-tabs__tab">PCKs</a>
         {% else %}
@@ -16,8 +16,8 @@
       </li>
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
-        {% if request.path in '/FTP/image' %}
-        <a href="/FTP/image"
+        {% if request.path == '/FTP/image' %}
+          <a href="/FTP/image"
            class="btn btn--secondary navigation-tabs__tab">Images</a>
         {% else %}
           <a href="/FTP/image"
@@ -26,8 +26,8 @@
       </li>
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
-        {% if request.path in '/FTP/index' %}
-        <a href="/FTP/index"
+        {% if request.path == '/FTP/index' %}
+          <a href="/FTP/index"
            class="btn btn--secondary navigation-tabs__tab">Indices</a>
         {% else %}
           <a href="/FTP/index"
@@ -36,8 +36,8 @@
       </li>
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
-        {% if request.path in '/FTP/receipt' %}
-        <a href="/FTP/receipt"
+        {% if request.path == '/FTP/receipt' %}
+          <a href="/FTP/receipt"
            class="btn btn--secondary navigation-tabs__tab">Receipts</a>
         {% else %}
           <a href="/FTP/receipt"
@@ -46,8 +46,8 @@
       </li>
 
       <li class="navigation-tabs__item navigation-tabs__item--primary">
-        {% if request.path in '/FTP/json' %}
-        <a href="/FTP/json"
+        {% if request.path == '/FTP/json' %}
+          <a href="/FTP/json"
            class="btn btn--secondary navigation-tabs__tab">Original JSON</a>
         {% else %}
           <a href="/FTP/json"
