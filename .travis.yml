@@ -4,8 +4,10 @@ python:
 before_script:
   - pip install --upgrade pip
 install:
-  - pip install -r requirements.txt
+  - pip install codecov
+  - make build
   - pip install -r test_requirements.txt
 script:
   - make test
-  - coverage run -m unittest tests/*.py
+after_success:
+  - codecov

@@ -1,4 +1,3 @@
-from datetime import datetime
 import json
 import logging.handlers
 import os
@@ -36,11 +35,6 @@ def send_payload(payload, tx_id, no_of_submissions=1):
         publisher.publish_message(payload, headers={'tx_id': tx_id})
 
     logger.debug(" [x] Sent Payload to rabbitmq!")
-
-
-def mod_to_iso(file_modified):
-    t = datetime.strptime(file_modified, '%Y%m%d%H%M%S')
-    return t.isoformat()
 
 
 def send_data(logger, url, data=None, json=None, request_type="POST"):
