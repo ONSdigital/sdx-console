@@ -4,4 +4,3 @@ build:
 
 test:
 	pipenv run flake8 --exclude ./lib/*
-	pipenv run pytest -v --cov server

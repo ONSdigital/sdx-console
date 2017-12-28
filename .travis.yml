@@ -7,7 +7,5 @@ before_install:
 install:
   - pipenv install --dev --deploy
   - pipenv install codecov
-script:
-  - pipenv run pytest -v tests/ --cov=server --cov-report html
 after_success:
   - pipenv run codecov
