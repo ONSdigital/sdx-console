@@ -15,6 +15,7 @@ logger = wrap_logger(logging.getLogger(__name__))
 def localhost_to_submit():
     return redirect(url_for('submit_bp.submit'))
 
+
 if __name__ == '__main__':
     logger.info("Starting server: version='{}'".format(__version__))
     port = int(settings.PORT)
