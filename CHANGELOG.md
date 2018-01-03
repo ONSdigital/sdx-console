@@ -34,6 +34,7 @@
   - Add validation on tx_id search to force a valid UUID string to be entered
   - FTP files write to memory instead of writing temporary files
   - Add pagination in store data
+  - Remove /clear endpoint
   - Use pytest and codecov
   - Add tests to travis build
 

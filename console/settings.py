@@ -39,8 +39,6 @@ WTF_CSRF_ENABLED = False
 
 PORT = os.getenv("PORT", 5000)
 
-ENABLE_EMPTY_FTP = os.getenv('ENABLE_EMPTY_FTP', 0)
-
 HB_INTERVAL = os.getenv("HB_INTERVAL", 30)
 
 SDX_STORE_URL = os.getenv("SDX_STORE_URL", "http://sdx-store:5000/responses")

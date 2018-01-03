@@ -96,7 +96,7 @@ def submit():
 
         return data
     else:
-        return render_template('submit.html', enable_empty_ftp=settings.ENABLE_EMPTY_FTP)
+        return render_template('submit.html')
 
 
 @submit_bp.route('/validate', methods=['POST', 'GET'])
