@@ -149,6 +149,7 @@ def store(page_num):
 
 
 @store_bp.route('/storetest', strict_slashes=False, methods=['GET'])
+@flask_security.login_required
 def storetest():
     def create_test_data(number):
         test_data = json.dumps(

@@ -37,6 +37,7 @@ def ftp_pcks(datatype):
 
 
 @FTP_bp.route('/view/<datatype>/<filename>')
+@flask_security.login_required
 def view_file(datatype, filename):
     if filename.lower().endswith(('jpg', 'png')):
         extension = filename.split(".")[-1]

@@ -100,6 +100,7 @@ def submit():
 
 
 @submit_bp.route('/validate', methods=['POST', 'GET'])
+@flask_security.login_required
 def validate():
     if request.method == 'POST':
         payload = request.get_data()
