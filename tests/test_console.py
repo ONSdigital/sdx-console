@@ -95,14 +95,25 @@ class TestAuthentication(unittest.TestCase):
         self.postgres.stop()
 
     def login(self, email, password):
-        return self.app.post('/login',
-                             data=dict(email=email, password=password))
+        return self.app.post('/login', data={'email': email, 'password': password})
 
-    # def test_login_success(self):
-    #     self.login('admin', 'admin')
-    #     response = self.app.get('/submit', follow_redirects=True)
-    #     self.assertIn(b'Logged in as: admin', response.data)
-    #
+    # def login(self, email, password):
+    #     self.app.get('/login')
+    #     email = email or 'postgres'
+    #     password = password or 'secret'
+    #     return self.app.post('/login', data={'email': email, 'password': password}, follow_redirects=True)
+
+    def test_get_login_page(self):
+        response = self.app.get('/login', follow_redirects=True)
+        assert response.status_code == 200
+        self.assertIn(b'Email Address', response.data)
+
+    def test_login_success(self):
+        rv = self.login('admin', 'admin')
+        self.assertIn(b'You are not logged in', rv.data)
+        response = self.app.get('/submit', follow_redirects=True)
+        self.assertIn(b'Logged in as: admin', response.data)
+
     # def test_login_invalid_password(self):
     #     response = self.login('admin', 'passwrd')
     #     self.assertIn(b'Invalid password', response.data)
