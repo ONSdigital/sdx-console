@@ -161,19 +161,6 @@ $(function () {
         });
     });
 
-    $("#empty-ftp").on("click", function (event) {
-        $(".alert").hide();
-        if (window.confirm("Are you sure you want to clear the FTP?")) {
-            asyncGetJSON("/clear").then(function (data) {
-                location.reload();
-            }, function (error) {
-                $(".alert").removeClass("alert-success alert-danger hidden");
-                $(".alert").addClass("alert-danger").text("Error on emptying ftp");
-                $(".alert").show();
-            });
-        }
-    });
-
     var dataTypes = ["pck", "image", "index", "receipt", "json"];
     var currentUrl = window.location.href;
     var dataType = currentUrl.split("/").slice(-1)[0];
