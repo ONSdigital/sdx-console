@@ -88,7 +88,6 @@ class TestAuthentication(unittest.TestCase):
         Postgresql.clear_cache()
         self.app = server.app.test_client()
         self.app.testing = True
-        db.create_all()
         self.render_templates = False
 
     def tearDown(self):
@@ -150,7 +149,6 @@ class TestStore(unittest.TestCase):
         Postgresql.clear_cache()
         self.app = server.app.test_client()
         self.app.testing = True
-        db.create_all()
         self.render_templates = False
         TestAuthentication.login(self, 'admin', 'admin')
         submit_test_responses()
