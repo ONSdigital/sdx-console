@@ -7,7 +7,7 @@ import requests
 import testing.postgresql
 
 import server
-from console import app, settings
+from console import app
 from console import db
 from console import logger
 from console import views
@@ -84,11 +84,11 @@ def submit_test_responses():
 class TestAuthentication(unittest.TestCase):
 
     def setUp(self):
-        settings.DEVELOPMENT_MODE = True
         self.postgres = Postgresql()
         Postgresql.clear_cache()
         self.app = server.app.test_client()
         self.app.testing = True
+        db.create_all()
         self.render_templates = False
 
     def tearDown(self):
@@ -150,6 +150,7 @@ class TestStore(unittest.TestCase):
         Postgresql.clear_cache()
         self.app = server.app.test_client()
         self.app.testing = True
+        db.create_all()
         self.render_templates = False
         TestAuthentication.login(self, 'admin', 'admin')
         submit_test_responses()

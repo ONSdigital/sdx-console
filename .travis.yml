@@ -1,7 +1,9 @@
 language: python
 python:
+  - "3.6"
   - "3.5"
-before_script:
+sudo: required
+before_install:
   - pip install --upgrade pip
 install:
   - pip install codecov
@@ -9,5 +11,10 @@ install:
   - pip install -r test_requirements.txt
 script:
   - make test
+services:
+  - postgresql
+dist: trusty
 after_success:
   - codecov
+addons:
+  postgresql: "9.6"
