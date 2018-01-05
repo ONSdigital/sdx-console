@@ -1,8 +1,7 @@
 import unittest
-from unittest.mock import Mock
 
 import server
-from console.views.submit import list_surveys, send_payload, send_data
+from console.views.submit import list_surveys
 
 
 class TestConsoleSubmit(unittest.TestCase):
