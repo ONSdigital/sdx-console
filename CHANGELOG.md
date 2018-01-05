@@ -35,6 +35,8 @@
   - FTP files write to memory instead of writing temporary files
   - Add pagination in store data
   - Remove /clear endpoint
+  - Create database tables in development mode
+
 
 ### 1.7.0 2017-11-30
   - Deploying new console
