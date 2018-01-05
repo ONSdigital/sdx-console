@@ -170,6 +170,8 @@ def create_dev_user(email, password):
 
 @app.before_first_request
 def before_first_request():
+    logger.info('Dev mode', development_mode=settings.DEVELOPMENT_MODE)
     if settings.DEVELOPMENT_MODE:
+        db.create_all()
         create_initial_users()
         db.session.commit()
