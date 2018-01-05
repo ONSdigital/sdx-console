@@ -18,3 +18,5 @@ after_success:
   - codecov
 addons:
   postgresql: "9.6"
+env:
+  - DEVELOPMENT_MODE=True
