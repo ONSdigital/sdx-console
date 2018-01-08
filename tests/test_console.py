@@ -95,12 +95,18 @@ class TestAuthentication(unittest.TestCase):
         self.postgres.stop()
 
     def login(self, email, password):
-        return self.app.post('/login',
-                             data=dict(email=email, password=password))
+        return self.app.post('/login', data={'email': email, 'password': password})
+
+    def test_get_login_page(self):
+        response = self.app.get('/login', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Email Address', response.data)
 
     def test_login_success(self):
-        response = self.login('admin', 'admin')
-        self.assertIn(b'<a href="/">/</a>', response.data)
+        self.login('admin', 'admin')
+        response = self.app.get('/submit', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Logged in as: admin', response.data)
 
     def test_login_invalid_password(self):
         response = self.login('admin', 'passwrd')
@@ -111,18 +117,29 @@ class TestAuthentication(unittest.TestCase):
         self.assertIn(b'Specified user does not exist', response.data)
 
     def test_logout(self):
-        self.login('admin', 'admin')
         response = self.app.get('/logout', follow_redirects=True)
-        self.assertIn(b'log in', response.data)
+        self.assertIn(b'You are not logged in.', response.data)
+
+    def test_click_store_tab_require_login(self):
+        response = self.app.get('/store', follow_redirects=True)
+        self.assertIn(b'Please log in to access this page.', response.data)
+
+    def test_click_FTP_tab_require_login(self):
+        response = self.app.get('/FTP', follow_redirects=True)
+        self.assertIn(b'Please log in to access this page.', response.data)
+
+    def test_click_add_user_tab_require_login(self):
+        response = self.app.get('/add_user', follow_redirects=True)
+        self.assertIn(b'Please log in to access this page.', response.data)
 
     def test_admin_access_to_add_new_user(self):
         self.login('admin', 'admin')
-        response = self.app.get('/adduser', follow_redirects=True)
+        response = self.app.get('/add_user', follow_redirects=True)
         self.assertIn(b'Add a new SDX developer user', response.data)
 
     def test_admin_access_reject_to_add_new_user(self):
-        response = self.app.get('/adduser', follow_redirects=True)
-        self.assertIn(b'login', response.data)
+        response = self.app.get('/add_user', follow_redirects=True)
+        self.assertIn(b'Please log in to access this page.', response.data)
 
 
 class TestStore(unittest.TestCase):
@@ -142,34 +159,41 @@ class TestStore(unittest.TestCase):
 
     def test_display_data(self):
         response = self.app.get('/store', follow_redirects=True)
-        self.assertIn(b'f088d89d-a367-876e-f29f-ae8f1a260000', response.data)
+        self.assertIn(b'Logged in as:', response.data)
+        self.assertIn(b'Valid:', response.data)
 
-    def test_tx_id_search_success(self):
-        response = self.app.get('/store?tx_id=f088d89d-a367-876e-f29f-ae8f1a260000',
+    def test_search_all_success(self):
+        response = self.app.get('/store/page/1?tx_id=&ru_ref=&survey_id=&datetime_earliest=&datetime_latest=',
                                 follow_redirects=True)
-        self.assertIn(b'f088d89d-a367-876e-f29f-ae8f1a260000', response.data)
+        self.assertIn(b'tx_id', response.data)
+        self.assertIn(b'ru_ref', response.data)
+        self.assertIn(b'Reprocess', response.data)
 
     def test_tx_id_search_fail(self):
-        response = self.app.get('/store?tx_id=f088d89d-a367-876e-f29f-ae8f1a260001',
+        response = self.app.get('/store/page/1?tx_id=a000a00a-a000-000a-a00a-aa0a0a000000',
                                 follow_redirects=True)
-        self.assertNotIn(b'f088d89d-a367-876e-f29f-ae8f1a260000', response.data)
+        self.assertIn(b'tx_id: a000a00a-a000-000a-a00a-aa0a0a000000', response.data)
+        self.assertNotIn(b'reprocess-tx_id', response.data)
 
     def test_ru_ref_search_success(self):
-        response = self.app.get('/store?ru_ref=12345678901a',
+        response = self.app.get('/store/page/1?ru_ref=12345678901a',
                                 follow_redirects=True)
-        self.assertIn(b'f088d89d-a367-876e-f29f-ae8f1a260000', response.data)
+        self.assertIn(b'ru_ref: 12345678901a', response.data)
 
     def test_ru_ref_search_fail(self):
-        response = self.app.get('/store?ru_ref=12345678901f',
+        response = self.app.get('/store/page/1?ru_ref=12345678901f',
                                 follow_redirects=True)
-        self.assertNotIn(b'f088d89d-a367-876e-f29f-ae8f1a260000', response.data)
+        self.assertIn(b'ru_ref: 12345678901f', response.data)
+        self.assertNotIn(b'reprocess-tx_id', response.data)
 
     def test_datetime_search_success(self):
-        response = self.app.get('/store?datetime_earliest=2015-01-01T01%3A01&datetime_latest=2020-01-01T01%3A01',
+        response = self.app.get('/store/page/1?datetime_earliest=2015-01-01&datetime_latest=2020-01-01',
                                 follow_redirects=True)
-        self.assertIn(b'f088d89d-a367-876e-f29f-ae8f1a260000', response.data)
+        self.assertIn(b'reprocess-tx_id', response.data)
 
     def test_datetime_search_fail(self):
-        response = self.app.get('/store?datetime_earliest=2020-01-01T01%3A01&datetime_latest=2020-01-01T01%3A01',
+        response = self.app.get('/store/page/1?datetime_earliest=2020-01-01&datetime_latest=2020-01-01',
                                 follow_redirects=True)
-        self.assertNotIn(b'f088d89d-a367-876e-f29f-ae8f1a260000', response.data)
+        self.assertIn(b'datetime_earliest: 2020-01-01', response.data)
+        self.assertIn(b'datetime_latest: 2020-01-01', response.data)
+        self.assertNotIn(b'reprocess-tx_id', response.data)

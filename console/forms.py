@@ -1,13 +1,13 @@
 import re
 import uuid
 
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, RadioField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Length, ValidationError
 
 
-class NewUserForm(Form):
+class NewUserForm(FlaskForm):
     email = StringField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired(), Length(min=8)])
 
@@ -28,7 +28,7 @@ class NewUserForm(Form):
             raise ValidationError(msg)
 
 
-class StoreForm(Form):
+class StoreForm(FlaskForm):
     valid = RadioField('valid', choices=[('', 'Both'), ('valid', 'Valid'), ('invalid', 'Invalid')])
     tx_id = StringField('tx_id')
     ru_ref = StringField('ru_ref')

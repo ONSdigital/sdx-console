@@ -1,4 +1,3 @@
-from datetime import datetime
 import base64
 import logging.handlers
 
@@ -11,11 +10,6 @@ from console.console_ftp import ConsoleFtp, PATHS
 logger = wrap_logger(logging.getLogger(__name__))
 
 FTP_bp = Blueprint('FTP_bp', __name__, static_folder='static', template_folder='templates')
-
-
-def mod_to_iso(file_modified):
-    t = datetime.strptime(file_modified, '%Y%m%d%H%M%S')
-    return t.isoformat()
 
 
 def get_file_contents(datatype, filename):
@@ -43,6 +37,7 @@ def ftp_pcks(datatype):
 
 
 @FTP_bp.route('/view/<datatype>/<filename>')
+@flask_security.login_required
 def view_file(datatype, filename):
     if filename.lower().endswith(('jpg', 'png')):
         extension = filename.split(".")[-1]
