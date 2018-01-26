@@ -12,7 +12,7 @@ from console import db
 from console import logger
 from console import views
 from console.helpers.exceptions import ClientError, ServiceError
-from console.models import SurveyResponse
+from console.models import SurveyResponse, create_initial_users
 
 
 class TestConsole(unittest.TestCase):
@@ -55,9 +55,6 @@ class TestConsole(unittest.TestCase):
                 views.submit.send_data(logger, "", data=123)
 
 
-Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=False)
-
-
 def get_test_data():
     site_root = os.path.realpath(os.path.dirname(__file__))
     json_url = os.path.join(site_root, 'test_data', 'test_response_1.json')
@@ -81,18 +78,23 @@ def submit_test_responses():
             db.session.commit()
 
 
+@testing.postgresql.skipIfNotInstalled
 class TestAuthentication(unittest.TestCase):
 
     def setUp(self):
-        self.postgres = Postgresql()
-        Postgresql.clear_cache()
         self.app = server.app.test_client()
         self.app.testing = True
         self.render_templates = False
 
+        with app.app_context():
+            db.create_all()
+            create_initial_users()
+            db.session.commit()
+
     def tearDown(self):
-        Postgresql.clear_cache()
-        self.postgres.stop()
+        with app.app_context():
+            db.session.remove()
+            db.drop_all()
 
     def login(self, email, password):
         return self.app.post('/login', data={'email': email, 'password': password})
@@ -142,20 +144,26 @@ class TestAuthentication(unittest.TestCase):
         self.assertIn(b'Please log in to access this page.', response.data)
 
 
+@testing.postgresql.skipIfNotInstalled
 class TestStore(unittest.TestCase):
 
     def setUp(self):
-        self.postgres = Postgresql()
-        Postgresql.clear_cache()
         self.app = server.app.test_client()
         self.app.testing = True
         self.render_templates = False
+
+        with app.app_context():
+            db.create_all()
+            create_initial_users()
+            db.session.commit()
+
         TestAuthentication.login(self, 'admin', 'admin')
         submit_test_responses()
 
     def tearDown(self):
-        Postgresql.clear_cache()
-        self.postgres.stop()
+        with app.app_context():
+            db.session.remove()
+            db.drop_all()
 
     def test_display_data(self):
         response = self.app.get('/store', follow_redirects=True)
