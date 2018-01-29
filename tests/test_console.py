@@ -6,6 +6,7 @@ from unittest import mock
 import requests
 import testing.postgresql
 
+import console.settings
 import server
 from console import app
 from console import db
@@ -13,6 +14,11 @@ from console import logger
 from console import views
 from console.helpers.exceptions import ClientError, ServiceError
 from console.models import SurveyResponse, create_initial_users
+
+# Generate temporary database
+Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=False)
+postgresql = Postgresql()
+console.settings.DB_URI = postgresql.url()
 
 
 class TestConsole(unittest.TestCase):
@@ -92,9 +98,8 @@ class TestAuthentication(unittest.TestCase):
             db.session.commit()
 
     def tearDown(self):
-        with app.app_context():
-            db.session.remove()
-            db.drop_all()
+        Postgresql.clear_cache()
+        postgresql.stop()
 
     def login(self, email, password):
         return self.app.post('/login', data={'email': email, 'password': password})
@@ -161,9 +166,8 @@ class TestStore(unittest.TestCase):
         submit_test_responses()
 
     def tearDown(self):
-        with app.app_context():
-            db.session.remove()
-            db.drop_all()
+        Postgresql.clear_cache()
+        postgresql.stop()
 
     def test_display_data(self):
         response = self.app.get('/store', follow_redirects=True)
