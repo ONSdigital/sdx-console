@@ -38,6 +38,7 @@
   - Remove /clear endpoint
   - Use pytest and codecov
   - Add tests to travis build
+  - Updated unit tests to use an in memory database
 
 
 ### 1.7.0 2017-11-30
