@@ -6,19 +6,16 @@ from unittest import mock
 import requests
 import testing.postgresql
 
-import console.settings
-import server
 from console import app
 from console import db
 from console import logger
 from console import views
 from console.helpers.exceptions import ClientError, ServiceError
 from console.models import SurveyResponse, create_initial_users
+import console.settings
+import server
 
-# Generate temporary database
 Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=False)
-postgresql = Postgresql()
-console.settings.DB_URI = postgresql.url()
 
 
 class TestConsole(unittest.TestCase):
@@ -91,6 +88,9 @@ class TestAuthentication(unittest.TestCase):
         self.app = server.app.test_client()
         self.app.testing = True
         self.render_templates = False
+        self.postgresql = Postgresql()
+        console.settings.DB_URI = self.postgresql.url()
+        app.config['SQLALCHEMY_DATABASE_URI'] = console.settings.DB_URI
 
         with app.app_context():
             db.create_all()
@@ -99,7 +99,7 @@ class TestAuthentication(unittest.TestCase):
 
     def tearDown(self):
         Postgresql.clear_cache()
-        postgresql.stop()
+        self.postgresql.stop()
 
     def login(self, email, password):
         return self.app.post('/login', data={'email': email, 'password': password})
@@ -156,6 +156,9 @@ class TestStore(unittest.TestCase):
         self.app = server.app.test_client()
         self.app.testing = True
         self.render_templates = False
+        self.postgresql = Postgresql()
+        console.settings.DB_URI = self.postgresql.url()
+        app.config['SQLALCHEMY_DATABASE_URI'] = console.settings.DB_URI
 
         with app.app_context():
             db.create_all()
@@ -167,7 +170,7 @@ class TestStore(unittest.TestCase):
 
     def tearDown(self):
         Postgresql.clear_cache()
-        postgresql.stop()
+        self.postgresql.stop()
 
     def test_display_data(self):
         response = self.app.get('/store', follow_redirects=True)
