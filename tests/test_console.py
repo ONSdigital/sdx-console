@@ -15,6 +15,7 @@ from console.models import SurveyResponse, create_initial_users
 import console.settings
 import server
 
+
 Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=False)
 
 
