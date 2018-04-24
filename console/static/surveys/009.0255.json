@@ -32,7 +32,6 @@
     },
     "origin": "uk.gov.ons.edc.eq",
     "submitted_at": "2017-07-05T14:49:33.448608+00:00",
-    "tx_id": "8b85f822-f6fe-4f23-b97d-dc48291cf6dc",
     "type": "uk.gov.ons.edc.eq:surveyresponse",
     "version": "0.0.1",
     "survey_id": "009"

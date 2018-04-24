@@ -166,60 +166,60 @@ $(function () {
     var dataType = currentUrl.split("/").slice(-1)[0];
     // <host>/FTP will load pck data
     if (dataType === "FTP") { dataType = "pck"; }
-    if ( dataTypes.includes(dataType) ) {
-      $("#" + dataType + "-data > tbody > tr").on("click", function (event) {
-          var filename = $(event.target).closest("tr").attr("id");
-          $("#contentModal .modal-title").text(filename);
-          asyncGet("/view/" + dataType + "/" + filename).then(function (data) {
-              $("#contentModal .modal-body").html(data);
-              $("#contentModal").modal("show");
-          }, function (error) {
-              console.error("FTP failed!", error);
-          });
-      });
+    if (dataTypes.includes(dataType)) {
+        $("#" + dataType + "-data > tbody > tr").on("click", function (event) {
+            var filename = $(event.target).closest("tr").attr("id");
+            $("#contentModal .modal-title").text(filename);
+            asyncGet("/view/" + dataType + "/" + filename).then(function (data) {
+                $("#contentModal .modal-body").html(data);
+                $("#contentModal").modal("show");
+            }, function (error) {
+                console.error("FTP failed!", error);
+            });
+        });
     }
 
     // on page load stuff:
 
-    asyncGet("/static/surveys/023.0102.json").then(function (response) {
+    asyncGet("/static/surveys/009.0255.json").then(function (response) {
         $("#post-data").text(response);
     }, function (error) {
         console.error("Failed loading survey 023.0102!", error);
     });
 
     // Consider putting this javascript into it's own file loaded by the submit page.
-    if ( currentUrl.endsWith("/submit")) {
-      asyncGetJSON("/surveys").then(function (surveys) {
-          for (var i = 0; i < surveys.length; i++) {
-              $("#survey-selector")
-                  .append($("<option>", {value: surveys[i]})
-                      .text(surveys[i]));
-          }
-      }, function (error) {
-          console.error("Failed loading surveys!", error);
-      });
+    if (currentUrl.endsWith("/submit")) {
+        asyncGetJSON("/surveys").then(function (surveys) {
+            for (var i = 0; i < surveys.length; i++) {
+                $("#survey-selector")
+                    .append($("<option>", { value: surveys[i] })
+                        .text(surveys[i]));
+            }
+        }, function (error) {
+            console.error("Failed loading surveys!", error);
+        });
     }
 
-    $("#refresh-ftp").click(function(){
+    $("#refresh-ftp").click(function () {
         location.reload();
     });
 });
 
 
-    function checkAll(ele) {
-        var checkboxes = document.getElementsByTagName('input');
-        if (ele.checked) {
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].type == 'checkbox') {
-                    checkboxes[i].checked = true;
-                }
+function checkAll(ele) {
+    var checkboxes = document.getElementsByTagName('input');
+    if (ele.checked) {
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].type == 'checkbox') {
+                checkboxes[i].checked = true;
             }
-        } else {
-            for (var i = 0; i < checkboxes.length; i++) {
-                console.log(i)
-                if (checkboxes[i].type == 'checkbox') {
-                    checkboxes[i].checked = false;
-                }
+        }
+    } else {
+        for (var i = 0; i < checkboxes.length; i++) {
+            console.log(i)
+            if (checkboxes[i].type == 'checkbox') {
+                checkboxes[i].checked = false;
             }
         }
     }
+}
