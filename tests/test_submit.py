@@ -13,14 +13,24 @@ class TestConsoleSubmit(unittest.TestCase):
 
     def test_list_surveys(self):
         response = list_surveys()
-        surveys = ['023.0102.json', '023.0112.json', '023.0203.json',
-                   '023.0205.json', '023.0213.json', '023.0215.json',
-                   '134.0005.json', '139.0001.json', '144.0001.json']
+        surveys = [
+            "009.0255.json",
+            "023.0102.json",
+            "023.0112.json",
+            "023.0203.json",
+            "023.0205.json",
+            "023.0213.json",
+            "023.0215.json",
+            "134.0005.json",
+            "139.0001.json",
+            "144.0001.json",
+        ]
+
         self.assertEqual(surveys, response)
 
     def test_list_surveys_get(self):
-        response = self.app.get('/surveys', follow_redirects=True)
-        self.assertIn(b'023.0102.json', response.data)
-        self.assertIn(b'023.0112.json', response.data)
-        self.assertIn(b'023.0203.json', response.data)
-        self.assertIn(b'023.0205.json', response.data)
+        response = self.app.get("/surveys", follow_redirects=True)
+        self.assertIn(b"023.0102.json", response.data)
+        self.assertIn(b"023.0112.json", response.data)
+        self.assertIn(b"023.0203.json", response.data)
+        self.assertIn(b"023.0205.json", response.data)
