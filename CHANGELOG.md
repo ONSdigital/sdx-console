@@ -1,4 +1,5 @@
 ### Unreleased
+  - Add MBS JSON
   - Log version number on startup, at info level
   - Add configurable log level
   - Add change log
