@@ -40,6 +40,7 @@
   - Use pytest and codecov
   - Add tests to travis build
   - Updated unit tests to use an in memory database
+  - Remove second rabbit host for aws
 
 
 ### 1.7.0 2017-11-30
