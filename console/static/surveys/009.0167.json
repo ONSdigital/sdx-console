@@ -24,6 +24,7 @@
         "user_id": "UNKNOWN"
     },
     "origin": "uk.gov.ons.edc.eq",
+    "started_at": "2017-07-05T10:54:11.548611+00:00",
     "submitted_at": "2017-07-05T14:49:33.448608+00:00",
     "type": "uk.gov.ons.edc.eq:surveyresponse",
     "version": "0.0.1",
