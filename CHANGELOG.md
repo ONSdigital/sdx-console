@@ -1,5 +1,4 @@
 ### Unreleased
-  - Add MBS JSON
   - Log version number on startup, at info level
   - Add configurable log level
   - Add change log
@@ -41,6 +40,7 @@
   - Add tests to travis build
   - Updated unit tests to use an in memory database
   - Remove second rabbit host for aws
+  - Add MBS json 167, 201, 255
 
 
 ### 1.7.0 2017-11-30
