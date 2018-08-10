@@ -15,6 +15,7 @@ class TestConsoleSubmit(unittest.TestCase):
         response = list_surveys()
         surveys = [
             "009.0167.json",
+            "009.0201.json",
             "009.0255.json",
             "023.0102.json",
             "023.0112.json",
