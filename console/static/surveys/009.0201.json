@@ -25,6 +25,7 @@
     "submitted_at":"2018-08-08T11:41:46.463875+00:00",
     "survey_id":"009",
     "tx_id":"9db49fb8-4bcc-4615-b42c-b2ab80b234b8",
+    "case_id": "4c0bc9ec-06d4-4f66-88b6-2e42b79f17b3",
     "type":"uk.gov.ons.edc.eq:surveyresponse",
     "version":"0.0.1"
 }
