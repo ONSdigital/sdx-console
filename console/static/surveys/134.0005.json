@@ -2,6 +2,7 @@
    "origin":"uk.gov.ons.edc.eq",
    "survey_id":"134",
    "tx_id":"40e659ec-013f-4993-9a31-ec1e0ad37888",
+   "case_id": "4c0bc9ec-06d4-4f66-88b6-2e42b79f17b3",
    "data":{  
       "133w":"Weekly",
       "134f":"Fortnightly",

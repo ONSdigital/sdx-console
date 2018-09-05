@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "origin": "uk.gov.ons.edc.eq",
   "survey_id": "023",
+  "case_id": "4c0bc9ec-06d4-4f66-88b6-2e42b79f17b3",
   "collection": {
     "exercise_sid": "hfjdskf",
     "instrument_id": "0112",
