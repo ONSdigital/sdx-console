@@ -28,6 +28,7 @@ class TestConsoleSubmit(unittest.TestCase):
             "139.0001.json",
             "144.0001.json",
             "lms.1.json",
+            "lms.2.json",
         ]
 
         self.assertEqual(surveys, response)
@@ -38,3 +39,4 @@ class TestConsoleSubmit(unittest.TestCase):
         self.assertIn(b"023.0112.json", response.data)
         self.assertIn(b"023.0203.json", response.data)
         self.assertIn(b"023.0205.json", response.data)
+        self.assertIn(b"lms.2.json", response.data)
