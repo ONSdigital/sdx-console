@@ -29,6 +29,7 @@ class TestConsoleSubmit(unittest.TestCase):
             "144.0001.json",
             "lms.1.json",
             "lms.2.json",
+            "lms.feedback.json",
         ]
 
         self.assertEqual(surveys, response)
