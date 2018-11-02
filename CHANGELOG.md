@@ -41,7 +41,8 @@
   - Updated unit tests to use an in memory database
   - Remove second rabbit host for aws
   - Add MBS json 167, 201, 255
-
+  - Added D-Trades json
+  - Disable browser caching of sample submission data
 
 ### 1.7.0 2017-11-30
   - Deploying new console

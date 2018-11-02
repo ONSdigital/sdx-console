@@ -24,6 +24,7 @@ app.config['SECRET_KEY'] = settings.SECRET_KEY
 app.config['SECURITY_PASSWORD_SALT'] = settings.SECURITY_PASSWORD_SALT
 app.config['WTF_CSRF_ENABLED'] = False
 app.config['DEVELOPMENT_MODE'] = settings.DEVELOPMENT_MODE
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 db = SQLAlchemy(app)
 
 try:
