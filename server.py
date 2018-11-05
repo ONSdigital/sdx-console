@@ -18,4 +18,4 @@ def localhost_to_submit():
 if __name__ == '__main__':
     logger.info("Starting server: version='{}'".format(__version__))
     port = int(settings.PORT)
-    app.run(debug=True, host='0.0.0.0', port=port)
+    app.run(debug=True, host='0.0.0.0', port=port, threaded=True)
