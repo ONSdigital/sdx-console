@@ -1,0 +1,23 @@
+{% import 'partials/section.html' as section %}
+{% extends "layouts/_twocol.html" %}
+
+{% block page_title %} SEFT {% endblock %}
+
+
+{% block content %}
+
+  {% include 'partials/navigation_tabs.html' %}
+
+  <div class="container">
+    <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+    <form method=POST enctype=multipart/form-data>
+      <input type="file" name="file">
+      <input type="submit" value="Upload">
+    </form>
+  </div>
+
+{% endblock content %}
