@@ -213,3 +213,8 @@ class TestStore(unittest.TestCase):
         self.assertIn(b'datetime_earliest: 2020-01-01', response.data)
         self.assertIn(b'datetime_latest: 2020-01-01', response.data)
         self.assertNotIn(b'reprocess-tx_id', response.data)
+
+    def test_seft_get(self):
+        response = self.app.get('/SEFT', follow_redirects=True)
+        self.assertIn(b'SEFT', response.data)
+        self.assertIn(b'<form method=POST enctype=multipart/form-data>', response.data)

@@ -55,6 +55,7 @@ SDX_RESPONSE_JSON_PATH = os.getenv("SDX_RESPONSE_JSON_PATH", "EDC_QJson")
 
 
 RABBIT_QUEUE = os.getenv('RABBIT_SURVEY_QUEUE', 'survey')
+SEFT_CONSUMER_RABBIT_QUEUE = os.getenv('SEFT_CONSUMER_RABBIT_QUEUE', 'Seft.Responses')
 
 if os.getenv("CF_DEPLOYMENT", False):
     vcap_services = os.getenv("VCAP_SERVICES")
