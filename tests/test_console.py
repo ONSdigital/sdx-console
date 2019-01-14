@@ -73,7 +73,7 @@ def submit_test_responses():
     with app.app_context():
         for response in responses_json:
             tx_id = response['tx_id']
-            invalid = 'f'
+            invalid = False
             data = response
             response_data = SurveyResponse(tx_id=tx_id,
                                            invalid=invalid,
