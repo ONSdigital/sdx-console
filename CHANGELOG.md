@@ -1,4 +1,5 @@
 ### Unreleased
+  - modified 144.0002 data (UKIS NI) to have elements 0440 and 2671
   - Log version number on startup, at info level
   - Add configurable log level
   - Add change log
