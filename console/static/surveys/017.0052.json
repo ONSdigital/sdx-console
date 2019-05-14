@@ -15,7 +15,9 @@
 	},
 	"flushed": false,
 	"metadata": {
-		"ru_ref": "25463341690b",
+		"ref_period_end_date": "2019-02-01",
+		"ref_period_start_date": "2019-04-30",
+		"ru_ref": "25463341690B",
 		"user_id": "UNKNOWN"
 	},
 	"origin": "uk.gov.ons.edc.eq",
