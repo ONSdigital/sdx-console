@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 2.0.0 2019-06-20
   - Added SEFT tab
   - Updated sdc-rabbit to allow use with python 3.7
   - modified 144.0002 data (UKIS NI) to have elements 0440 and 2671
