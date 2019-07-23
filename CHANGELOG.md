@@ -1,4 +1,5 @@
 ### Unreleased
+  - Update sdc-cryptography to 0.4.0
 
 ### 2.0.0 2019-06-20
   - Added SEFT tab
