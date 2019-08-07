@@ -8,7 +8,6 @@ from wtforms.validators import DataRequired, Length, ValidationError
 
 
 class NewUserForm(FlaskForm):
-    
     email = StringField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired(), Length(min=8)])
 
