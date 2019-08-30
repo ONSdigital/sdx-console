@@ -1,5 +1,7 @@
 ### Unreleased
   - Update sdc-cryptography to 0.4.0
+  - Update sdc-rabbit to 1.7.0 to fix reconnection issues
+  - Update various other dependencies
 
 ### 2.0.0 2019-06-20
   - Added SEFT tab

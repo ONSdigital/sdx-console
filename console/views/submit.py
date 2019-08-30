@@ -28,13 +28,13 @@ def list_surveys():
 
 
 def send_payload(payload, tx_id, no_of_submissions=1):
-    logger.debug(" [x] Sending encrypted Payload")
+    logger.info("Sending encrypted Payload", tx_id=tx_id)
 
     publisher = QueuePublisher(settings.RABBIT_URLS, settings.RABBIT_QUEUE)
     for _ in range(no_of_submissions):
         publisher.publish_message(payload, headers={'tx_id': tx_id})
 
-    logger.debug(" [x] Sent Payload to rabbitmq!")
+    logger.info("Sent Payload to rabbitmq", tx_id=tx_id)
 
 
 def send_data(logger, url, data=None, json=None, request_type="POST"):
@@ -71,7 +71,7 @@ def submit():
     if request.method == 'POST':
         data = request.get_data().decode('UTF8')
 
-        logger.debug(" [x] Encrypting data")
+        logger.info("Encrypting data")
 
         unencrypted_json = json.loads(data)
 
@@ -105,12 +105,10 @@ def validate():
     if request.method == 'POST':
         payload = request.get_data()
 
-        logger.debug("Validating json...")
-
-        logger.debug("Validate URL: {}".format(settings.SDX_VALIDATE_URL))
-
+        logger.info("Validating json", url=settings.SDX_VALIDATE_URL)
         r = requests.post(settings.SDX_VALIDATE_URL, data=payload)
-
+        r.raise_for_status()
+        logger.info("Successfully validated json", url=settings.SDX_VALIDATE_URL)
         return jsonify(json.loads(r.text))
     else:
         logger.info('Failed validation')

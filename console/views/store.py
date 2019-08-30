@@ -53,24 +53,21 @@ def get_filtered_responses(logger, valid, tx_id, ru_ref, survey_id, datetime_ear
             q = q.filter(dt_column < datetime(year, month, day))
         filtered_data = q.paginate(per_page=TRANSACTIONS_PER_PAGE, page=page_num, error_out=True)
 
-    except DataError as e:
-        logger.error("Invalid search term", error=e)
+    except DataError:
+        logger.exception("Invalid search term")
         return []
-    except SQLAlchemyError as e:
-        logger.error("Database error", error=e)
+    except SQLAlchemyError:
+        logger.exception("Database error")
         return []
 
     return filtered_data
 
 
 def reprocess(tx_id):
-    logger.debug('Reprocess function')
-    publisher = QueuePublisher(
-        settings.RABBIT_URLS,
-        'sdx-survey-notification-durable'
-    )
-
+    logger.info('Reprocessing submission', tx_id=tx_id)
+    publisher = QueuePublisher(settings.RABBIT_URLS, 'sdx_downstream')
     publisher.publish_message(tx_id, headers={'tx_id': tx_id})
+    logger.info('Successfully reprocessed submission', tx_id=tx_id)
 
 
 @store_bp.route('/reprocess', strict_slashes=False, methods=['POST'])
@@ -79,9 +76,9 @@ def reprocess_submission():
     tx_ids = request.form.getlist('reprocess-tx_id')
     data = []
     for tx_id in tx_ids:
-        logger.debug('Begin reprocessing tx_id: {}'.format(tx_id))
         data.append(tx_id)
         reprocess(tx_id)
+    logger.info('Finished reprocessing submissions', no_of_submissions=len(tx_ids))
 
     return render_template('reprocess.html', data=data)
 
