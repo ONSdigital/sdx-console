@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 2.0.1 2019-11-08
   - Add python 3.8 to travis build
   - Update sdc-cryptography to 0.4.0
   - Update sdc-rabbit to 1.7.0 to fix reconnection issues
