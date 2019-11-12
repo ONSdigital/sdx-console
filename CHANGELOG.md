@@ -1,5 +1,7 @@
 ### Unreleased
-  - Add example submissions for E-commerce formtypes 0001 and 0002
+  - Add example submissions for E-commerce formtype 0001
+
+### 2.0.1 2019-11-08
   - Add python 3.8 to travis build
   - Update sdc-cryptography to 0.4.0
   - Update sdc-rabbit to 1.7.0 to fix reconnection issues
