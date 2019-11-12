@@ -37,6 +37,7 @@ class TestConsoleSubmit(unittest.TestCase):
             "160.0002.json",
             "165.0002.json",
             "169.0003.json",
+            "187.0001.json",
             "187.0051.json",
             "281.0001.json",
             "lms.1.json",
