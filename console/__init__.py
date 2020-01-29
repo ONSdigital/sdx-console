@@ -10,7 +10,7 @@ from ftplib import FTP
 from console import settings
 
 
-__version__ = "2.0.1"
+__version__ = "2.1.0"
 logging.basicConfig(format=settings.LOGGING_FORMAT,
                     datefmt="%Y-%m-%dT%H:%M:%S",
                     level=settings.LOGGING_LEVEL)
