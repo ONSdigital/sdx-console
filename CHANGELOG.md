@@ -1,4 +1,5 @@
 ### Unreleased
+  - Update Vacancies survey examples
 
 ### 2.1.0 2020-01-30
   - Add example submissions for E-commerce formtype 0001
