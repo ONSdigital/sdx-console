@@ -1,11 +1,11 @@
 {
     "collection": {
-        "exercise_sid": "c118471e-f243-484b-ba16-9f78a244c465",
-        "instrument_id": "0001",
+        "exercise_sid": "c850b18a-9488-4ee3-9b6c-6a37acb19c18",
+        "instrument_id": "0005",
         "period": "2001"
     },
     "data": {
-        "10": "30",
+        "10": "60",
         "146": "This is a comment"
     },
     "flushed": false,
@@ -20,6 +20,6 @@
     "submitted_at": "2020-01-05T14:49:33.448608+00:00",
     "type": "uk.gov.ons.edc.eq:surveyresponse",
     "version": "0.0.1",
-    "survey_id": "182",
-    "case_id": "4d32d367-d725-49ba-8776-a14f5ae035ee"
+    "survey_id": "185",
+    "case_id": "20ca055e-f7d9-42f8-9f69-d29b31a7965d"
 }
