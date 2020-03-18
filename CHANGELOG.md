@@ -1,4 +1,5 @@
 ### Unreleased
+  - Update QBS example survey with new comment field
   - Update Vacancies survey examples
 
 ### 2.1.0 2020-01-30
