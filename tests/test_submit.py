@@ -44,6 +44,7 @@ class TestConsoleSubmit(unittest.TestCase):
             "187.0001.json",
             "187.0051.json",
             "281.0001.json",
+            "283.0001.json",
             "lms.1.json",
             "lms.2.json",
             "lms.feedback.json",
