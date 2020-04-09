@@ -21,7 +21,9 @@
     "901": "Yes, I can report for this period",
     "902": "Yes, we carried out work on housing",
     "903": "Yes, we carried out work on infrastructure",
-    "904": "Yes, we carried out other construction work"
+    "904": "Yes, we carried out other construction work",
+    "d1":"['Public sector projects', 'Private sector projects']",
+    "d2":"['Public sector projects', 'Private commercial sector projects', 'Private industrial sector projects']"
   },
   "flushed": false,
   "metadata": {
