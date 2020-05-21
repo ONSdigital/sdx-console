@@ -1,13 +1,13 @@
 ### Unreleased
+
+### 2.1.0 2020-05-21
+  - Add example submissions for E-commerce formtype 0001
+  - Add example submissions for Vacancies
   - Add construction example survey
   - Add corvid-19 example survey
   - Update QBS example survey with new comment field
   - Update Vacancies survey examples
   - Updated packages
-
-### 2.1.0 2020-01-30
-  - Add example submissions for E-commerce formtype 0001
-  - Add example submissions for Vacancies
 
 ### 2.0.1 2019-11-08
   - Add python 3.8 to travis build
