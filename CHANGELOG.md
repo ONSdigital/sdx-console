@@ -1,5 +1,6 @@
 ### Unreleased
   - Add construction example for formtype 0002
+  - Remove Cloudfoundry deployment files
 
 ### 2.1.0 2020-05-21
   - Add example submissions for E-commerce formtype 0001
