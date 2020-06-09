@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 2.2.0 2020-06-09
   - Add construction example for formtype 0002
   - Remove Cloudfoundry deployment files
 
@@ -6,7 +8,7 @@
   - Add example submissions for E-commerce formtype 0001
   - Add example submissions for Vacancies
   - Add construction example survey
-  - Add corvid-19 example survey
+  - Add covid-19 example survey
   - Update QBS example survey with new comment field
   - Update Vacancies survey examples
   - Updated packages
