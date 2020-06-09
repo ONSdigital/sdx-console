@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 
@@ -11,22 +10,16 @@ LOGGING_FORMAT = "%(asctime)s.%(msecs)06dZ|%(levelname)s: sdx-console: %(message
 logger = wrap_logger(logging.getLogger(__name__))
 DEVELOPMENT_MODE = os.getenv('DEVELOPMENT_MODE', False)
 
-if os.getenv("CF_DEPLOYMENT", False):
-    vcap_services = os.getenv("VCAP_SERVICES")
-    parsed_vcap_services = json.loads(vcap_services)
-    rds_config = parsed_vcap_services.get('rds')
-    DB_URI = rds_config[0].get('credentials').get('uri')
-else:
-    DB_HOST = os.getenv('SDX_CONSOLE_POSTGRES_HOST', '0.0.0.0')
-    DB_PORT = os.getenv('SDX_CONSOLE_POSTGRES_PORT', '5432')
-    DB_NAME = os.getenv('SDX_CONSOLE_POSTGRES_NAME', 'postgres')
-    DB_USER = os.getenv('SDX_CONSOLE_POSTGRES_USER', 'postgres')
-    DB_PASSWORD = os.getenv('SDX_CONSOLE_POSTGRES_PASSWORD', 'secret')
-    DB_URI = 'postgresql://{}:{}@{}:{}/{}'.format(DB_USER,
-                                                  DB_PASSWORD,
-                                                  DB_HOST,
-                                                  DB_PORT,
-                                                  DB_NAME)
+DB_HOST = os.getenv('SDX_CONSOLE_POSTGRES_HOST', '0.0.0.0')
+DB_PORT = os.getenv('SDX_CONSOLE_POSTGRES_PORT', '5432')
+DB_NAME = os.getenv('SDX_CONSOLE_POSTGRES_NAME', 'postgres')
+DB_USER = os.getenv('SDX_CONSOLE_POSTGRES_USER', 'postgres')
+DB_PASSWORD = os.getenv('SDX_CONSOLE_POSTGRES_PASSWORD', 'secret')
+DB_URI = 'postgresql://{}:{}@{}:{}/{}'.format(DB_USER,
+                                              DB_PASSWORD,
+                                              DB_HOST,
+                                              DB_PORT,
+                                              DB_NAME)
 
 SECURITY_PASSWORD_HASH = os.getenv('CONSOLE_PASSWORD_HASH', 'bcrypt')
 SECRET_KEY = os.getenv('CONSOLE_SECRET_KEY', 'secretwords')
@@ -57,20 +50,13 @@ SDX_RESPONSE_JSON_PATH = os.getenv("SDX_RESPONSE_JSON_PATH", "EDC_QJson")
 RABBIT_QUEUE = os.getenv('RABBIT_SURVEY_QUEUE', 'survey')
 SEFT_CONSUMER_RABBIT_QUEUE = os.getenv('SEFT_CONSUMER_RABBIT_QUEUE', 'Seft.Responses')
 
-if os.getenv("CF_DEPLOYMENT", False):
-    vcap_services = os.getenv("VCAP_SERVICES")
-    parsed_vcap_services = json.loads(vcap_services)
-    rabbit_config = parsed_vcap_services.get('rabbitmq')
 
-    RABBIT_URL = rabbit_config[0].get('credentials').get('uri')
-    RABBIT_URL2 = rabbit_config[1].get('credentials').get('uri') if len(rabbit_config) > 1 else RABBIT_URL
-else:
-    RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
-        hostname=os.getenv('RABBITMQ_HOST', 'rabbit'),
-        port=os.getenv('RABBITMQ_PORT', 5672),
-        user=os.getenv('RABBITMQ_DEFAULT_USER', 'rabbit'),
-        password=os.getenv('RABBITMQ_DEFAULT_PASS', 'rabbit'),
-        vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
-    )
+RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
+    hostname=os.getenv('RABBITMQ_HOST', 'rabbit'),
+    port=os.getenv('RABBITMQ_PORT', 5672),
+    user=os.getenv('RABBITMQ_DEFAULT_USER', 'rabbit'),
+    password=os.getenv('RABBITMQ_DEFAULT_PASS', 'rabbit'),
+    vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
+)
 
 RABBIT_URLS = [RABBIT_URL]
