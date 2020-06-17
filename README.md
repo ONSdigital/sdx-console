@@ -18,13 +18,14 @@ It's also best to use `pyenv` and `pyenv-virtualenv`, to build in a virtual envi
 
 To install, set your Python version using pyenv or similar, and run:
 ```
-make build
+$ make build
 ```
 
 To test, first run `make build` as above, then run:
 ```
-make test
+$ make test
 ```
+
 Alternatively, the `sdx-compose` repo allows you to spin up a local test environment for the whole ``sdx-`` suite of services. For more information, refer to the README in `sdx-compose`.
 
 ## Usage
