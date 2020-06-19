@@ -7,19 +7,25 @@ The Survey Data Exchange (SDX) Console is a component of the Office of National 
 Should only be deployed on-demand as required in an environment.
 
 ## Installation
-This application presently doesn't use a virtual environment, and installs required packages from requirements files:
-- `requirements.txt`: packages for the application  
+This application presently installs required packages from requirements files:
+- `requirements.txt`: packages for the application, with hashes for all packages: see https://pypi.org/project/hashin/ 
 - `test-requirements.txt`: packages for testing and linting
+
+It's also best to use `pyenv` and `pyenv-virtualenv`, to build in a virtual environment with the currently recommended version of Python.  To install these, see:
+- https://github.com/pyenv/pyenv
+- https://github.com/pyenv/pyenv-virtualenv
+- (Note that the homebrew version of `pyenv` is easiest to install, but can lag behind the latest release of Python.)
 
 To install, set your Python version using pyenv or similar, and run:
 ```
-make build
+$ make build
 ```
 
 To test, first run `make build` as above, then run:
 ```
-make test
+$ make test
 ```
+
 Alternatively, the `sdx-compose` repo allows you to spin up a local test environment for the whole ``sdx-`` suite of services. For more information, refer to the README in `sdx-compose`.
 
 ## Usage
