@@ -1,5 +1,4 @@
 {
-  "submission": {
     "case_id": "45b217eb-013a-4a47-84bd-d8ce905ee9b9",
     "collection": {
       "exercise_sid": "6a3ddb62-f46b-440b-8a92-91723b4c102c",
@@ -34,5 +33,4 @@
     "tx_id": "372d2b4a-3bee-41ee-9630-43cb8185316e",
     "type": "uk.gov.ons.edc.eq:surveyresponse",
     "version": "0.0.1"
-  }
 }
