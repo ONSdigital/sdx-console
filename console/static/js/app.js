@@ -181,10 +181,10 @@ $(function () {
 
     // on page load stuff:
 
-    asyncGet("/static/surveys/009.0167.json").then(function (response) {
+    asyncGet("/static/surveys/007.0009.json").then(function (response) {
         $("#post-data").text(response);
     }, function (error) {
-        console.error("Failed loading survey 009.0167!", error);
+        console.error("Failed loading survey 007.0009!", error);
     });
 
     // Consider putting this javascript into it's own file loaded by the submit page.
